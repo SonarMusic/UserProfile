@@ -18,9 +18,10 @@ public class UserRepository : IUserRepository
         var entity = await _context.Users
             .FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
+        //TODO: добавить класс эксешенов и мидлварки
         if (entity is null)
         {
-            return null;
+            throw new Exception($"User with id = {id} does not exists");
         }
 
         return new User
@@ -62,8 +63,12 @@ public class UserRepository : IUserRepository
         var entity =
             await _context.Users.FirstOrDefaultAsync(it => it.Id == user.Id, cancellationToken);
 
-        if (entity != null)
-            entity.Password = user.Password;
+        if (entity is null)
+        {
+            throw new Exception($"User with id = {user.Id} does not exists");
+        }
+
+        entity.Password = user.Password;
 
         await _context.SaveChangesAsync(cancellationToken);
     }
@@ -72,10 +77,12 @@ public class UserRepository : IUserRepository
     {
         var entity = await _context.Users.FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
-        if (entity is not null)
+        if (entity is null)
         {
-            _context.Users.Remove(entity);
+            throw new Exception($"User with id = {id} does not exists");
         }
+
+        _context.Users.Remove(entity);
 
         await _context.SaveChangesAsync(cancellationToken);
     }
