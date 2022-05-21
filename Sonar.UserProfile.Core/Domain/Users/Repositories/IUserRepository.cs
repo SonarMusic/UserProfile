@@ -2,9 +2,9 @@
 
 public interface IUserRepository
 {
-    Task<User> GetById(Guid id, CancellationToken cancellationToken);
-    Task<IReadOnlyList<User>> GetAll(CancellationToken cancellationToken);
-    Task<Guid> Create(User user, CancellationToken cancellationToken);
-    Task Update(User user, CancellationToken cancellationToken);
-    Task Delete(Guid id, CancellationToken cancellationToken);
+    Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken);
+    Task<Guid> CreateAsync(User user, CancellationToken cancellationToken);
+    Task UpdateAsync(User user, CancellationToken cancellationToken);
+    Task DeleteAsync(Guid id, CancellationToken cancellationToken);
 }

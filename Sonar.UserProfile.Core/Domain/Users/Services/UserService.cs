@@ -12,16 +12,11 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<User> GetById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetById(id, cancellationToken);
+        var user = await _userRepository.GetByIdAsync(id, cancellationToken);
         
         // TODO: Добавить валидатор.
-        if (user.Token is null)
-        {
-            throw new Exception("This user is logged out.");
-        }
-        
         if (user.Token.ExpirationDate < DateTime.UtcNow)
         {
             throw new Exception("Token has expired.");
@@ -30,9 +25,25 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task Login(User user, CancellationToken cancellationToken = default)
+    public async Task<Guid> RegisterAsync(User user, CancellationToken cancellationToken)
     {
-        var savedUser = await _userRepository.GetById(user.Id, cancellationToken);
+        user.Id = Guid.NewGuid();
+        
+        const int tokenLifeDays = 7;
+        user.Token = new Token
+        {
+            Id = Guid.NewGuid(),
+            ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
+        };
+
+        await _userRepository.CreateAsync(user, cancellationToken);
+
+        return user.Id;
+    }
+
+    public async Task LoginAsync(User user, CancellationToken cancellationToken = default)
+    {
+        var savedUser = await _userRepository.GetByIdAsync(user.Id, cancellationToken);
 
         if (savedUser.Password != user.Password)
         {
@@ -41,26 +52,29 @@ public class UserService : IUserService
 
         // TODO: Пуcть какой-то провайдер поставляет дни для жизни токена, а не магическое число.
         const int tokenLifeDays = 7;
-        savedUser.Token = new Token { ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays) };
+        savedUser.Token = new Token
+        {
+            Id = Guid.NewGuid(),
+            ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
+        };
 
-        await _userRepository.Update(savedUser, cancellationToken);
+        await _userRepository.UpdateAsync(savedUser, cancellationToken);
     }
 
-    public async Task Logout(Guid id, CancellationToken cancellationToken = default)
+    public async Task LogoutAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetById(id, cancellationToken);
-        
-        if (user.Token is null)
-        {
-            throw new Exception("This user is already logged out.");
-        }
-        
+        var user = await _userRepository.GetByIdAsync(id, cancellationToken);
+
         if (user.Token.ExpirationDate < DateTime.UtcNow)
         {
             throw new Exception($"Token has expired {user.Token.ExpirationDate}.");
         }
 
-        user.Token.ExpirationDate = DateTime.UtcNow;
-        await _userRepository.Update(user, cancellationToken);
+        user.Token = new Token
+        {
+            Id = Guid.NewGuid(),
+            ExpirationDate = DateTime.UtcNow
+        };
+        await _userRepository.UpdateAsync(user, cancellationToken);
     }
 }

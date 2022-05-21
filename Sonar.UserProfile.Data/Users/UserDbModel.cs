@@ -6,6 +6,6 @@ namespace Sonar.UserProfile.Data.Users
     {
         public Guid Id { get; set; }
         public string Password { get; set; }
-        public Token Token { get; set; }
+        public virtual Token Token { get; set; }
     }
 }

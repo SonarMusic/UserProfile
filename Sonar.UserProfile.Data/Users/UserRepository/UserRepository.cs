@@ -13,7 +13,7 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<User> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var entity = await _context.Users.AsNoTracking()
             .FirstOrDefaultAsync(it => it.Id == id, cancellationToken: cancellationToken);
@@ -30,7 +30,7 @@ public class UserRepository : IUserRepository
         };
     }
 
-    public async Task<IReadOnlyList<User>> GetAll(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken)
     {
         var users = await _context.Users.AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
 
@@ -41,7 +41,7 @@ public class UserRepository : IUserRepository
         });
     }
 
-    public async Task<Guid> Create(User user, CancellationToken cancellationToken)
+    public async Task<Guid> CreateAsync(User user, CancellationToken cancellationToken)
     {
         var entity = new UserDbModel
         {
@@ -53,7 +53,7 @@ public class UserRepository : IUserRepository
         return entity.Id;
     }
 
-    public async Task Update(User user, CancellationToken cancellationToken)
+    public async Task UpdateAsync(User user, CancellationToken cancellationToken)
     {
         var entity = await _context.Users.FirstOrDefaultAsync(it => it.Id == user.Id, cancellationToken: cancellationToken);
 
@@ -61,7 +61,7 @@ public class UserRepository : IUserRepository
             entity.Password = user.Password;
     }
 
-    public async Task Delete(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var entity = await _context.Users.FirstOrDefaultAsync(it => it.Id == id);
 
