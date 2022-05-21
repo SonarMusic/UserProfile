@@ -12,9 +12,9 @@ namespace Sonar.UserProfile.Data
 
         public SonarContext(DbContextOptions options, IConfiguration configuration) : base(options)
         {
-            ConnectionString =
-                Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    configuration["SQLiteConnectionString"]);
+            ConnectionString = configuration["SQLiteConnectionString"];
+            
+            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -24,6 +24,12 @@ namespace Sonar.UserProfile.Data
             optionsBuilder.UseLazyLoadingProxies();
             optionsBuilder.LogTo(Console.WriteLine);
             base.OnConfiguring(optionsBuilder);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserDbModel>().HasOne(u => u.Token);
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

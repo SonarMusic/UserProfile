@@ -15,8 +15,8 @@ public class UserRepository : IUserRepository
 
     public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _context.Users.AsNoTracking()
-            .FirstOrDefaultAsync(it => it.Id == id, cancellationToken: cancellationToken);
+        var entity = await _context.Users
+            .FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
         if (entity is null)
         {
@@ -26,18 +26,20 @@ public class UserRepository : IUserRepository
         return new User
         {
             Id = entity.Id,
-            Password = entity.Password
+            Password = entity.Password,
+            Token = entity.Token
         };
     }
 
     public async Task<IReadOnlyList<User>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var users = await _context.Users.AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
+        var users = await _context.Users.ToListAsync(cancellationToken);
 
         return (IReadOnlyList<User>)users.Select(entity => new User()
         {
             Id = entity.Id,
-            Password = entity.Password
+            Password = entity.Password,
+            Token = entity.Token
         });
     }
 
@@ -47,27 +49,34 @@ public class UserRepository : IUserRepository
         {
             Id = Guid.NewGuid(),
             Password = user.Password,
+            Token = user.Token
         };
 
         await _context.Users.AddAsync(entity, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return entity.Id;
     }
 
     public async Task UpdateAsync(User user, CancellationToken cancellationToken)
     {
-        var entity = await _context.Users.FirstOrDefaultAsync(it => it.Id == user.Id, cancellationToken: cancellationToken);
+        var entity =
+            await _context.Users.FirstOrDefaultAsync(it => it.Id == user.Id, cancellationToken);
 
-        if (entity != null) 
+        if (entity != null)
             entity.Password = user.Password;
+
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var entity = await _context.Users.FirstOrDefaultAsync(it => it.Id == id);
+        var entity = await _context.Users.FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
         if (entity is not null)
         {
             _context.Users.Remove(entity);
         }
+
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

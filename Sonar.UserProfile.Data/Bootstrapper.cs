@@ -14,8 +14,7 @@ public static class Bootstrapper
 
         services.AddDbContext<SonarContext>(options => options
             .UseLazyLoadingProxies()
-            .UseSqlite(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                configuration["SQLiteConnectionString"])));
+            .UseSqlite(configuration["SQLiteConnectionString"]));
         return services;
     }
 }
