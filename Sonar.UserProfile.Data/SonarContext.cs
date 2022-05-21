@@ -12,8 +12,8 @@ namespace Sonar.UserProfile.Data
 
         public SonarContext(DbContextOptions options, IConfiguration configuration) : base(options)
         {
-            ConnectionString = configuration["SQLiteConnectionString"];
-            
+            ConnectionString = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                configuration["SQLiteConnectionString"]);
             Database.EnsureCreated();
         }
 
