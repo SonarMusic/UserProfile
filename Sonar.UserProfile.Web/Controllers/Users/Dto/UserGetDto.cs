@@ -1,8 +1,8 @@
 ﻿using Sonar.UserProfile.Core.Domain.ValueObjects;
 
-namespace Sonar.UserProfile.Core.Domain.Users;
+namespace Sonar.UserProfile.Web.Controllers.Users.Dto;
 
-public class User
+public class UserGetDto
 {
     public Guid Id { get; set; }
     public string Password { get; set; }

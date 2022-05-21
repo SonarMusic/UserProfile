@@ -18,12 +18,12 @@ public class UserController : ControllerBase
 
 
     [HttpPatch("login")]
-    public Task Login(UserDto userDto, CancellationToken cancellationToken = default)
+    public Task Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
     {
         var user = new User
         {
-            Id = userDto.Id,
-            Password = userDto.Password
+            Id = userLoginDto.Id,
+            Password = userLoginDto.Password
         };
 
         return _userService.Login(user, cancellationToken);
@@ -36,14 +36,15 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<UserDto> Get(Guid id, CancellationToken cancellationToken = default)
+    public async Task<UserGetDto> Get(Guid id, CancellationToken cancellationToken = default)
     {
-        var userProfileDto = await _userService.GetById(id, cancellationToken);
+        var user = await _userService.GetById(id, cancellationToken);
 
-        return new UserDto
+        return new UserGetDto()
         {
-            Id = userProfileDto.Id,
-            Password = userProfileDto.Password
+            Id = user.Id,
+            Password = user.Password,
+            Token = user.Token
         };
     }
 }
