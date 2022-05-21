@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Sonar.UserProfile.Core\Sonar.UserProfile.Core.csproj" />
+      <ProjectReference Include="..\Sonar.UserProfile.Data\Sonar.UserProfile.Data.csproj" />
     </ItemGroup>
 
 </Project>
