@@ -28,7 +28,6 @@ namespace Sonar.UserProfile.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserDbModel>().HasOne(u => u.Token);
             base.OnModelCreating(modelBuilder);
         }
     }

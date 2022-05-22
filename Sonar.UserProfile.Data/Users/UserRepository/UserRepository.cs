@@ -27,8 +27,7 @@ public class UserRepository : IUserRepository
         return new User
         {
             Id = entity.Id,
-            Password = entity.Password,
-            Token = entity.Token
+            Password = entity.Password
         };
     }
 
@@ -39,8 +38,7 @@ public class UserRepository : IUserRepository
         return (IReadOnlyList<User>)users.Select(entity => new User()
         {
             Id = entity.Id,
-            Password = entity.Password,
-            Token = entity.Token
+            Password = entity.Password
         });
     }
 
@@ -48,9 +46,8 @@ public class UserRepository : IUserRepository
     {
         var entity = new UserDbModel
         {
-            Id = Guid.NewGuid(),
-            Password = user.Password,
-            Token = user.Token
+            Id = user.Id,
+            Password = user.Password
         };
 
         await _context.Users.AddAsync(entity, cancellationToken);

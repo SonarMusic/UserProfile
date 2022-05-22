@@ -1,7 +1,9 @@
-﻿namespace Sonar.UserProfile.Core.Domain.ValueObjects;
+﻿using Sonar.UserProfile.Core.Domain.Users;
+
+namespace Sonar.UserProfile.Core.Domain.ValueObjects;
 
 public class Token
 {
-    public Guid Id { get; set; }
+    public User User { get; set; }
     public DateTime ExpirationDate { get; set; }
 }

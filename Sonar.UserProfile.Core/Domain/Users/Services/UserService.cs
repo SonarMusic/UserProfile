@@ -1,4 +1,5 @@
-﻿using Sonar.UserProfile.Core.Domain.Users.Repositories;
+﻿using System.Text.Json;
+using Sonar.UserProfile.Core.Domain.Users.Repositories;
 using Sonar.UserProfile.Core.Domain.ValueObjects;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
@@ -12,36 +13,42 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<User> GetByIdAsync(string stringToken, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByIdAsync(id, cancellationToken);
-        
-        // TODO: Добавить валидатор.
-        if (user.Token.ExpirationDate < DateTime.UtcNow)
+        var token = JsonSerializer.Deserialize<Token>(stringToken);
+
+        if (token is null)
         {
-            throw new Exception("Token has expired.");
+            throw new Exception("Incorrect token");
         }
+        
+        if (token.ExpirationDate < DateTime.UtcNow)
+        {
+            throw new Exception($"Token has expired {token.ExpirationDate}");
+        }
+        
+        var user = await _userRepository.GetByIdAsync(token.User.Id, cancellationToken);
 
         return user;
     }
 
-    public async Task<Guid> RegisterAsync(User user, CancellationToken cancellationToken)
+    public async Task<string> RegisterAsync(User user, CancellationToken cancellationToken)
     {
         user.Id = Guid.NewGuid();
         
         const int tokenLifeDays = 7;
-        user.Token = new Token
+        var token = new Token
         {
-            Id = Guid.NewGuid(),
+            User = user,
             ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
         };
 
         await _userRepository.CreateAsync(user, cancellationToken);
 
-        return user.Id;
+        return JsonSerializer.Serialize(token);
     }
 
-    public async Task LoginAsync(User user, CancellationToken cancellationToken = default)
+    public async Task<string> LoginAsync(User user, CancellationToken cancellationToken = default)
     {
         var savedUser = await _userRepository.GetByIdAsync(user.Id, cancellationToken);
 
@@ -52,29 +59,23 @@ public class UserService : IUserService
 
         // TODO: Пуcть какой-то провайдер поставляет дни для жизни токена, а не магическое число.
         const int tokenLifeDays = 7;
-        savedUser.Token = new Token
+        var token = new Token
         {
-            Id = Guid.NewGuid(),
+            User = user,
             ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
         };
 
-        await _userRepository.UpdateAsync(savedUser, cancellationToken);
+        return JsonSerializer.Serialize(token);
     }
 
-    public async Task LogoutAsync(Guid id, CancellationToken cancellationToken = default)
+    public string Logout(User user, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByIdAsync(id, cancellationToken);
-
-        if (user.Token.ExpirationDate < DateTime.UtcNow)
+        var token = new Token
         {
-            throw new Exception($"Token has expired {user.Token.ExpirationDate}.");
-        }
-
-        user.Token = new Token
-        {
-            Id = Guid.NewGuid(),
+            User = user,
             ExpirationDate = DateTime.UtcNow
         };
-        await _userRepository.UpdateAsync(user, cancellationToken);
+
+        return JsonSerializer.Serialize(token);
     }
 }

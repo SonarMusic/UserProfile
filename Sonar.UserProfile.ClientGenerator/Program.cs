@@ -3,6 +3,7 @@ using NSwag.CodeGeneration.CSharp;
 
 
 Console.WriteLine("Enter path to where you want to save generated file");
+// "E:\ITMO prog\Prog\C#\Sonar.UserProfile\Sonar.UserProfile.Client\UserClient.cs"
 string filePath = Console.ReadLine();
 
 System.Net.WebClient wclient = new System.Net.WebClient();

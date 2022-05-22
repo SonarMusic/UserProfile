@@ -2,8 +2,8 @@
 
 public interface IUserService
 {
-    Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-    Task<Guid> RegisterAsync(User user, CancellationToken cancellationToken);
-    Task LoginAsync(User user, CancellationToken cancellationToken);
-    Task LogoutAsync(Guid id, CancellationToken cancellationToken);
+    Task<User> GetByIdAsync(string stringToken, CancellationToken cancellationToken);
+    Task<string> RegisterAsync(User user, CancellationToken cancellationToken);
+    Task<string> LoginAsync(User user, CancellationToken cancellationToken);
+    string Logout(User user, CancellationToken cancellationToken);
 }
