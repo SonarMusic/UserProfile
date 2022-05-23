@@ -17,7 +17,7 @@ public class UserController : ControllerBase
     }
     
     [HttpPost("register")]
-    public Task<string> Register(UserRegisterDto userRegister, CancellationToken cancellationToken = default)
+    public Task<Guid> Register(UserRegisterDto userRegister, CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -28,7 +28,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPatch("login")]
-    public Task<string> Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
+    public Task<Guid> Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -40,20 +40,33 @@ public class UserController : ControllerBase
     }
 
     [HttpPatch("logout")]
-    public string Logout(UserLogoutDto userLogoutDto, CancellationToken cancellationToken = default)
+    public Task Logout(CancellationToken cancellationToken = default)
     {
-        var user = new User
+        var tokenHeader = HttpContext.Request.Headers["Token"].FirstOrDefault();
+
+        if (tokenHeader is null)
         {
-            Id = userLogoutDto.Id
-        };
+            throw new Exception("Your header does not contain a token.");
+        }
         
-        return _userService.Logout(user, cancellationToken);
+        var tokenId = Guid.Parse(tokenHeader);
+        
+        return _userService.Logout(tokenId, cancellationToken);
     }
 
     [HttpGet("get")]
-    public async Task<UserGetDto> Get(string token, CancellationToken cancellationToken = default)
+    public async Task<UserGetDto> Get(CancellationToken cancellationToken = default)
     {
-        var user = await _userService.GetByIdAsync(token, cancellationToken);
+        var tokenHeader = HttpContext.Request.Headers["Token"].FirstOrDefault();
+
+        if (tokenHeader is null)
+        {
+            throw new Exception("Your header does not contain a token.");
+        }
+        
+        var tokenId = Guid.Parse(tokenHeader);
+
+        var user = await _userService.GetByIdAsync(tokenId, cancellationToken);
 
         return new UserGetDto
         {
