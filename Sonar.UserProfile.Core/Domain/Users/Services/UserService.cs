@@ -19,11 +19,6 @@ public class UserService : IUserService
     {
         var token = await _tokenRepository.GetByIdAsync(tokenId, cancellationToken);
 
-        if (token is null)
-        {
-            throw new Exception("Incorrect token");
-        }
-        
         if (token.ExpirationDate < DateTime.UtcNow)
         {
             throw new Exception($"Token has expired {token.ExpirationDate}");
@@ -76,8 +71,15 @@ public class UserService : IUserService
         return token.Id;
     }
 
-    public Task Logout(Guid tokenId, CancellationToken cancellationToken)
+    public async Task Logout(Guid tokenId, CancellationToken cancellationToken)
     {
-        return _tokenRepository.DeleteAsync(tokenId, cancellationToken);
+        var token = await _tokenRepository.GetByIdAsync(tokenId, cancellationToken);
+
+        if (token.ExpirationDate < DateTime.UtcNow)
+        {
+            throw new Exception($"Your token has expired {token.ExpirationDate}");
+        }
+        
+        await _tokenRepository.DeleteAsync(tokenId, cancellationToken);
     }
 }
