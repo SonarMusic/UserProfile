@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Sonar.UserProfile.Data.Tokens;
 using Sonar.UserProfile.Data.Users;
 
 namespace Sonar.UserProfile.Data
@@ -7,6 +8,7 @@ namespace Sonar.UserProfile.Data
     public class SonarContext : DbContext
     {
         public DbSet<UserDbModel> Users { get; set; }
+        public DbSet<TokenDbModel> Tokens { get; set; }
 
         public string ConnectionString { get; }
 

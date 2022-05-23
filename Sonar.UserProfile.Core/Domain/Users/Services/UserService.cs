@@ -1,21 +1,23 @@
-﻿using System.Text.Json;
+﻿using Sonar.UserProfile.Core.Domain.Tokens;
+using Sonar.UserProfile.Core.Domain.Tokens.Repositories;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
-using Sonar.UserProfile.Core.Domain.ValueObjects;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly ITokenRepository _tokenRepository;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, ITokenRepository tokenRepository)
     {
         _userRepository = userRepository;
+        _tokenRepository = tokenRepository;
     }
 
-    public async Task<User> GetByIdAsync(string stringToken, CancellationToken cancellationToken = default)
+    public async Task<User> GetByIdAsync(Guid tokenId, CancellationToken cancellationToken = default)
     {
-        var token = JsonSerializer.Deserialize<Token>(stringToken);
+        var token = await _tokenRepository.GetByIdAsync(tokenId, cancellationToken);
 
         if (token is null)
         {
@@ -27,28 +29,30 @@ public class UserService : IUserService
             throw new Exception($"Token has expired {token.ExpirationDate}");
         }
         
-        var user = await _userRepository.GetByIdAsync(token.User.Id, cancellationToken);
+        var user = await _userRepository.GetByIdAsync(token.UserId, cancellationToken);
 
         return user;
     }
 
-    public async Task<string> RegisterAsync(User user, CancellationToken cancellationToken)
+    public async Task<Guid> RegisterAsync(User user, CancellationToken cancellationToken)
     {
         user.Id = Guid.NewGuid();
         
         const int tokenLifeDays = 7;
         var token = new Token
         {
-            User = user,
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
             ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
         };
 
         await _userRepository.CreateAsync(user, cancellationToken);
+        await _tokenRepository.CreateAsync(token, cancellationToken);
 
-        return JsonSerializer.Serialize(token);
+        return token.Id;
     }
 
-    public async Task<string> LoginAsync(User user, CancellationToken cancellationToken = default)
+    public async Task<Guid> LoginAsync(User user, CancellationToken cancellationToken = default)
     {
         var savedUser = await _userRepository.GetByIdAsync(user.Id, cancellationToken);
 
@@ -61,21 +65,19 @@ public class UserService : IUserService
         const int tokenLifeDays = 7;
         var token = new Token
         {
-            User = user,
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
             ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
         };
+        // TODO: Каждый раз новый токен создаётся, мб стоит старый рефрешить.
 
-        return JsonSerializer.Serialize(token);
+        await _tokenRepository.CreateAsync(token, cancellationToken);
+
+        return token.Id;
     }
 
-    public string Logout(User user, CancellationToken cancellationToken = default)
+    public Task Logout(Guid tokenId, CancellationToken cancellationToken)
     {
-        var token = new Token
-        {
-            User = user,
-            ExpirationDate = DateTime.UtcNow
-        };
-
-        return JsonSerializer.Serialize(token);
+        return _tokenRepository.DeleteAsync(tokenId, cancellationToken);
     }
 }
