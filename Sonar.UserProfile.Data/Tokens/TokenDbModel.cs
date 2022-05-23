@@ -1,6 +1,4 @@
-﻿using Sonar.UserProfile.Data.Users;
-
-namespace Sonar.UserProfile.Data.Tokens;
+﻿namespace Sonar.UserProfile.Data.Tokens;
 
 public class TokenDbModel
 {
