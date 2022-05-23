@@ -6,9 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonar.UserProfile.Data", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonar.UserProfile.Core", "Sonar.UserProfile.Core\Sonar.UserProfile.Core.csproj", "{EDB196A7-6B6E-4BA1-B03B-16D17D6987BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonar.UserProfile.ClientGenerator", "Sonar.UserProfile.ClientGenerator\Sonar.UserProfile.ClientGenerator.csproj", "{3FC35099-8E41-4011-84E0-00B89DE23933}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonar.UserProfile.Client", "Sonar.UserProfile.Client\Sonar.UserProfile.Client.csproj", "{270F1878-2B7E-4873-BC48-2D0C8BBC2604}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonar.UserProfile.ApiClient", "Sonar.UserProfile.ApiClient\Sonar.UserProfile.ApiClient.csproj", "{270F1878-2B7E-4873-BC48-2D0C8BBC2604}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +26,6 @@ Global
 		{EDB196A7-6B6E-4BA1-B03B-16D17D6987BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDB196A7-6B6E-4BA1-B03B-16D17D6987BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDB196A7-6B6E-4BA1-B03B-16D17D6987BC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3FC35099-8E41-4011-84E0-00B89DE23933}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3FC35099-8E41-4011-84E0-00B89DE23933}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3FC35099-8E41-4011-84E0-00B89DE23933}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3FC35099-8E41-4011-84E0-00B89DE23933}.Release|Any CPU.Build.0 = Release|Any CPU
 		{270F1878-2B7E-4873-BC48-2D0C8BBC2604}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{270F1878-2B7E-4873-BC48-2D0C8BBC2604}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{270F1878-2B7E-4873-BC48-2D0C8BBC2604}.Release|Any CPU.ActiveCfg = Release|Any CPU

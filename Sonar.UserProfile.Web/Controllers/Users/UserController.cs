@@ -40,14 +40,32 @@ public class UserController : ControllerBase
     }
 
     [HttpPatch("logout/{tokenId:guid}")]
-    public Task Logout(Guid tokenId, CancellationToken cancellationToken = default)
+    public Task Logout(CancellationToken cancellationToken = default)
     {
+        var tokenHeader = HttpContext.Request.Headers["Token"].FirstOrDefault();
+
+        if (tokenHeader is null)
+        {
+            throw new Exception("Your header does not contain a token.");
+        }
+        
+        var tokenId = Guid.Parse(tokenHeader);
+        
         return _userService.Logout(tokenId, cancellationToken);
     }
 
-    [HttpGet("get/{tokenId:guid}")]
-    public async Task<UserGetDto> Get(Guid tokenId, CancellationToken cancellationToken = default)
+    [HttpGet("get")]
+    public async Task<UserGetDto> Get(CancellationToken cancellationToken = default)
     {
+        var tokenHeader = HttpContext.Request.Headers["Token"].FirstOrDefault();
+
+        if (tokenHeader is null)
+        {
+            throw new Exception("Your header does not contain a token.");
+        }
+        
+        var tokenId = Guid.Parse(tokenHeader);
+
         var user = await _userService.GetByIdAsync(tokenId, cancellationToken);
 
         return new UserGetDto
