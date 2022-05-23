@@ -1,3 +1,6 @@
 [submodule "Sonar.Player"]
 	path = Sonar.Player
 	url = https://github.com/is-tech-y24-1/team-4-3
+[submodule "Sonar.UserTracksManagement"]
+	path = Sonar.UserTracksManagement
+	url = https://github.com/is-tech-y24-1/team-4-2

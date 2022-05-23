@@ -17,7 +17,7 @@ public class UserController : ControllerBase
     }
     
     [HttpPost("register")]
-    public Task<string> Register(UserRegisterDto userRegister, CancellationToken cancellationToken = default)
+    public Task<Guid> Register(UserRegisterDto userRegister, CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -28,7 +28,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPatch("login")]
-    public Task<string> Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
+    public Task<Guid> Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -39,21 +39,16 @@ public class UserController : ControllerBase
         return _userService.LoginAsync(user, cancellationToken);
     }
 
-    [HttpPatch("logout")]
-    public string Logout(UserLogoutDto userLogoutDto, CancellationToken cancellationToken = default)
+    [HttpPatch("logout/{tokenId:guid}")]
+    public Task Logout(Guid tokenId, CancellationToken cancellationToken = default)
     {
-        var user = new User
-        {
-            Id = userLogoutDto.Id
-        };
-        
-        return _userService.Logout(user, cancellationToken);
+        return _userService.Logout(tokenId, cancellationToken);
     }
 
-    [HttpGet("get")]
-    public async Task<UserGetDto> Get(string token, CancellationToken cancellationToken = default)
+    [HttpGet("get/{tokenId:guid}")]
+    public async Task<UserGetDto> Get(Guid tokenId, CancellationToken cancellationToken = default)
     {
-        var user = await _userService.GetByIdAsync(token, cancellationToken);
+        var user = await _userService.GetByIdAsync(tokenId, cancellationToken);
 
         return new UserGetDto
         {
