@@ -15,7 +15,7 @@ public class UserController : ControllerBase
     {
         _userService = userService;
     }
-    
+
     [HttpPost("register")]
     public Task<Guid> Register(UserRegisterDto userRegister, CancellationToken cancellationToken = default)
     {
@@ -48,9 +48,9 @@ public class UserController : ControllerBase
         {
             throw new Exception("Your header does not contain a token.");
         }
-        
+
         var tokenId = Guid.Parse(tokenHeader);
-        
+
         return _userService.Logout(tokenId, cancellationToken);
     }
 
@@ -63,7 +63,7 @@ public class UserController : ControllerBase
         {
             throw new Exception("Your header does not contain a token.");
         }
-        
+
         var tokenId = Guid.Parse(tokenHeader);
 
         var user = await _userService.GetByIdAsync(tokenId, cancellationToken);

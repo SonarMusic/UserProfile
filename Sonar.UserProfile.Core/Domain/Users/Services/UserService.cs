@@ -23,7 +23,7 @@ public class UserService : IUserService
         {
             throw new Exception($"Token has expired {token.ExpirationDate}");
         }
-        
+
         var user = await _userRepository.GetByIdAsync(token.UserId, cancellationToken);
 
         return user;
@@ -32,7 +32,7 @@ public class UserService : IUserService
     public async Task<Guid> RegisterAsync(User user, CancellationToken cancellationToken)
     {
         user.Id = Guid.NewGuid();
-        
+
         const int tokenLifeDays = 7;
         var token = new Token
         {
@@ -64,7 +64,6 @@ public class UserService : IUserService
             UserId = user.Id,
             ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
         };
-        // TODO: Каждый раз новый токен создаётся, мб стоит старый рефрешить.
 
         await _tokenRepository.CreateAsync(token, cancellationToken);
 
@@ -79,7 +78,7 @@ public class UserService : IUserService
         {
             throw new Exception($"Your token has expired {token.ExpirationDate}");
         }
-        
+
         await _tokenRepository.DeleteAsync(tokenId, cancellationToken);
     }
 }
