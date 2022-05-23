@@ -39,7 +39,7 @@ public class UserController : ControllerBase
         return _userService.LoginAsync(user, cancellationToken);
     }
 
-    [HttpPatch("logout/{tokenId:guid}")]
+    [HttpPatch("logout")]
     public Task Logout(CancellationToken cancellationToken = default)
     {
         var tokenHeader = HttpContext.Request.Headers["Token"].FirstOrDefault();
