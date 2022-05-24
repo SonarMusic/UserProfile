@@ -12,7 +12,8 @@ public static class Program
             Id = Guid.Parse("FD58D9DA-6925-4859-B9D7-744F35AB6155"),
             Password = "string"
         }).Result;
-        userClient.SetToken(t.ToString()).LogoutAsync();
-        Console.WriteLine(userClient.SetToken("CCDFBE51-69D8-4FC0-9D3A-D37B3E5FBE79").GetAsync().Result.Password);
+        Console.WriteLine(t);
+        userClient.LogoutAsync(t.ToString());
+        Console.WriteLine(userClient.GetAsync("CCDFBE51-69D8-4FC0-9D3A-D37B3E5FBE79").Result.Password);
     }
 }

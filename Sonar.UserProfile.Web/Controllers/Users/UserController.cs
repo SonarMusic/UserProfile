@@ -40,10 +40,8 @@ public class UserController : ControllerBase
     }
 
     [HttpPatch("logout")]
-    public Task Logout(CancellationToken cancellationToken = default)
+    public Task Logout([FromHeader(Name = "Token")] string tokenHeader, CancellationToken cancellationToken = default)
     {
-        var tokenHeader = HttpContext.Request.Headers["Token"].FirstOrDefault();
-
         if (tokenHeader is null)
         {
             throw new Exception("Your header does not contain a token.");
@@ -55,10 +53,8 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("get")]
-    public async Task<UserGetDto> Get(CancellationToken cancellationToken = default)
+    public async Task<UserGetDto> Get([FromHeader(Name = "Token")] string tokenHeader, CancellationToken cancellationToken = default)
     {
-        var tokenHeader = HttpContext.Request.Headers["Token"].FirstOrDefault();
-
         if (tokenHeader is null)
         {
             throw new Exception("Your header does not contain a token.");
