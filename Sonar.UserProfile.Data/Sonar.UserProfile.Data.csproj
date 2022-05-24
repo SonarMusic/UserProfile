@@ -6,6 +6,7 @@
         <Nullable>disable</Nullable>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
         <PackageReference Include="EFCore.NamingConventions" Version="6.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.5" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
