@@ -20,8 +20,5 @@
     <ItemGroup>
         <ProjectReference Include="..\Sonar.UserProfile.Core\Sonar.UserProfile.Core.csproj" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Users\Encoders" />
-    </ItemGroup>
 
 </Project>
