@@ -40,21 +40,21 @@ namespace Sonar.UserProfile.ApiClient
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task LogoutAsync();
+        System.Threading.Tasks.Task LogoutAsync(string token);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task LogoutAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task LogoutAsync(string token, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<UserGetDto> GetAsync();
+        System.Threading.Tasks.Task<UserGetDto> GetAsync(string token);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<UserGetDto> GetAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<UserGetDto> GetAsync(string token, System.Threading.CancellationToken cancellationToken);
 
     }
 
@@ -89,6 +89,10 @@ namespace Sonar.UserProfile.ApiClient
 
         partial void UpdateJsonSerializerSettings(Newtonsoft.Json.JsonSerializerSettings settings);
 
+        partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, string url);
+        partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
+        partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
+
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Guid> RegisterAsync(UserRegisterDto body)
@@ -116,12 +120,12 @@ namespace Sonar.UserProfile.ApiClient
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
 
-                    await PrepareRequestAsync(client_, request_, urlBuilder_, cancellationToken).ConfigureAwait(false);
+                    PrepareRequest(client_, request_, urlBuilder_);
 
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
 
-                    await PrepareRequestAsync(client_, request_, url_, cancellationToken).ConfigureAwait(false);
+                    PrepareRequest(client_, request_, url_);
 
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
@@ -134,7 +138,7 @@ namespace Sonar.UserProfile.ApiClient
                                 headers_[item_.Key] = item_.Value;
                         }
 
-                        await ProcessResponseAsync(client_, response_, cancellationToken).ConfigureAwait(false);
+                        ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
@@ -193,12 +197,12 @@ namespace Sonar.UserProfile.ApiClient
                     request_.Method = new System.Net.Http.HttpMethod("PATCH");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
 
-                    await PrepareRequestAsync(client_, request_, urlBuilder_, cancellationToken).ConfigureAwait(false);
+                    PrepareRequest(client_, request_, urlBuilder_);
 
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
 
-                    await PrepareRequestAsync(client_, request_, url_, cancellationToken).ConfigureAwait(false);
+                    PrepareRequest(client_, request_, url_);
 
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
@@ -211,7 +215,7 @@ namespace Sonar.UserProfile.ApiClient
                                 headers_[item_.Key] = item_.Value;
                         }
 
-                        await ProcessResponseAsync(client_, response_, cancellationToken).ConfigureAwait(false);
+                        ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
@@ -245,15 +249,15 @@ namespace Sonar.UserProfile.ApiClient
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task LogoutAsync()
+        public virtual System.Threading.Tasks.Task LogoutAsync(string token)
         {
-            return LogoutAsync(System.Threading.CancellationToken.None);
+            return LogoutAsync(token, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task LogoutAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task LogoutAsync(string token, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/User/logout");
@@ -264,15 +268,18 @@ namespace Sonar.UserProfile.ApiClient
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (token != null)
+                        request_.Headers.TryAddWithoutValidation("Token", ConvertToString(token, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("PATCH");
 
-                    await PrepareRequestAsync(client_, request_, urlBuilder_, cancellationToken).ConfigureAwait(false);
+                    PrepareRequest(client_, request_, urlBuilder_);
 
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
 
-                    await PrepareRequestAsync(client_, request_, url_, cancellationToken).ConfigureAwait(false);
+                    PrepareRequest(client_, request_, url_);
 
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
@@ -285,7 +292,7 @@ namespace Sonar.UserProfile.ApiClient
                                 headers_[item_.Key] = item_.Value;
                         }
 
-                        await ProcessResponseAsync(client_, response_, cancellationToken).ConfigureAwait(false);
+                        ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
@@ -314,15 +321,15 @@ namespace Sonar.UserProfile.ApiClient
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<UserGetDto> GetAsync()
+        public virtual System.Threading.Tasks.Task<UserGetDto> GetAsync(string token)
         {
-            return GetAsync(System.Threading.CancellationToken.None);
+            return GetAsync(token, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<UserGetDto> GetAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<UserGetDto> GetAsync(string token, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/User/get");
@@ -333,15 +340,18 @@ namespace Sonar.UserProfile.ApiClient
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
+
+                    if (token != null)
+                        request_.Headers.TryAddWithoutValidation("Token", ConvertToString(token, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
 
-                    await PrepareRequestAsync(client_, request_, urlBuilder_, cancellationToken).ConfigureAwait(false);
+                    PrepareRequest(client_, request_, urlBuilder_);
 
                     var url_ = urlBuilder_.ToString();
                     request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
 
-                    await PrepareRequestAsync(client_, request_, url_, cancellationToken).ConfigureAwait(false);
+                    PrepareRequest(client_, request_, url_);
 
                     var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
                     var disposeResponse_ = true;
@@ -354,7 +364,7 @@ namespace Sonar.UserProfile.ApiClient
                                 headers_[item_.Key] = item_.Value;
                         }
 
-                        await ProcessResponseAsync(client_, response_, cancellationToken).ConfigureAwait(false);
+                        ProcessResponse(client_, response_);
 
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
