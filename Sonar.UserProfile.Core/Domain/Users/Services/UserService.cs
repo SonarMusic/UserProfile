@@ -1,4 +1,5 @@
-﻿using Sonar.UserProfile.Core.Domain.Tokens;
+﻿using Sonar.UserProfile.Core.Domain.Exceptions;
+using Sonar.UserProfile.Core.Domain.Tokens;
 using Sonar.UserProfile.Core.Domain.Tokens.Repositories;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
@@ -25,7 +26,7 @@ public class UserService : IUserService
 
         if (token.ExpirationDate < DateTime.UtcNow)
         {
-            throw new Exception($"Token has expired {token.ExpirationDate}");
+            throw new ExpiredTokenException($"Token has expired {token.ExpirationDate}");
         }
 
         var user = await _userRepository.GetByIdAsync(token.UserId, cancellationToken);
@@ -58,7 +59,7 @@ public class UserService : IUserService
 
         if (!_passwordEncoder.Matches(user.Password, savedUser.Password))
         {
-            throw new Exception("Incorrect password.");
+            throw new InvalidPasswordException("Incorrect password.");
         }
 
         // TODO: Пуcть какой-то провайдер поставляет дни для жизни токена, а не магическое число.
@@ -81,7 +82,7 @@ public class UserService : IUserService
 
         if (token.ExpirationDate < DateTime.UtcNow)
         {
-            throw new Exception($"Your token has expired {token.ExpirationDate}");
+            throw new ExpiredTokenException($"Token has expired {token.ExpirationDate}");
         }
 
         await _tokenRepository.DeleteAsync(tokenId, cancellationToken);

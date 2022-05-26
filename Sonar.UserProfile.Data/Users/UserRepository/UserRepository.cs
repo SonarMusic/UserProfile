@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
 
@@ -21,7 +22,7 @@ public class UserRepository : IUserRepository
         //TODO: добавить класс эксешенов и мидлварки
         if (entity is null)
         {
-            throw new Exception($"User with id = {id} does not exists");
+            throw new UserNotFoundException($"User with id = {id} does not exists");
         }
 
         return new User
@@ -62,7 +63,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new Exception($"User with id = {user.Id} does not exists");
+            throw new UserNotFoundException($"User with id = {user.Id} does not exists");
         }
 
         entity.Password = user.Password;
@@ -76,7 +77,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new Exception($"User with id = {id} does not exists");
+            throw new UserNotFoundException($"User with id = {id} does not exists");
         }
 
         _context.Users.Remove(entity);
