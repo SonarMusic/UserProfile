@@ -1,17 +1,18 @@
 ﻿namespace Sonar.UserProfile.Core.Domain.Exceptions;
 
-public class IAmTeapotException : Exception
+public class IAmATeapotException : Exception
 {
-    public IAmTeapotException()
+    public IAmATeapotException()
+        : base("Server refuses to brew coffee because it is, permanently, a teapot")
     {
     }
     
-    public IAmTeapotException(string message) 
+    public IAmATeapotException(string message) 
         : base(message)
     {
     }
 
-    public IAmTeapotException(string message, Exception e)
+    public IAmATeapotException(string message, Exception e)
         : base(message, e)
     {
     }
