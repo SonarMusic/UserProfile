@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Services;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
@@ -44,7 +45,7 @@ public class UserController : ControllerBase
     {
         if (tokenHeader is null)
         {
-            throw new Exception("Your header does not contain a token.");
+            throw new InvalidRequestException("Your header does not contain a token.");
         }
 
         var tokenId = Guid.Parse(tokenHeader);
@@ -57,7 +58,7 @@ public class UserController : ControllerBase
     {
         if (tokenHeader is null)
         {
-            throw new Exception("Your header does not contain a token.");
+            throw new InvalidRequestException("Your header does not contain a token.");
         }
 
         var tokenId = Guid.Parse(tokenHeader);
