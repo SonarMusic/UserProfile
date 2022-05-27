@@ -28,6 +28,7 @@ public class UserRepository : IUserRepository
         return new User
         {
             Id = entity.Id,
+            Email = entity.Email,
             Password = entity.Password
         };
     }
@@ -57,6 +58,7 @@ public class UserRepository : IUserRepository
         return (IReadOnlyList<User>)users.Select(entity => new User()
         {
             Id = entity.Id,
+            Email = entity.Email,
             Password = entity.Password
         });
     }
