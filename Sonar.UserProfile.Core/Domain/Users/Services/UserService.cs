@@ -11,7 +11,7 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly ITokenRepository _tokenRepository;
-    // hardcoded for now
+    // todo: remove hardcoding
     private IPasswordEncoder _passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(IUserRepository userRepository, ITokenRepository tokenRepository)
@@ -55,8 +55,8 @@ public class UserService : IUserService
 
     public async Task<Guid> LoginAsync(User user, CancellationToken cancellationToken = default)
     {
-        var savedUser = await _userRepository.GetByIdAsync(user.Id, cancellationToken);
-
+        var savedUser = await _userRepository.GetByEmailAsync(user.Email, cancellationToken);
+        
         if (!_passwordEncoder.Matches(user.Password, savedUser.Password))
         {
             throw new InvalidPasswordException("Incorrect password.");
