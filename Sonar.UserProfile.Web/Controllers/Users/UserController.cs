@@ -23,10 +23,9 @@ public class UserController : ControllerBase
     /// <param name="userRegisterDto">DTO which contains parameters for new user: email, password.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token (ID of generated token to be precise).</returns>
-    /// <response code="200">OK</response>
-    /// <response code="500">Internal server exception.</response>
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public Task<Guid> Register(UserRegisterDto userRegisterDto, CancellationToken cancellationToken = default)
     {
@@ -45,10 +44,6 @@ public class UserController : ControllerBase
     /// <param name="userLoginDto">DTO which contains parameters to identify user: email, password</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token (ID of generated token to be precise).</returns>
-    /// <response code="200">OK</response>
-    /// <response code="401">Password didn't match.</response>
-    /// <response code="404">User with such ID doesn't exist.</response>
-    /// <response code="500">Internal server exception.</response>
     [HttpPatch("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -71,12 +66,6 @@ public class UserController : ControllerBase
     /// <param name="tokenHeader">DTO which contains token (ID of token to be precise).</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>Task</returns>
-    /// <response code="200">OK</response>
-    /// <response code="400">Header doesn't contain token.</response>
-    /// <response code="401">Password didn't match.</response>
-    /// <response code="403">Token already has expired.</response>
-    /// <response code="404">Entity with such ID doesn't exist.</response>
-    /// <response code="500">Internal server exception.</response>
     [HttpPatch("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -86,12 +75,22 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public Task Logout([FromHeader(Name = "Token")] string tokenHeader, CancellationToken cancellationToken = default)
     {
+        // TODO: Когда-нибудь мы сделаем middleware, которая валидирует токен вне контроллера.
+        // TODO: НО НЕ СЕГОДНЯ.
         if (tokenHeader is null)
         {
             throw new InvalidRequestException("Your header does not contain a token.");
         }
 
-        var tokenId = Guid.Parse(tokenHeader);
+        Guid tokenId;
+        try
+        {
+            tokenId = Guid.Parse(tokenHeader);
+        }
+        catch (Exception _)
+        {
+            throw new InvalidRequestException("Your header contains incorrect token.");
+        }
 
         return _userService.Logout(tokenId, cancellationToken);
     }
@@ -102,11 +101,6 @@ public class UserController : ControllerBase
     /// <param name="tokenHeader">Contains token (ID of token to be precise).</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
-    /// <response code="200">OK</response>
-    /// <response code="400">Header doesn't contain token.</response>
-    /// <response code="403">Token already has expired.</response>
-    /// <response code="404">Entity with such ID doesn't exist.</response>
-    /// <response code="500">Internal server exception.</response>
     [HttpGet("get")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -120,7 +114,15 @@ public class UserController : ControllerBase
             throw new InvalidRequestException("Your header does not contain a token.");
         }
 
-        var tokenId = Guid.Parse(tokenHeader);
+        Guid tokenId;
+        try
+        {
+            tokenId = Guid.Parse(tokenHeader);
+        }
+        catch (Exception _)
+        {
+            throw new InvalidRequestException("Your header contains incorrect token.");
+        }
 
         var user = await _userService.GetByIdAsync(tokenId, cancellationToken);
 

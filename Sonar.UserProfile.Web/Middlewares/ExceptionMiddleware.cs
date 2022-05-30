@@ -22,6 +22,10 @@ public class ExceptionMiddleware
         {
             await SendStatusCodeWithMessageAsync(httpContext, HttpStatusCode.BadRequest, exception);
         }
+        catch (EmailOccupiedException exception)
+        {
+            await SendStatusCodeWithMessageAsync(httpContext, HttpStatusCode.BadRequest, exception);
+        }
         catch (InvalidPasswordException exception)
         {
             await SendStatusCodeWithMessageAsync(httpContext, HttpStatusCode.Unauthorized, exception);
