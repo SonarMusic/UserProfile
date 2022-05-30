@@ -19,7 +19,7 @@ public class TokenRepository : ITokenRepository
         var entity = await _context.Tokens
             .FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
-        //TODO: добавить класс эксешенов и мидлварки
+        //TODO: добавить класс мидлварки
         if (entity is null)
         {
             throw new TokenNotFoundException($"Token with id = {id} does not exists");

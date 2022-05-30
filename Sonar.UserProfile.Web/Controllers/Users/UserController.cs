@@ -16,12 +16,13 @@ public class UserController : ControllerBase
     {
         _userService = userService;
     }
-
+    
     [HttpPost("register")]
     public Task<Guid> Register(UserRegisterDto userRegister, CancellationToken cancellationToken = default)
     {
         var user = new User
         {
+            Email = userRegister.Email,
             Password = userRegister.Password
         };
 
@@ -33,13 +34,14 @@ public class UserController : ControllerBase
     {
         var user = new User
         {
-            Id = userLoginDto.Id,
+            Email = userLoginDto.Email,
             Password = userLoginDto.Password
         };
 
         return _userService.LoginAsync(user, cancellationToken);
     }
 
+    
     [HttpPatch("logout")]
     public Task Logout([FromHeader(Name = "Token")] string tokenHeader, CancellationToken cancellationToken = default)
     {
@@ -68,6 +70,7 @@ public class UserController : ControllerBase
         return new UserGetDto
         {
             Id = user.Id,
+            Email = user.Email,
             Password = user.Password,
         };
     }

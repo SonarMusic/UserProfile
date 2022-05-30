@@ -19,7 +19,7 @@ public class UserRepository : IUserRepository
         var entity = await _context.Users
             .FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
-        //TODO: добавить класс эксешенов и мидлварки
+        //TODO: добавить класс мидлварки
         if (entity is null)
         {
             throw new UserNotFoundException($"User with id = {id} does not exists");
@@ -28,6 +28,26 @@ public class UserRepository : IUserRepository
         return new User
         {
             Id = entity.Id,
+            Email = entity.Email,
+            Password = entity.Password
+        };
+    }
+    
+    public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        var entity = await _context.Users
+            .FirstOrDefaultAsync(it => it.Email.Equals(email, StringComparison.OrdinalIgnoreCase), cancellationToken);
+
+        //TODO: добавить класс мидлварки
+        if (entity is null)
+        {
+            throw new UserNotFoundException($"User with email = {email} does not exists");
+        }
+
+        return new User
+        {
+            Id = entity.Id,
+            Email = entity.Email,
             Password = entity.Password
         };
     }
@@ -39,6 +59,7 @@ public class UserRepository : IUserRepository
         return (IReadOnlyList<User>)users.Select(entity => new User()
         {
             Id = entity.Id,
+            Email = entity.Email,
             Password = entity.Password
         });
     }
