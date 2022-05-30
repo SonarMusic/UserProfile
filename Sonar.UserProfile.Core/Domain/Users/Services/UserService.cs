@@ -55,9 +55,9 @@ public class UserService : IUserService
 
     public async Task<Guid> LoginAsync(User user, CancellationToken cancellationToken = default)
     {
-        var savedUser = await _userRepository.GetByEmailAsync(user.Email, cancellationToken);
+        var dataBaseUser = await _userRepository.GetByEmailAsync(user.Email, cancellationToken);
         
-        if (!_passwordEncoder.Matches(user.Password, savedUser.Password))
+        if (!_passwordEncoder.Matches(user.Password, dataBaseUser.Password))
         {
             throw new InvalidPasswordException("Incorrect password.");
         }
@@ -67,7 +67,7 @@ public class UserService : IUserService
         var token = new Token
         {
             Id = Guid.NewGuid(),
-            UserId = user.Id,
+            UserId = dataBaseUser.Id,
             ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
         };
 
