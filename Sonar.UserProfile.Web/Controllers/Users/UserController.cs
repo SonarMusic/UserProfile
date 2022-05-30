@@ -83,7 +83,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="tokenHeader">Contains token (ID of token to be precise).</param>
     /// <param name="cancellationToken"></param>
-    /// <returns>User model which contains: ID, email, password.</returns>
+    /// <returns>User model which contains: ID, email.</returns>
     /// <exception cref="InvalidRequestException">Throw if header doesn't contain token.</exception>
     /// <exception cref="ExpiredTokenException">Throw if token already has expired.</exception>
     /// <exception cref="UserNotFoundException">Throw if user with such ID doesn't exist.</exception>
@@ -103,8 +103,7 @@ public class UserController : ControllerBase
         return new UserGetDto
         {
             Id = user.Id,
-            Email = user.Email,
-            Password = user.Password,
+            Email = user.Email
         };
     }
 }

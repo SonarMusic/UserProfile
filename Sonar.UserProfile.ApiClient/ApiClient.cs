@@ -23,7 +23,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Create new user with new token which will expire in 7 days.
         /// </summary>
-        /// <param name="body">Contain parameters for new user: email, password.</param>
+        /// <param name="body">Contains parameters for new user: email, password.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Guid> RegisterAsync(UserRegisterDto body);
@@ -32,7 +32,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Create new user with new token which will expire in 7 days.
         /// </summary>
-        /// <param name="body">Contain parameters for new user: email, password.</param>
+        /// <param name="body">Contains parameters for new user: email, password.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Guid> RegisterAsync(UserRegisterDto body, System.Threading.CancellationToken cancellationToken);
@@ -40,7 +40,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Generate new token to user if password matched. Token will expire in 7 days.
         /// </summary>
-        /// <param name="body">Contain parameters to identify user: email, password</param>
+        /// <param name="body">Contains parameters to identify user: email, password</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Guid> LoginAsync(UserLoginDto body);
@@ -49,7 +49,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Generate new token to user if password matched. Token will expire in 7 days.
         /// </summary>
-        /// <param name="body">Contain parameters to identify user: email, password</param>
+        /// <param name="body">Contains parameters to identify user: email, password</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Guid> LoginAsync(UserLoginDto body, System.Threading.CancellationToken cancellationToken);
@@ -57,7 +57,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Expire token (delete it).
         /// </summary>
-        /// <param name="token">Contain token (ID of token to be precise).</param>
+        /// <param name="token">Contains token (ID of token to be precise).</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task LogoutAsync(string token);
@@ -66,7 +66,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Expire token (delete it).
         /// </summary>
-        /// <param name="token">Contain token (ID of token to be precise).</param>
+        /// <param name="token">Contains token (ID of token to be precise).</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task LogoutAsync(string token, System.Threading.CancellationToken cancellationToken);
@@ -74,7 +74,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Return a user model if token hasn't expired yet.
         /// </summary>
-        /// <param name="token">Contain token (ID of token to be precise).</param>
+        /// <param name="token">Contains token (ID of token to be precise).</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<UserGetDto> GetAsync(string token);
@@ -83,7 +83,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Return a user model if token hasn't expired yet.
         /// </summary>
-        /// <param name="token">Contain token (ID of token to be precise).</param>
+        /// <param name="token">Contains token (ID of token to be precise).</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<UserGetDto> GetAsync(string token, System.Threading.CancellationToken cancellationToken);
@@ -128,7 +128,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Create new user with new token which will expire in 7 days.
         /// </summary>
-        /// <param name="body">Contain parameters for new user: email, password.</param>
+        /// <param name="body">Contains parameters for new user: email, password.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Guid> RegisterAsync(UserRegisterDto body)
@@ -140,7 +140,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Create new user with new token which will expire in 7 days.
         /// </summary>
-        /// <param name="body">Contain parameters for new user: email, password.</param>
+        /// <param name="body">Contains parameters for new user: email, password.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Guid> RegisterAsync(UserRegisterDto body, System.Threading.CancellationToken cancellationToken)
@@ -213,7 +213,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Generate new token to user if password matched. Token will expire in 7 days.
         /// </summary>
-        /// <param name="body">Contain parameters to identify user: email, password</param>
+        /// <param name="body">Contains parameters to identify user: email, password</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<System.Guid> LoginAsync(UserLoginDto body)
@@ -225,7 +225,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Generate new token to user if password matched. Token will expire in 7 days.
         /// </summary>
-        /// <param name="body">Contain parameters to identify user: email, password</param>
+        /// <param name="body">Contains parameters to identify user: email, password</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<System.Guid> LoginAsync(UserLoginDto body, System.Threading.CancellationToken cancellationToken)
@@ -298,7 +298,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Expire token (delete it).
         /// </summary>
-        /// <param name="token">Contain token (ID of token to be precise).</param>
+        /// <param name="token">Contains token (ID of token to be precise).</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task LogoutAsync(string token)
@@ -310,7 +310,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Expire token (delete it).
         /// </summary>
-        /// <param name="token">Contain token (ID of token to be precise).</param>
+        /// <param name="token">Contains token (ID of token to be precise).</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task LogoutAsync(string token, System.Threading.CancellationToken cancellationToken)
@@ -378,7 +378,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Return a user model if token hasn't expired yet.
         /// </summary>
-        /// <param name="token">Contain token (ID of token to be precise).</param>
+        /// <param name="token">Contains token (ID of token to be precise).</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<UserGetDto> GetAsync(string token)
@@ -390,7 +390,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Return a user model if token hasn't expired yet.
         /// </summary>
-        /// <param name="token">Contain token (ID of token to be precise).</param>
+        /// <param name="token">Contains token (ID of token to be precise).</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<UserGetDto> GetAsync(string token, System.Threading.CancellationToken cancellationToken)
@@ -571,9 +571,6 @@ namespace Sonar.UserProfile.ApiClient
 
         [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Email { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("password", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Password { get; set; }
 
     }
 
