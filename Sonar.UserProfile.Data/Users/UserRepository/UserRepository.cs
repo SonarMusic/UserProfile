@@ -19,7 +19,6 @@ public class UserRepository : IUserRepository
         var entity = await _context.Users
             .FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
-        //TODO: добавить класс мидлварки
         if (entity is null)
         {
             throw new UserNotFoundException($"User with id = {id} does not exists");
@@ -35,10 +34,10 @@ public class UserRepository : IUserRepository
     
     public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
+        email = email.ToLower();
         var entity = await _context.Users
-            .FirstOrDefaultAsync(it => it.Email.Equals(email, StringComparison.OrdinalIgnoreCase), cancellationToken);
+            .FirstOrDefaultAsync(it => string.Equals(it.Email, email), cancellationToken);
 
-        //TODO: добавить класс мидлварки
         if (entity is null)
         {
             throw new UserNotFoundException($"User with email = {email} does not exists");
@@ -66,9 +65,18 @@ public class UserRepository : IUserRepository
 
     public async Task<Guid> CreateAsync(User user, CancellationToken cancellationToken)
     {
+        user.Email = user.Email.ToLower();
+        var sameEmailUser = _context.Users.FirstOrDefault(u => string.Equals(u.Email, user.Email));
+
+        if (sameEmailUser != null)
+        {
+            throw new EmailOccupiedException($"Email {user.Email} is already occupied");
+        }
+        
         var entity = new UserDbModel
         {
             Id = user.Id,
+            Email = user.Email,
             Password = user.Password
         };
 
