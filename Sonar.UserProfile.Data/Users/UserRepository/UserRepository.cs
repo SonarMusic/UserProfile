@@ -66,6 +66,13 @@ public class UserRepository : IUserRepository
 
     public async Task<Guid> CreateAsync(User user, CancellationToken cancellationToken)
     {
+        var sameEmailUser = _context.Users.FirstOrDefault(u => u.Email.Equals(user.Email));
+
+        if (sameEmailUser != null)
+        {
+            throw new EmailOccupiedException($"Email {user.Email} is already occupied");
+        }
+        
         var entity = new UserDbModel
         {
             Id = user.Id,
