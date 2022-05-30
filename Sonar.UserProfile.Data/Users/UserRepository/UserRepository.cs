@@ -46,7 +46,8 @@ public class UserRepository : IUserRepository
 
         return new User
         {
-            Email = email,
+            Id = entity.Id,
+            Email = entity.Email,
             Password = entity.Password
         };
     }
