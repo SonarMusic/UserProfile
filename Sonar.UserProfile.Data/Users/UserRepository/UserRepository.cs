@@ -36,7 +36,7 @@ public class UserRepository : IUserRepository
     public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         var entity = await _context.Users
-            .FirstOrDefaultAsync(it => it.Email.Equals(email, StringComparison.OrdinalIgnoreCase), cancellationToken);
+            .FirstOrDefaultAsync(it => string.Equals(it.Email, email, StringComparison.OrdinalIgnoreCase), cancellationToken);
 
         //TODO: добавить класс мидлварки
         if (entity is null)
@@ -66,7 +66,7 @@ public class UserRepository : IUserRepository
 
     public async Task<Guid> CreateAsync(User user, CancellationToken cancellationToken)
     {
-        var sameEmailUser = _context.Users.FirstOrDefault(u => u.Email.Equals(user.Email));
+        var sameEmailUser = _context.Users.FirstOrDefault(u => string.Equals(u.Email, user.Email, StringComparison.OrdinalIgnoreCase));
 
         if (sameEmailUser != null)
         {
