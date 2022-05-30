@@ -19,7 +19,6 @@ public class UserRepository : IUserRepository
         var entity = await _context.Users
             .FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
-        //TODO: добавить класс мидлварки
         if (entity is null)
         {
             throw new UserNotFoundException($"User with id = {id} does not exists");
@@ -39,7 +38,6 @@ public class UserRepository : IUserRepository
         var entity = await _context.Users
             .FirstOrDefaultAsync(it => string.Equals(it.Email, email), cancellationToken);
 
-        //TODO: добавить класс мидлварки
         if (entity is null)
         {
             throw new UserNotFoundException($"User with email = {email} does not exists");
