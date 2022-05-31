@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text;
 using Sonar.UserProfile.Core.Domain.Exceptions;
 
 namespace Sonar.UserProfile.Web.Middlewares;
@@ -48,12 +49,12 @@ public class ExceptionMiddleware
         }
     }
 
-    private Task SendStatusCodeWithMessageAsync(
+    private async Task SendStatusCodeWithMessageAsync(
         HttpContext httpContext, 
         HttpStatusCode httpStatusCode,
         Exception exception)
     {
         httpContext.Response.StatusCode = (int)httpStatusCode;
-        return httpContext.Response.WriteAsJsonAsync(exception.Message);
+        await httpContext.Response.WriteAsJsonAsync(exception.Message);
     }
 }
