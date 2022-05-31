@@ -1,4 +1,5 @@
-﻿using Sonar.UserProfile.Core.Domain.Tokens;
+﻿using Sonar.UserProfile.Core.Domain.Exceptions;
+using Sonar.UserProfile.Core.Domain.Tokens;
 using Sonar.UserProfile.Core.Domain.Tokens.Repositories;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
@@ -10,7 +11,7 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly ITokenRepository _tokenRepository;
-    // hardcoded for now
+    // todo: remove hardcoding
     private IPasswordEncoder _passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(IUserRepository userRepository, ITokenRepository tokenRepository)
@@ -25,7 +26,7 @@ public class UserService : IUserService
 
         if (token.ExpirationDate < DateTime.UtcNow)
         {
-            throw new Exception($"Token has expired {token.ExpirationDate}");
+            throw new ExpiredTokenException($"Token has expired {token.ExpirationDate}");
         }
 
         var user = await _userRepository.GetByIdAsync(token.UserId, cancellationToken);
@@ -54,11 +55,11 @@ public class UserService : IUserService
 
     public async Task<Guid> LoginAsync(User user, CancellationToken cancellationToken = default)
     {
-        var savedUser = await _userRepository.GetByIdAsync(user.Id, cancellationToken);
-
-        if (!_passwordEncoder.Matches(user.Password, savedUser.Password))
+        var dataBaseUser = await _userRepository.GetByEmailAsync(user.Email, cancellationToken);
+        
+        if (!_passwordEncoder.Matches(user.Password, dataBaseUser.Password))
         {
-            throw new Exception("Incorrect password.");
+            throw new InvalidPasswordException("Incorrect password.");
         }
 
         // TODO: Пуcть какой-то провайдер поставляет дни для жизни токена, а не магическое число.
@@ -66,7 +67,7 @@ public class UserService : IUserService
         var token = new Token
         {
             Id = Guid.NewGuid(),
-            UserId = user.Id,
+            UserId = dataBaseUser.Id,
             ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
         };
 
@@ -81,7 +82,7 @@ public class UserService : IUserService
 
         if (token.ExpirationDate < DateTime.UtcNow)
         {
-            throw new Exception($"Your token has expired {token.ExpirationDate}");
+            throw new ExpiredTokenException($"Token has expired {token.ExpirationDate}");
         }
 
         await _tokenRepository.DeleteAsync(tokenId, cancellationToken);

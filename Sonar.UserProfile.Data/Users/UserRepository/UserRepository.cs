@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
 
@@ -18,15 +19,34 @@ public class UserRepository : IUserRepository
         var entity = await _context.Users
             .FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
-        //TODO: добавить класс эксешенов и мидлварки
         if (entity is null)
         {
-            throw new Exception($"User with id = {id} does not exists");
+            throw new UserNotFoundException($"User with id = {id} does not exists");
         }
 
         return new User
         {
             Id = entity.Id,
+            Email = entity.Email,
+            Password = entity.Password
+        };
+    }
+    
+    public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        email = email.ToLower();
+        var entity = await _context.Users
+            .FirstOrDefaultAsync(it => string.Equals(it.Email, email), cancellationToken);
+
+        if (entity is null)
+        {
+            throw new UserNotFoundException($"User with email = {email} does not exists");
+        }
+
+        return new User
+        {
+            Id = entity.Id,
+            Email = entity.Email,
             Password = entity.Password
         };
     }
@@ -38,15 +58,25 @@ public class UserRepository : IUserRepository
         return (IReadOnlyList<User>)users.Select(entity => new User()
         {
             Id = entity.Id,
+            Email = entity.Email,
             Password = entity.Password
         });
     }
 
     public async Task<Guid> CreateAsync(User user, CancellationToken cancellationToken)
     {
+        user.Email = user.Email.ToLower();
+        var sameEmailUser = _context.Users.FirstOrDefault(u => string.Equals(u.Email, user.Email));
+
+        if (sameEmailUser != null)
+        {
+            throw new EmailOccupiedException($"Email {user.Email} is already occupied");
+        }
+        
         var entity = new UserDbModel
         {
             Id = user.Id,
+            Email = user.Email,
             Password = user.Password
         };
 
@@ -62,7 +92,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new Exception($"User with id = {user.Id} does not exists");
+            throw new UserNotFoundException($"User with id = {user.Id} does not exists");
         }
 
         entity.Password = user.Password;
@@ -76,7 +106,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new Exception($"User with id = {id} does not exists");
+            throw new UserNotFoundException($"User with id = {id} does not exists");
         }
 
         _context.Users.Remove(entity);

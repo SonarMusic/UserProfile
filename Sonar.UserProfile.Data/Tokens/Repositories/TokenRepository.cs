@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Tokens;
 using Sonar.UserProfile.Core.Domain.Tokens.Repositories;
 
@@ -18,10 +19,9 @@ public class TokenRepository : ITokenRepository
         var entity = await _context.Tokens
             .FirstOrDefaultAsync(it => it.Id == id, cancellationToken);
 
-        //TODO: добавить класс эксешенов и мидлварки
         if (entity is null)
         {
-            throw new Exception($"Token with id = {id} does not exists");
+            throw new TokenNotFoundException($"Token with id = {id} does not exists");
         }
 
         return new Token
@@ -65,7 +65,7 @@ public class TokenRepository : ITokenRepository
 
         if (entity is null)
         {
-            throw new Exception($"Token with id = {token.Id} does not exists");
+            throw new TokenNotFoundException($"Token with id = {token.Id} does not exists");
         }
 
         entity.ExpirationDate = token.ExpirationDate;
@@ -80,7 +80,7 @@ public class TokenRepository : ITokenRepository
 
         if (entity is null)
         {
-            throw new Exception($"Token with id = {id} does not exists");
+            throw new TokenNotFoundException($"Token with id = {id} does not exists");
         }
 
         _context.Tokens.Remove(entity);
