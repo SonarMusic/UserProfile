@@ -54,9 +54,6 @@ public class ExceptionMiddleware
         Exception exception)
     {
         httpContext.Response.StatusCode = (int)httpStatusCode;
-        return httpContext.Response.WriteAsJsonAsync(new
-        {
-            exception.Message
-        });
+        return httpContext.Response.WriteAsJsonAsync(exception.Message);
     }
 }
