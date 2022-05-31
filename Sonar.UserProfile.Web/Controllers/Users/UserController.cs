@@ -3,6 +3,7 @@ using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Services;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Sonar.UserProfile.Web.Controllers.Users;
 
@@ -24,9 +25,9 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token (ID of generated token to be precise).</returns>
     [HttpPost("register")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(string), 400)]
-    [ProducesResponseType(500)]
+    [SwaggerResponse(200)]
+    [SwaggerResponse(400)]
+    [SwaggerResponse(500)]
     public Task<Guid> Register(UserRegisterDto userRegisterDto, CancellationToken cancellationToken = default)
     {
         var user = new User
@@ -45,10 +46,10 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token (ID of generated token to be precise).</returns>
     [HttpPatch("login")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(string), 401)]
-    [ProducesResponseType(typeof(string), 404)]
-    [ProducesResponseType(500)]
+    [SwaggerResponse(200)]
+    [SwaggerResponse(401)]
+    [SwaggerResponse(404)]
+    [SwaggerResponse(500)]
     public Task<Guid> Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
     {
         var user = new User
@@ -67,12 +68,12 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>Task</returns>
     [HttpPatch("logout")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(string), 400)]
-    [ProducesResponseType(typeof(string), 401)]
-    [ProducesResponseType(typeof(string), 403)]
-    [ProducesResponseType(typeof(string), 404)]
-    [ProducesResponseType(500)]
+    [SwaggerResponse(200)]
+    [SwaggerResponse(400)]
+    [SwaggerResponse(401)]
+    [SwaggerResponse(403)]
+    [SwaggerResponse(404)]
+    [SwaggerResponse(500)]
     public Task Logout([FromHeader(Name = "Token")] string tokenHeader, CancellationToken cancellationToken = default)
     {
         // TODO: Когда-нибудь мы сделаем middleware, которая валидирует токен вне контроллера.
@@ -102,11 +103,11 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
     [HttpGet("get")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(string), 400)]
-    [ProducesResponseType(typeof(string), 403)]
-    [ProducesResponseType(typeof(string), 404)]
-    [ProducesResponseType(500)]
+    [SwaggerResponse(200)]
+    [SwaggerResponse(400)]
+    [SwaggerResponse(403)]
+    [SwaggerResponse(404)]
+    [SwaggerResponse(500)]
     public async Task<UserGetDto> Get([FromHeader(Name = "Token")] string tokenHeader, CancellationToken cancellationToken = default)
     {
         if (tokenHeader is null)

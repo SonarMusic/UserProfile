@@ -1,12 +1,12 @@
 using System.Reflection;
 using Sonar.UserProfile.Core;
 using Sonar.UserProfile.Data;
-using Sonar.UserProfile.Web.Middlewares;
+using Sonar.UserProfile.Web.Filters;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.Filters.Add<ExceptionFilter>());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -25,8 +25,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseRouting();
