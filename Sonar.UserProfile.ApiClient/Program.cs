@@ -6,5 +6,6 @@ public static class Program
     {
         var httpClient = new HttpClient();
         var userClient = new UserApiClient("https://localhost:7062/", httpClient);
+        userClient.LoginAsync(new UserLoginDto { Email = "d", Password = "c" }).GetAwaiter().GetResult();
     }
 }
