@@ -23,7 +23,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="userRegisterDto">DTO which contains parameters for new user: email, password.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>New token (ID of generated token to be precise).</returns>
+    /// <returns>New token.</returns>
     [HttpPost("register")]
     [SwaggerResponse(200)]
     [SwaggerResponse(400)]
@@ -44,7 +44,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="userLoginDto">DTO which contains parameters to identify user: email, password</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>New token (ID of generated token to be precise).</returns>
+    /// <returns>New token.</returns>
     [HttpPatch("login")]
     [SwaggerResponse(200)]
     [SwaggerResponse(401)]
@@ -64,7 +64,7 @@ public class UserController : ControllerBase
     /// <summary>
     /// Return a user model if token hasn't expired yet.
     /// </summary>
-    /// <param name="tokenHeader">Contains token (ID of token to be precise).</param>
+    /// <param name="tokenHeader">Contains token.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
     [HttpGet("get")]

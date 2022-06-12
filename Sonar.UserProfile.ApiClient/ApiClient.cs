@@ -57,7 +57,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Return a user model if token hasn't expired yet.
         /// </summary>
-        /// <param name="token">Contains token (ID of token to be precise).</param>
+        /// <param name="token">Contains token.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<UserGetDto> GetAsync(string token);
@@ -66,7 +66,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Return a user model if token hasn't expired yet.
         /// </summary>
-        /// <param name="token">Contains token (ID of token to be precise).</param>
+        /// <param name="token">Contains token.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<UserGetDto> GetAsync(string token, System.Threading.CancellationToken cancellationToken);
@@ -311,7 +311,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Return a user model if token hasn't expired yet.
         /// </summary>
-        /// <param name="token">Contains token (ID of token to be precise).</param>
+        /// <param name="token">Contains token.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task<UserGetDto> GetAsync(string token)
@@ -323,7 +323,7 @@ namespace Sonar.UserProfile.ApiClient
         /// <summary>
         /// Return a user model if token hasn't expired yet.
         /// </summary>
-        /// <param name="token">Contains token (ID of token to be precise).</param>
+        /// <param name="token">Contains token.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<UserGetDto> GetAsync(string token, System.Threading.CancellationToken cancellationToken)
