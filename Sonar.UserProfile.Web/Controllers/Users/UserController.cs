@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Services;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
+using Sonar.UserProfile.Web.Filters;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Sonar.UserProfile.Web.Controllers.Users;
@@ -28,7 +28,7 @@ public class UserController : ControllerBase
     [SwaggerResponse(200)]
     [SwaggerResponse(400)]
     [SwaggerResponse(500)]
-    public Task<Guid> Register(UserRegisterDto userRegisterDto, CancellationToken cancellationToken = default)
+    public Task<string> Register(UserRegisterDto userRegisterDto, CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -50,7 +50,7 @@ public class UserController : ControllerBase
     [SwaggerResponse(401)]
     [SwaggerResponse(404)]
     [SwaggerResponse(500)]
-    public Task<Guid> Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
+    public Task<string> Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -62,70 +62,31 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Delete token.
-    /// </summary>
-    /// <param name="tokenHeader">DTO which contains token (ID of token to be precise).</param>
-    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>Task</returns>
-    [HttpPatch("logout")]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(400)]
-    [SwaggerResponse(401)]
-    [SwaggerResponse(403)]
-    [SwaggerResponse(404)]
-    [SwaggerResponse(500)]
-    public Task Logout([FromHeader(Name = "Token")] string tokenHeader, CancellationToken cancellationToken = default)
-    {
-        // TODO: Когда-нибудь мы сделаем middleware, которая валидирует токен вне контроллера.
-        // TODO: НО НЕ СЕГОДНЯ.
-        if (tokenHeader is null)
-        {
-            throw new InvalidRequestException("Your header does not contain a token.");
-        }
-
-        Guid tokenId;
-        try
-        {
-            tokenId = Guid.Parse(tokenHeader);
-        }
-        catch (Exception _)
-        {
-            throw new InvalidRequestException("Your header contains incorrect token.");
-        }
-
-        return _userService.Logout(tokenId, cancellationToken);
-    }
-
-    /// <summary>
     /// Return a user model if token hasn't expired yet.
     /// </summary>
     /// <param name="tokenHeader">Contains token (ID of token to be precise).</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
     [HttpGet("get")]
+    [AuthorizationFilter]
     [SwaggerResponse(200)]
     [SwaggerResponse(400)]
     [SwaggerResponse(403)]
     [SwaggerResponse(404)]
     [SwaggerResponse(500)]
-    public async Task<UserGetDto> Get([FromHeader(Name = "Token")] string tokenHeader, CancellationToken cancellationToken = default)
+    public async Task<UserGetDto> Get(
+        [FromHeader(Name = "Token")] string tokenHeader,
+        CancellationToken cancellationToken = default)
     {
-        if (tokenHeader is null)
+        var userIdItem = HttpContext.Items["UserId"];
+
+        if (userIdItem is null)
         {
-            throw new InvalidRequestException("Your header does not contain a token.");
+            throw new Exception("Incorrect user id item");
         }
 
-        Guid tokenId;
-        try
-        {
-            tokenId = Guid.Parse(tokenHeader);
-        }
-        catch (Exception _)
-        {
-            throw new InvalidRequestException("Your header contains incorrect token.");
-        }
-
-        var user = await _userService.GetByIdAsync(tokenId, cancellationToken);
+        var userId = (Guid)userIdItem;
+        var user = await _userService.GetByIdAsync(userId, cancellationToken);
 
         return new UserGetDto
         {
