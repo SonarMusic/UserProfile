@@ -27,7 +27,7 @@ public class UserApiClient : IApiClient
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<string> RegisterAsync(UserRegisterDto userRegisterDto, CancellationToken cancellationToken)
     {
-        var request = CreateRequestWithContent("/User/register", "POST", userRegisterDto);
+        var request = CreateRequestWithContent("/user/register", "POST", userRegisterDto);
         var response =
             await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
@@ -49,7 +49,7 @@ public class UserApiClient : IApiClient
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<string> LoginAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken)
     {
-        var request = CreateRequestWithContent("/User/login", "PATCH", userLoginDto);
+        var request = CreateRequestWithContent("/user/login", "PATCH", userLoginDto);
         var response =
             await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
@@ -72,7 +72,7 @@ public class UserApiClient : IApiClient
         string token,
         CancellationToken cancellationToken)
     {
-        var request = CreateRequestWithToken("/User/get", "GET", token);
+        var request = CreateRequestWithToken("/user/get", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
         {

@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.OpenApi.Models;
 using Sonar.UserProfile.Core;
 using Sonar.UserProfile.Data;
 using Sonar.UserProfile.Web.Filters;
