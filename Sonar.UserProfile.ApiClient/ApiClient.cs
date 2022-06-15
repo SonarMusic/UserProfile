@@ -28,7 +28,8 @@ public class UserApiClient : IApiClient
     public async Task<string> RegisterAsync(UserRegisterDto userRegisterDto, CancellationToken cancellationToken)
     {
         var request = CreateRequestWithContent("/User/register", "POST", userRegisterDto);
-        var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var response =
+            await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.OK)
         {
@@ -49,7 +50,8 @@ public class UserApiClient : IApiClient
     public async Task<string> LoginAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken)
     {
         var request = CreateRequestWithContent("/User/login", "PATCH", userLoginDto);
-        var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var response =
+            await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
         {
             return await response.Content.ReadAsStringAsync(cancellationToken);
@@ -71,11 +73,14 @@ public class UserApiClient : IApiClient
         CancellationToken cancellationToken)
     {
         var request = CreateRequestWithToken("/User/get", "GET", token);
-        var response = await _httpClient.SendAsync(request, cancellationToken);        
+        var response = await _httpClient.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
         {
             var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-            var responseDeserialized = JsonSerializer.Deserialize<UserGetDto>(responseString);
+            var responseDeserialized = JsonSerializer.Deserialize<UserGetDto>(responseString, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
             return responseDeserialized!;
         }
 
@@ -92,7 +97,7 @@ public class UserApiClient : IApiClient
 
         return request;
     }
-    
+
     private HttpRequestMessage CreateRequestWithToken(string route, string restVerb, string token)
     {
         var request = new HttpRequestMessage();

@@ -9,7 +9,7 @@ public static class Program
         var httpClient = new HttpClient();
         var apiClient = new UserApiClient("https://localhost:7062", httpClient);
 
-        var token = apiClient.RegisterAsync(new UserRegisterDto
+        var token = apiClient.LoginAsync(new UserLoginDto
         {
             Email = "cwq@v.r",
             Password = "abcsdvsdv"
