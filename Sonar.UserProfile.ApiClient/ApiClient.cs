@@ -2,14 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
 
 namespace Sonar.UserProfile.ApiClient;
 
 public class UserApiClient : IApiClient
 {
-    private string _baseUrl = "";
     private readonly HttpClient _httpClient;
 
     public UserApiClient(string baseUrl, HttpClient httpClient)
@@ -18,11 +16,7 @@ public class UserApiClient : IApiClient
         _httpClient = httpClient;
     }
 
-    public string BaseUrl
-    {
-        get => _baseUrl;
-        set => _baseUrl = value;
-    }
+    public string BaseUrl { get; set; }
 
     /// <summary>
     /// Create new user with new token which will expire in 7 days.
@@ -33,32 +27,16 @@ public class UserApiClient : IApiClient
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<string> RegisterAsync(UserRegisterDto userRegisterDto, CancellationToken cancellationToken)
     {
-        var urlBuilder = new StringBuilder();
-        urlBuilder.Append(_baseUrl).Append("/User/register");
-
-        var url = urlBuilder.ToString();
-
-        var content = JsonContent.Create(userRegisterDto);
-        var response = await _httpClient.PostAsync(url, content, cancellationToken);
+        var request = CreateRequestWithContent("/User/register", "POST", userRegisterDto);
+        var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.OK)
         {
             return await response.Content.ReadAsStringAsync(cancellationToken);
         }
 
-        var messageBuilder = new StringBuilder();
-        messageBuilder.Append("Status code: ");
-        messageBuilder.Append(response.StatusCode);
-
-        if (response.StatusCode == HttpStatusCode.InternalServerError)
-        {
-            throw new ApiClientException(messageBuilder.ToString());
-        }
-
-        messageBuilder.Append(". Message: ");
-        messageBuilder.Append(await response.Content.ReadAsStringAsync(cancellationToken));
-
-        throw new ApiClientException(messageBuilder.ToString());
+        var errorMessage = await CreateErrorMessage(response, cancellationToken);
+        throw new ApiClientException(errorMessage);
     }
 
     /// <summary>
@@ -70,54 +48,30 @@ public class UserApiClient : IApiClient
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<string> LoginAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken)
     {
-        var urlBuilder = new StringBuilder();
-        urlBuilder.Append(_baseUrl).Append("/User/login");
-
-        var url = urlBuilder.ToString();
-
-        var content = JsonContent.Create(userLoginDto);
-        var response = await _httpClient.PatchAsync(url, content, cancellationToken);
-
+        var request = CreateRequestWithContent("/User/login", "PATCH", userLoginDto);
+        var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
         {
             return await response.Content.ReadAsStringAsync(cancellationToken);
         }
 
-        var messageBuilder = new StringBuilder();
-        messageBuilder.Append("Status code: ");
-        messageBuilder.Append(response.StatusCode);
-
-        if (response.StatusCode == HttpStatusCode.InternalServerError)
-        {
-            throw new ApiClientException(messageBuilder.ToString());
-        }
-
-        messageBuilder.Append(". Message: ");
-        messageBuilder.Append(await response.Content.ReadAsStringAsync(cancellationToken));
-
-        throw new ApiClientException(messageBuilder.ToString());
+        var errorMessage = await CreateErrorMessage(response, cancellationToken);
+        throw new ApiClientException(errorMessage);
     }
 
     /// <summary>
     /// Return a user model if token hasn't expired yet.
     /// </summary>
-    /// <param name="tokenHeader">Contains token.</param>
+    /// <param name="token">User token.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<UserGetDto> GetAsync(
-        [FromHeader(Name = "Token")] string tokenHeader,
+        string token,
         CancellationToken cancellationToken)
     {
-        var urlBuilder = new StringBuilder();
-        urlBuilder.Append(_baseUrl).Append("/User/get");
-
-        var url = urlBuilder.ToString();
-            
-        _httpClient.DefaultRequestHeaders.Add("Token", tokenHeader);
-        var response = await _httpClient.GetAsync(url, cancellationToken);
-        _httpClient.DefaultRequestHeaders.Clear();
-
+        var request = CreateRequestWithToken("/User/get", "GET", token);
+        var response = await _httpClient.SendAsync(request, cancellationToken);        
         if (response.StatusCode == HttpStatusCode.OK)
         {
             var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -125,18 +79,44 @@ public class UserApiClient : IApiClient
             return responseDeserialized!;
         }
 
+        var errorMessage = await CreateErrorMessage(response, cancellationToken);
+        throw new ApiClientException(errorMessage);
+    }
+
+    private HttpRequestMessage CreateRequestWithContent(string route, string restVerb, object content)
+    {
+        var request = new HttpRequestMessage();
+        request.RequestUri = new Uri($"{BaseUrl}{route}");
+        request.Method = new HttpMethod(restVerb);
+        request.Content = JsonContent.Create(content);
+
+        return request;
+    }
+    
+    private HttpRequestMessage CreateRequestWithToken(string route, string restVerb, string token)
+    {
+        var request = new HttpRequestMessage();
+        request.RequestUri = new Uri($"{BaseUrl}{route}");
+        request.Method = new HttpMethod(restVerb);
+        request.Headers.Add("Token", token);
+
+        return request;
+    }
+
+    private async Task<string> CreateErrorMessage(HttpResponseMessage response, CancellationToken cancellationToken)
+    {
         var messageBuilder = new StringBuilder();
         messageBuilder.Append("Status code: ");
         messageBuilder.Append(response.StatusCode);
 
         if (response.StatusCode == HttpStatusCode.InternalServerError)
         {
-            throw new ApiClientException(messageBuilder.ToString());
+            return messageBuilder.ToString();
         }
 
         messageBuilder.Append(". Message: ");
         messageBuilder.Append(await response.Content.ReadAsStringAsync(cancellationToken));
 
-        throw new ApiClientException(messageBuilder.ToString());
+        return messageBuilder.ToString();
     }
 }
