@@ -8,7 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Sonar.UserProfile.Web.Controllers.Users;
 
 [ApiController]
-[Route("[controller]")]
+[Route("user")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -64,7 +64,6 @@ public class UserController : ControllerBase
     /// <summary>
     /// Return a user model if token hasn't expired yet.
     /// </summary>
-    /// <param name="tokenHeader">Contains token.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
     [HttpGet("get")]
@@ -74,9 +73,7 @@ public class UserController : ControllerBase
     [SwaggerResponse(403)]
     [SwaggerResponse(404)]
     [SwaggerResponse(500)]
-    public async Task<UserGetDto> Get(
-        [FromHeader(Name = "Token")] string tokenHeader,
-        CancellationToken cancellationToken = default)
+    public async Task<UserGetDto> Get(CancellationToken cancellationToken = default)
     {
         var userIdItem = HttpContext.Items["UserId"];
 
