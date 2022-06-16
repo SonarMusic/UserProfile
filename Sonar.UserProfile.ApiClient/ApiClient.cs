@@ -88,6 +88,11 @@ public class UserApiClient : IApiClient
         throw new ApiClientException(errorMessage);
     }
 
+    public Task AddFriendAsync(string token, string friendEmail, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     private HttpRequestMessage CreateRequestWithContent(string route, string restVerb, object content)
     {
         var request = new HttpRequestMessage();

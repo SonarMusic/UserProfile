@@ -35,6 +35,7 @@ public class UserService : IUserService
     {
         user.Id = Guid.NewGuid();
         user.Password = _passwordEncoder.Encode(user.Password);
+        user.Friends = new List<User>();
 
         const int tokenLifeDays = 7;
         var secret = _configuration["Secret"];
@@ -44,7 +45,7 @@ public class UserService : IUserService
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity( new []
+            Subject = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             }),
@@ -76,10 +77,10 @@ public class UserService : IUserService
         var issuer = _configuration["Issuer"];
         var audience = _configuration["Audience"];
         var tokenHandler = new JwtSecurityTokenHandler();
-        
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity( new []
+            Subject = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, dataBaseUser.Id.ToString())
             }),
@@ -91,6 +92,23 @@ public class UserService : IUserService
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        return tokenHandler.WriteToken(token);;
+        return tokenHandler.WriteToken(token);
+    }
+
+    public async Task AddFriend(Guid userId, string friendEmail, CancellationToken cancellationToken)
+    {
+        var dataBaseUser = await _userRepository.GetByIdAsync(userId, cancellationToken);
+        
+        if (dataBaseUser.Email == friendEmail)
+        {
+            throw new InvalidRequestException("Users must be different.");
+        }
+        
+        var dataBaseFriend = await _userRepository.GetByEmailAsync(friendEmail, cancellationToken);
+
+        // TODO: Дупликации базы быть не должно!
+        dataBaseUser.Friends.Add(dataBaseFriend);
+        dataBaseFriend.Friends.Add(dataBaseUser);
+        await _userRepository.UpdateAsync(dataBaseUser, cancellationToken);
     }
 }

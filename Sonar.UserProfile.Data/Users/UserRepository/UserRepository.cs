@@ -28,7 +28,13 @@ public class UserRepository : IUserRepository
         {
             Id = entity.Id,
             Email = entity.Email,
-            Password = entity.Password
+            Password = entity.Password,
+            Friends = entity.Friends.Select(uf => new User
+            {
+                Id = uf.FriendId,
+                Email = uf.Friend.Email,
+                Password = uf.Friend.Password
+            }).ToList()
         };
     }
     
@@ -47,7 +53,13 @@ public class UserRepository : IUserRepository
         {
             Id = entity.Id,
             Email = entity.Email,
-            Password = entity.Password
+            Password = entity.Password,
+            Friends = entity.Friends.Select(uf => new User
+            {
+                Id = uf.FriendId,
+                Email = uf.Friend.Email,
+                Password = uf.Friend.Password
+            }).ToList()
         };
     }
 
@@ -55,11 +67,17 @@ public class UserRepository : IUserRepository
     {
         var users = await _context.Users.ToListAsync(cancellationToken);
 
-        return (IReadOnlyList<User>)users.Select(entity => new User()
+        return (IReadOnlyList<User>)users.Select(entity => new User
         {
             Id = entity.Id,
             Email = entity.Email,
-            Password = entity.Password
+            Password = entity.Password,
+            Friends = entity.Friends.Select(uf => new User
+            {
+                Id = uf.FriendId,
+                Email = uf.Friend.Email,
+                Password = uf.Friend.Password
+            }).ToList()
         });
     }
 
@@ -77,7 +95,12 @@ public class UserRepository : IUserRepository
         {
             Id = user.Id,
             Email = user.Email,
-            Password = user.Password
+            Password = user.Password,
+            Friends = user.Friends.Select(f => new UserFriendDbModel
+            {
+                UserId = user.Id,
+                FriendId = f.Id
+            }).ToList()
         };
 
         await _context.Users.AddAsync(entity, cancellationToken);
@@ -95,8 +118,15 @@ public class UserRepository : IUserRepository
             throw new UserNotFoundException($"User with id = {user.Id} does not exists");
         }
 
+        entity.Email = user.Email;
         entity.Password = user.Password;
+        entity.Friends = user.Friends.Select(f => new UserFriendDbModel
+        {
+            UserId = entity.Id,
+            FriendId = f.Id
+        }).ToList();
 
+        _context.Users.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
     }
 

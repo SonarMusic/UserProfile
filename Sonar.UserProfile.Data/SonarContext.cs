@@ -28,6 +28,24 @@ namespace Sonar.UserProfile.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<UserFriendDbModel>()
+                .HasKey(uf => new
+                    {
+                        uf.UserId,
+                        uf.FriendId
+                    }
+                );
+            modelBuilder.Entity<UserFriendDbModel>()
+                .HasOne(uf => uf.Friend)
+                .WithMany()
+                .HasForeignKey(uf => uf.FriendId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserFriendDbModel>()
+                .HasOne(uf => uf.User)
+                .WithMany(u => u.Friends)
+                .HasForeignKey(uf => uf.UserId);
+
             base.OnModelCreating(modelBuilder);
         }
     }

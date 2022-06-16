@@ -64,6 +64,7 @@ public class UserController : ControllerBase
     /// <summary>
     /// Return a user model if token hasn't expired yet.
     /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
     [HttpGet("get")]
@@ -73,7 +74,9 @@ public class UserController : ControllerBase
     [SwaggerResponse(403)]
     [SwaggerResponse(404)]
     [SwaggerResponse(500)]
-    public async Task<UserGetDto> Get(CancellationToken cancellationToken = default)
+    public async Task<UserGetDto> Get(
+        [FromHeader(Name = "Token")] string token,
+        CancellationToken cancellationToken = default)
     {
         var userIdItem = HttpContext.Items["UserId"];
 
@@ -88,7 +91,41 @@ public class UserController : ControllerBase
         return new UserGetDto
         {
             Id = user.Id,
-            Email = user.Email
+            Email = user.Email,
+            Friends = user.Friends.Select(f => new UserGetDto
+            {
+                Id = f.Id,
+                Email = f.Email
+            }).ToList()
         };
+    }
+
+    /// <summary>
+    /// Add a friend to user if token hasn't expired yet.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="friendEmail">An email if friend who you want to add.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    [HttpPatch("add-friend")]
+    [AuthorizationFilter]
+    [SwaggerResponse(200)]
+    [SwaggerResponse(400)]
+    [SwaggerResponse(403)]
+    [SwaggerResponse(404)]
+    [SwaggerResponse(500)]
+    public Task AddFriend(
+        [FromHeader(Name = "Token")] string token,
+        string friendEmail, 
+        CancellationToken cancellationToken = default)
+    {
+        var userIdItem = HttpContext.Items["UserId"];
+
+        if (userIdItem is null)
+        {
+            throw new Exception("Incorrect user id item");
+        }
+
+        var userId = (Guid)userIdItem;
+        return _userService.AddFriend(userId, friendEmail, cancellationToken);
     }
 }
