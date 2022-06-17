@@ -4,23 +4,29 @@ namespace Sonar.UserProfile.ApiClient;
 
 public static class Program
 {
-    public static void Main()
+    public static async Task Main()
     {
         var httpClient = new HttpClient();
         var apiClient = new UserApiClient("https://localhost:7062", httpClient);
 
-        var token = apiClient.LoginAsync(new UserLoginDto
-        {
-            Email = "cwq@v.r",
-            Password = "abcsdvsdv"
-        }, CancellationToken.None).Result;
-        
+
         try
         {
-            var t = apiClient.GetAsync(token, CancellationToken.None);
+            var token1 = apiClient.RegisterAsync(
+                new UserRegisterDto { Email = "a5@a.a", Password = "cvsbva" },
+                CancellationToken.None).Result;
+            
+            var token2 = apiClient.RegisterAsync(
+                new UserRegisterDto { Email = "b5@b.b", Password = "cvsbva" },
+                CancellationToken.None).Result;
 
-            Console.WriteLine(t.Result.Email);
-            Console.WriteLine(t.Result.Id);
+            await apiClient.AddFriendAsync(token1, "b5@b.b", CancellationToken.None);
+
+            var friends1 = apiClient.GetFriendsAsync(token1, CancellationToken.None);
+            var friends2 = apiClient.GetFriendsAsync(token2, CancellationToken.None);
+
+            Console.WriteLine(friends1.Result[0].Email);
+            Console.WriteLine(friends2.Result[0].Email);
         }
         catch (ApiClientException exception)
         {

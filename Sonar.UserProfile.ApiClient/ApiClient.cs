@@ -27,9 +27,8 @@ public class UserApiClient : IApiClient
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<string> RegisterAsync(UserRegisterDto userRegisterDto, CancellationToken cancellationToken)
     {
-        var request = CreateRequestWithContent("/user/register", "POST", userRegisterDto);
-        var response =
-            await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var request = CreateContentRequest("/user/register", "POST", userRegisterDto);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.OK)
         {
@@ -49,9 +48,8 @@ public class UserApiClient : IApiClient
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<string> LoginAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken)
     {
-        var request = CreateRequestWithContent("/user/login", "PATCH", userLoginDto);
-        var response =
-            await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        var request = CreateContentRequest("/user/login", "PATCH", userLoginDto);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
         {
             return await response.Content.ReadAsStringAsync(cancellationToken);
@@ -68,11 +66,9 @@ public class UserApiClient : IApiClient
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
-    public async Task<UserGetDto> GetAsync(
-        string token,
-        CancellationToken cancellationToken)
+    public async Task<UserGetDto> GetAsync(string token, CancellationToken cancellationToken)
     {
-        var request = CreateRequestWithToken("/user/get", "GET", token);
+        var request = CreateTokenRequest("/user/get", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
         {
@@ -88,12 +84,53 @@ public class UserApiClient : IApiClient
         throw new ApiClientException(errorMessage);
     }
 
-    public Task AddFriendAsync(string token, string friendEmail, CancellationToken cancellationToken)
+    /// <summary>
+    /// Add a friend to user if token hasn't expired yet.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user..</param>
+    /// <param name="friendEmail">An email if friend who you want to add.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    public async Task AddFriendAsync(string token, string friendEmail, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var request = CreateContentAndTokenRequest("/user/add-friend", "PATCH", token, friendEmail);
+
+        var response = await _httpClient.SendAsync(request, cancellationToken);
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            return;
+        }
+
+        var errorMessage = await CreateErrorMessage(response, cancellationToken);
+        throw new ApiClientException(errorMessage);
     }
 
-    private HttpRequestMessage CreateRequestWithContent(string route, string restVerb, object content)
+    /// <summary>
+    /// Return a friend list if token hasn't expired yet.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <returns>List of user's friends. Every friend is UserGetDto which contains: Id, Email.</returns>
+    public async Task<IReadOnlyList<UserGetDto>> GetFriendsAsync(string token, CancellationToken cancellationToken)
+    {
+        var request = CreateTokenRequest("/user/get-friends", "GET", token);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
+            var responseDeserialized = JsonSerializer.Deserialize<IReadOnlyList<UserGetDto>>(responseString,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            return responseDeserialized!;
+        }
+
+        var errorMessage = await CreateErrorMessage(response, cancellationToken);
+        throw new ApiClientException(errorMessage);
+    }
+
+    private HttpRequestMessage CreateContentRequest(string route, string restVerb, object content)
     {
         var request = new HttpRequestMessage();
         request.RequestUri = new Uri($"{BaseUrl}{route}");
@@ -103,12 +140,23 @@ public class UserApiClient : IApiClient
         return request;
     }
 
-    private HttpRequestMessage CreateRequestWithToken(string route, string restVerb, string token)
+    private HttpRequestMessage CreateTokenRequest(string route, string restVerb, string token)
     {
         var request = new HttpRequestMessage();
         request.RequestUri = new Uri($"{BaseUrl}{route}");
         request.Method = new HttpMethod(restVerb);
         request.Headers.Add("Token", token);
+
+        return request;
+    }
+
+    private HttpRequestMessage CreateContentAndTokenRequest(string route, string restVerb, string token, object content)
+    {
+        var request = new HttpRequestMessage();
+        request.RequestUri = new Uri($"{BaseUrl}{route}");
+        request.Method = new HttpMethod(restVerb);
+        request.Headers.Add("Token", token);
+        request.Content = JsonContent.Create(content);
 
         return request;
     }
@@ -119,10 +167,10 @@ public class UserApiClient : IApiClient
         messageBuilder.Append("Status code: ");
         messageBuilder.Append(response.StatusCode);
 
-        if (response.StatusCode == HttpStatusCode.InternalServerError)
+        /*if (response.StatusCode == HttpStatusCode.InternalServerError)
         {
             return messageBuilder.ToString();
-        }
+        }*/
 
         messageBuilder.Append(". Message: ");
         messageBuilder.Append(await response.Content.ReadAsStringAsync(cancellationToken));

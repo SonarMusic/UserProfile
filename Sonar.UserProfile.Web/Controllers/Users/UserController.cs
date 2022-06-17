@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Services;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
@@ -110,7 +111,7 @@ public class UserController : ControllerBase
     [SwaggerResponse(500)]
     public Task AddFriend(
         [FromHeader(Name = "Token")] string token,
-        string friendEmail,
+        [FromBody] string friendEmail,
         CancellationToken cancellationToken = default)
     {
         var userIdItem = HttpContext.Items["UserId"];
@@ -118,6 +119,11 @@ public class UserController : ControllerBase
         if (userIdItem is null)
         {
             throw new Exception("Incorrect user id item");
+        }
+
+        if (friendEmail is null)
+        {
+            throw new InvalidRequestException("Friend's email is null");
         }
 
         var userId = (Guid)userIdItem;
@@ -130,14 +136,14 @@ public class UserController : ControllerBase
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>List of user's friends. Every friend is UserGetDto which contains: Id, Email.</returns>
-    [HttpPatch("get-friends")]
+    [HttpGet("get-friends")]
     [AuthorizationFilter]
     [SwaggerResponse(200)]
     [SwaggerResponse(400)]
     [SwaggerResponse(403)]
     [SwaggerResponse(404)]
     [SwaggerResponse(500)]
-    public async Task<IReadOnlyList<UserGetDto>> GetFriendsById(
+    public async Task<IReadOnlyList<UserGetDto>> GetFriends(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
