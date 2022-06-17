@@ -91,12 +91,7 @@ public class UserController : ControllerBase
         return new UserGetDto
         {
             Id = user.Id,
-            Email = user.Email,
-            Friends = user.Friends.Select(f => new UserGetDto
-            {
-                Id = f.Id,
-                Email = f.Email
-            }).ToList()
+            Email = user.Email
         };
     }
 
@@ -115,7 +110,7 @@ public class UserController : ControllerBase
     [SwaggerResponse(500)]
     public Task AddFriend(
         [FromHeader(Name = "Token")] string token,
-        string friendEmail, 
+        string friendEmail,
         CancellationToken cancellationToken = default)
     {
         var userIdItem = HttpContext.Items["UserId"];
@@ -127,5 +122,39 @@ public class UserController : ControllerBase
 
         var userId = (Guid)userIdItem;
         return _userService.AddFriend(userId, friendEmail, cancellationToken);
+    }
+
+    /// <summary>
+    /// Return a friend list if token hasn't expired yet.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <returns>List of user's friends. Every friend is UserGetDto which contains: Id, Email.</returns>
+    [HttpPatch("get-friends")]
+    [AuthorizationFilter]
+    [SwaggerResponse(200)]
+    [SwaggerResponse(400)]
+    [SwaggerResponse(403)]
+    [SwaggerResponse(404)]
+    [SwaggerResponse(500)]
+    public async Task<IReadOnlyList<UserGetDto>> GetFriendsById(
+        [FromHeader(Name = "Token")] string token,
+        CancellationToken cancellationToken = default)
+    {
+        var userIdItem = HttpContext.Items["UserId"];
+
+        if (userIdItem is null)
+        {
+            throw new Exception("Incorrect user id item");
+        }
+
+        var userId = (Guid)userIdItem;
+        var friends = await _userService.GetFriendsById(userId, cancellationToken);
+
+        return friends.Select(f => new UserGetDto
+        {
+            Id = f.Id,
+            Email = f.Email
+        }).ToList();
     }
 }

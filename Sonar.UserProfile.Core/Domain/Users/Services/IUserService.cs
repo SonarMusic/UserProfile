@@ -6,4 +6,5 @@ public interface IUserService
     Task<string> RegisterAsync(User user, CancellationToken cancellationToken);
     Task<string> LoginAsync(User user, CancellationToken cancellationToken);
     Task AddFriend(Guid userId, string friendEmail, CancellationToken cancellationToken);
+    Task<IReadOnlyList<User>> GetFriendsById(Guid userId, CancellationToken cancellationToken);
 }

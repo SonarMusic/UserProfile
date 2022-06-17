@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
-using Sonar.UserProfile.Data.Users.Encoders;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 
@@ -14,28 +13,24 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
+    private readonly IPasswordEncoder _passwordEncoder;
 
-    // todo: remove hardcoding
-    private IPasswordEncoder _passwordEncoder = new BCryptPasswordEncoder();
-
-    public UserService(IUserRepository userRepository, IConfiguration configuration)
+    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordEncoder passwordEncoder)
     {
         _userRepository = userRepository;
         _configuration = configuration;
+        _passwordEncoder = passwordEncoder;
     }
 
-    public async Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
-
-        return user;
+        return _userRepository.GetByIdAsync(userId, cancellationToken);
     }
 
     public async Task<string> RegisterAsync(User user, CancellationToken cancellationToken)
     {
         user.Id = Guid.NewGuid();
         user.Password = _passwordEncoder.Encode(user.Password);
-        user.Friends = new List<User>();
 
         const int tokenLifeDays = 7;
         var secret = _configuration["Secret"];
@@ -98,17 +93,23 @@ public class UserService : IUserService
     public async Task AddFriend(Guid userId, string friendEmail, CancellationToken cancellationToken)
     {
         var dataBaseUser = await _userRepository.GetByIdAsync(userId, cancellationToken);
-        
+
         if (dataBaseUser.Email == friendEmail)
         {
             throw new InvalidRequestException("Users must be different.");
         }
-        
         var dataBaseFriend = await _userRepository.GetByEmailAsync(friendEmail, cancellationToken);
 
-        // TODO: Дупликации базы быть не должно!
-        dataBaseUser.Friends.Add(dataBaseFriend);
-        dataBaseFriend.Friends.Add(dataBaseUser);
-        await _userRepository.UpdateAsync(dataBaseUser, cancellationToken);
+        if (await _userRepository.IsFriendsAsync(userId, dataBaseFriend.Id, cancellationToken))
+        {
+            throw new DataOccupiedException("These users are already friends.");
+        }
+
+        await _userRepository.AddFriendAsync(userId, dataBaseFriend.Id, cancellationToken);
+    }
+
+    public Task<IReadOnlyList<User>> GetFriendsById(Guid userId, CancellationToken cancellationToken)
+    {
+        return _userRepository.GetFriendsByIdAsync(userId, cancellationToken);
     }
 }

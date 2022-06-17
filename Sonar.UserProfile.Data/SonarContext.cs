@@ -7,6 +7,7 @@ namespace Sonar.UserProfile.Data
     public class SonarContext : DbContext
     {
         public DbSet<UserDbModel> Users { get; set; }
+        public DbSet<UserFriendDbModel> UserFriends { get; set; }
 
         public string ConnectionString { get; }
 
@@ -35,16 +36,6 @@ namespace Sonar.UserProfile.Data
                         uf.FriendId
                     }
                 );
-            modelBuilder.Entity<UserFriendDbModel>()
-                .HasOne(uf => uf.Friend)
-                .WithMany()
-                .HasForeignKey(uf => uf.FriendId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<UserFriendDbModel>()
-                .HasOne(uf => uf.User)
-                .WithMany(u => u.Friends)
-                .HasForeignKey(uf => uf.UserId);
 
             base.OnModelCreating(modelBuilder);
         }
