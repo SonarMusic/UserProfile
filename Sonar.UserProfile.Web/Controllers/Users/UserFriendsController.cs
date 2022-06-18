@@ -11,11 +11,11 @@ namespace Sonar.UserProfile.Web.Controllers.Users;
 [Route("user-friends")]
 public class UserFriendsController : ControllerBase
 {
-    private readonly IUserService _userService;
+    private readonly IUserFriendsService _userFriendsService;
 
-    public UserFriendsController(IUserService userService)
+    public UserFriendsController(IUserFriendsService userFriendsService)
     {
-        _userService = userService;
+        _userFriendsService = userFriendsService;
     }
     
     /// <summary>
@@ -37,7 +37,7 @@ public class UserFriendsController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
-        return _userService.AddFriend(userId, friendEmail, cancellationToken);
+        return _userFriendsService.AddFriend(userId, friendEmail, cancellationToken);
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public class UserFriendsController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
-        var friends = await _userService.GetFriendsById(userId, cancellationToken);
+        var friends = await _userFriendsService.GetFriendsById(userId, cancellationToken);
 
         return friends.Select(f => new UserGetDto
         {
