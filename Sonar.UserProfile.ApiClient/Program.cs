@@ -13,14 +13,14 @@ public static class Program
         try
         {
             var token1 = apiClient.RegisterAsync(
-                new UserRegisterDto { Email = "a8@a.a", Password = "cvsbva" },
+                new UserRegisterDto { Email = "a10@a.a", Password = "cvsbva" },
                 CancellationToken.None).Result;
             
             var token2 = apiClient.RegisterAsync(
-                new UserRegisterDto { Email = "b8@b.b", Password = "cvsbva" },
+                new UserRegisterDto { Email = "b10@b.b", Password = "cvsbva" },
                 CancellationToken.None).Result;
 
-            await apiClient.AddFriendAsync(token1, "b8@b.b", CancellationToken.None);
+            await apiClient.AddFriendAsync(token1, "b10@b.b", CancellationToken.None);
 
             var friends1 = apiClient.GetFriendsAsync(token1, CancellationToken.None);
             var friends2 = apiClient.GetFriendsAsync(token2, CancellationToken.None);

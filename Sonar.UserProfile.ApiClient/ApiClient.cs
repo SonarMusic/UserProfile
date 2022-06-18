@@ -27,7 +27,7 @@ public class UserApiClient : IApiClient
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<string> RegisterAsync(UserRegisterDto userRegisterDto, CancellationToken cancellationToken)
     {
-        var request = CreateContentRequest("/user/register", "POST", userRegisterDto);
+        var request = CreateRequestWithContent("/user/register", "POST", userRegisterDto);
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.OK)
@@ -48,7 +48,7 @@ public class UserApiClient : IApiClient
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<string> LoginAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken)
     {
-        var request = CreateContentRequest("/user/login", "PATCH", userLoginDto);
+        var request = CreateRequestWithContent("/user/login", "PATCH", userLoginDto);
         var response = await _httpClient.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
         {
@@ -68,9 +68,9 @@ public class UserApiClient : IApiClient
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<UserGetDto> GetAsync(string token, CancellationToken cancellationToken)
     {
-        var request = CreateTokenRequest("/user/get", "GET", token);
+        var request = CreateRequestWithToken("/user/get", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
-        
+
         if (response.StatusCode != HttpStatusCode.OK)
         {
             var errorMessage = await CreateErrorMessage(response, cancellationToken);
@@ -93,7 +93,7 @@ public class UserApiClient : IApiClient
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     public async Task AddFriendAsync(string token, string friendEmail, CancellationToken cancellationToken)
     {
-        var request = CreateContentAndTokenRequest("/user-friends/add-friend", "POST", token, friendEmail);
+        var request = CreateRequestWithContentAndToken("/user-friends/add-friend", "POST", token, friendEmail);
 
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
@@ -114,9 +114,9 @@ public class UserApiClient : IApiClient
     /// <returns>List of user's friends. Every friend is UserGetDto which contains: Id, Email.</returns>
     public async Task<IReadOnlyList<UserGetDto>> GetFriendsAsync(string token, CancellationToken cancellationToken)
     {
-        var request = CreateTokenRequest("/user-friends/get-friends", "GET", token);
+        var request = CreateRequestWithToken("/user-friends/get-friends", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
-        
+
         if (response.StatusCode != HttpStatusCode.OK)
         {
             var errorMessage = await CreateErrorMessage(response, cancellationToken);
@@ -132,7 +132,7 @@ public class UserApiClient : IApiClient
         return responseDeserialized!;
     }
 
-    private HttpRequestMessage CreateContentRequest(string route, string restVerb, object content)
+    private HttpRequestMessage CreateRequestWithContent(string route, string restVerb, object content)
     {
         var request = new HttpRequestMessage();
         request.RequestUri = new Uri($"{BaseUrl}{route}");
@@ -142,7 +142,7 @@ public class UserApiClient : IApiClient
         return request;
     }
 
-    private HttpRequestMessage CreateTokenRequest(string route, string restVerb, string token)
+    private HttpRequestMessage CreateRequestWithToken(string route, string restVerb, string token)
     {
         var request = new HttpRequestMessage();
         request.RequestUri = new Uri($"{BaseUrl}{route}");
@@ -152,7 +152,11 @@ public class UserApiClient : IApiClient
         return request;
     }
 
-    private HttpRequestMessage CreateContentAndTokenRequest(string route, string restVerb, string token, object content)
+    private HttpRequestMessage CreateRequestWithContentAndToken(
+        string route,
+        string restVerb,
+        string token,
+        object content)
     {
         var request = new HttpRequestMessage();
         request.RequestUri = new Uri($"{BaseUrl}{route}");
