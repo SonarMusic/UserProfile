@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Sonar.UserProfile.Core.Domain.Exceptions;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using Sonar.UserProfile.Core.Domain.Users.Services;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
@@ -29,7 +29,9 @@ public class UserController : ControllerBase
     [SwaggerResponse(200)]
     [SwaggerResponse(400)]
     [SwaggerResponse(500)]
-    public Task<string> Register(UserRegisterDto userRegisterDto, CancellationToken cancellationToken = default)
+    public Task<string> Register(
+        [Required] UserRegisterDto userRegisterDto,
+        CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -51,7 +53,9 @@ public class UserController : ControllerBase
     [SwaggerResponse(401)]
     [SwaggerResponse(404)]
     [SwaggerResponse(500)]
-    public Task<string> Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
+    public Task<string> Login(
+        [Required] UserLoginDto userLoginDto, 
+        CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -111,7 +115,7 @@ public class UserController : ControllerBase
     [SwaggerResponse(500)]
     public Task AddFriend(
         [FromHeader(Name = "Token")] string token,
-        [FromBody] string friendEmail,
+        [FromBody] [Required] string friendEmail,
         CancellationToken cancellationToken = default)
     {
         var userIdItem = HttpContext.Items["UserId"];
@@ -119,11 +123,6 @@ public class UserController : ControllerBase
         if (userIdItem is null)
         {
             throw new Exception("Incorrect user id item");
-        }
-
-        if (friendEmail is null)
-        {
-            throw new InvalidRequestException("Friend's email is null");
         }
 
         var userId = (Guid)userIdItem;

@@ -167,10 +167,10 @@ public class UserApiClient : IApiClient
         messageBuilder.Append("Status code: ");
         messageBuilder.Append(response.StatusCode);
 
-        /*if (response.StatusCode == HttpStatusCode.InternalServerError)
+        if (response.StatusCode == HttpStatusCode.InternalServerError)
         {
             return messageBuilder.ToString();
-        }*/
+        }
 
         messageBuilder.Append(". Message: ");
         messageBuilder.Append(await response.Content.ReadAsStringAsync(cancellationToken));
