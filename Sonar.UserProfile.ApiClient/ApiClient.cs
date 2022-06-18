@@ -92,7 +92,7 @@ public class UserApiClient : IApiClient
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     public async Task AddFriendAsync(string token, string friendEmail, CancellationToken cancellationToken)
     {
-        var request = CreateContentAndTokenRequest("/user/add-friend", "PATCH", token, friendEmail);
+        var request = CreateContentAndTokenRequest("/user-friends/add-friend", "POST", token, friendEmail);
 
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
@@ -113,7 +113,7 @@ public class UserApiClient : IApiClient
     /// <returns>List of user's friends. Every friend is UserGetDto which contains: Id, Email.</returns>
     public async Task<IReadOnlyList<UserGetDto>> GetFriendsAsync(string token, CancellationToken cancellationToken)
     {
-        var request = CreateTokenRequest("/user/get-friends", "GET", token);
+        var request = CreateTokenRequest("/user-friends/get-friends", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
         {
