@@ -36,14 +36,7 @@ public class UserFriendsController : ControllerBase
         [FromBody] [Required] string friendEmail,
         CancellationToken cancellationToken = default)
     {
-        var userIdItem = HttpContext.Items["UserId"];
-
-        if (userIdItem is null)
-        {
-            throw new Exception("Incorrect user id item");
-        }
-
-        var userId = (Guid)userIdItem;
+        var userId = GetIdFromItems();
         return _userService.AddFriend(userId, friendEmail, cancellationToken);
     }
 
@@ -64,14 +57,7 @@ public class UserFriendsController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
-        var userIdItem = HttpContext.Items["UserId"];
-
-        if (userIdItem is null)
-        {
-            throw new Exception("Incorrect user id item");
-        }
-
-        var userId = (Guid)userIdItem;
+        var userId = GetIdFromItems();
         var friends = await _userService.GetFriendsById(userId, cancellationToken);
 
         return friends.Select(f => new UserGetDto
@@ -79,5 +65,17 @@ public class UserFriendsController : ControllerBase
             Id = f.Id,
             Email = f.Email
         }).ToList();
+    }
+
+    private Guid GetIdFromItems()
+    {
+        var userIdItem = HttpContext.Items["UserId"];
+
+        if (userIdItem is null)
+        {
+            throw new Exception("Incorrect user id item");
+        }
+
+        return (Guid)userIdItem;
     }
 }

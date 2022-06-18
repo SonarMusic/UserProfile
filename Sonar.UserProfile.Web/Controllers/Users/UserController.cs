@@ -83,14 +83,7 @@ public class UserController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
-        var userIdItem = HttpContext.Items["UserId"];
-
-        if (userIdItem is null)
-        {
-            throw new Exception("Incorrect user id item");
-        }
-
-        var userId = (Guid)userIdItem;
+        var userId = GetIdFromItems();
         var user = await _userService.GetByIdAsync(userId, cancellationToken);
 
         return new UserGetDto
@@ -98,5 +91,17 @@ public class UserController : ControllerBase
             Id = user.Id,
             Email = user.Email
         };
+    }
+    
+    private Guid GetIdFromItems()
+    {
+        var userIdItem = HttpContext.Items["UserId"];
+
+        if (userIdItem is null)
+        {
+            throw new Exception("Incorrect user id item");
+        }
+
+        return (Guid)userIdItem;
     }
 }
