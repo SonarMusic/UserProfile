@@ -1,4 +1,5 @@
-﻿using Sonar.UserProfile.Web.Controllers.Users.Dto;
+﻿using Sonar.UserProfile.ApiClient.Tools;
+using Sonar.UserProfile.Web.Controllers.Users.Dto;
 
 namespace Sonar.UserProfile.ApiClient;
 
@@ -7,23 +8,24 @@ public static class Program
     public static async Task Main()
     {
         var httpClient = new HttpClient();
-        var apiClient = new UserApiClient("https://localhost:7062", httpClient);
+        var apiClientUser = new ApiClientUser("https://localhost:7062", httpClient);
+        var apiClientUserFriends = new ApiClientUserFriends("https://localhost:7062", httpClient);
 
 
         try
         {
-            var token1 = apiClient.RegisterAsync(
-                new UserRegisterDto { Email = "a10@a.a", Password = "cvsbva" },
+            var token1 = apiClientUser.RegisterAsync(
+                new UserRegisterDto { Email = "a1@a.a", Password = "cvsbva" },
                 CancellationToken.None).Result;
             
-            var token2 = apiClient.RegisterAsync(
-                new UserRegisterDto { Email = "b10@b.b", Password = "cvsbva" },
+            var token2 = apiClientUser.RegisterAsync(
+                new UserRegisterDto { Email = "b1@b.b", Password = "cvsbva" },
                 CancellationToken.None).Result;
 
-            await apiClient.AddFriendAsync(token1, "b10@b.b", CancellationToken.None);
+            await apiClientUserFriends.AddFriendAsync(token1, "b1@b.b", CancellationToken.None);
 
-            var friends1 = apiClient.GetFriendsAsync(token1, CancellationToken.None);
-            var friends2 = apiClient.GetFriendsAsync(token2, CancellationToken.None);
+            var friends1 = apiClientUserFriends.GetFriendsAsync(token1, CancellationToken.None);
+            var friends2 = apiClientUserFriends.GetFriendsAsync(token2, CancellationToken.None);
 
             Console.WriteLine(friends1.Result[0].Email);
             Console.WriteLine(friends2.Result[0].Email);
