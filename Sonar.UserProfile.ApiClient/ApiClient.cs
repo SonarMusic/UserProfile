@@ -70,18 +70,19 @@ public class UserApiClient : IApiClient
     {
         var request = CreateTokenRequest("/user/get", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
-        if (response.StatusCode == HttpStatusCode.OK)
+        
+        if (response.StatusCode != HttpStatusCode.OK)
         {
-            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-            var responseDeserialized = JsonSerializer.Deserialize<UserGetDto>(responseString, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-            return responseDeserialized!;
+            var errorMessage = await CreateErrorMessage(response, cancellationToken);
+            throw new ApiClientException(errorMessage);
         }
 
-        var errorMessage = await CreateErrorMessage(response, cancellationToken);
-        throw new ApiClientException(errorMessage);
+        var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
+        var responseDeserialized = JsonSerializer.Deserialize<UserGetDto>(responseString, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        return responseDeserialized!;
     }
 
     /// <summary>
@@ -115,19 +116,20 @@ public class UserApiClient : IApiClient
     {
         var request = CreateTokenRequest("/user-friends/get-friends", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
-        if (response.StatusCode == HttpStatusCode.OK)
+        
+        if (response.StatusCode != HttpStatusCode.OK)
         {
-            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-            var responseDeserialized = JsonSerializer.Deserialize<IReadOnlyList<UserGetDto>>(responseString,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-            return responseDeserialized!;
+            var errorMessage = await CreateErrorMessage(response, cancellationToken);
+            throw new ApiClientException(errorMessage);
         }
 
-        var errorMessage = await CreateErrorMessage(response, cancellationToken);
-        throw new ApiClientException(errorMessage);
+        var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
+        var responseDeserialized = JsonSerializer.Deserialize<IReadOnlyList<UserGetDto>>(responseString,
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        return responseDeserialized!;
     }
 
     private HttpRequestMessage CreateContentRequest(string route, string restVerb, object content)
