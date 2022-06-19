@@ -1,12 +1,18 @@
 using System.Reflection;
+using Microsoft.OpenApi.Models;
 using Sonar.UserProfile.Core;
 using Sonar.UserProfile.Data;
 using Sonar.UserProfile.Web.Filters;
+using Sonar.UserProfile.Web.Tools;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers(options => options.Filters.Add<ExceptionFilter>());
+builder.Services.AddControllers(options => options.Filters.Add<ExceptionFilter>())
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = ModelStateValidator.ValidateModelState;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

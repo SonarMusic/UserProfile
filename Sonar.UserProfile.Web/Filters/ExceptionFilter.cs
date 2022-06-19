@@ -14,7 +14,7 @@ public class ExceptionFilter : IExceptionFilter
             StatusCode = context.Exception switch
             {
                 InvalidRequestException => StatusCodes.Status400BadRequest,
-                EmailOccupiedException => StatusCodes.Status400BadRequest,
+                DataOccupiedException => StatusCodes.Status400BadRequest,
                 InvalidPasswordException => StatusCodes.Status401Unauthorized,
                 ExpiredTokenException => StatusCodes.Status403Forbidden,
                 TokenNotFoundException => StatusCodes.Status404NotFound,
