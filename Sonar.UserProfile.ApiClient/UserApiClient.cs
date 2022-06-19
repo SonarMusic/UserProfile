@@ -6,12 +6,12 @@ using Sonar.UserProfile.Web.Controllers.Users.Dto;
 
 namespace Sonar.UserProfile.ApiClient;
 
-public class ApiClientUser : IApiClientUser
+public class UserApiClient : IUserApiClient
 {
     private readonly HttpClient _httpClient;
     private readonly RequestCreator _requestCreator;
 
-    public ApiClientUser(string baseUrl, HttpClient httpClient)
+    public UserApiClient(string baseUrl, HttpClient httpClient)
     {
         _httpClient = httpClient;
         _requestCreator = new RequestCreator(baseUrl);

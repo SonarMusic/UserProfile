@@ -2,7 +2,7 @@
 
 namespace Sonar.UserProfile.ApiClient.Interfaces;
 
-public interface IApiClientUser
+public interface IUserApiClient
 {
     Task<string> RegisterAsync(UserRegisterDto userRegisterDto, CancellationToken cancellationToken);
     Task<string> LoginAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken);

@@ -6,12 +6,12 @@ using Sonar.UserProfile.Web.Controllers.Users.Dto;
 
 namespace Sonar.UserProfile.ApiClient;
 
-public class ApiClientUserFriends : IApiClientUserFriends
+public class UserFriendsApiClient : IUserFriendsApiClient
 {
     private readonly HttpClient _httpClient;
     private readonly RequestCreator _requestCreator;
 
-    public ApiClientUserFriends(string baseUrl, HttpClient httpClient)
+    public UserFriendsApiClient(string baseUrl, HttpClient httpClient)
     {
         _httpClient = httpClient;
         _requestCreator = new RequestCreator(baseUrl);

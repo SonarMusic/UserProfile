@@ -8,8 +8,8 @@ public static class Program
     public static async Task Main()
     {
         var httpClient = new HttpClient();
-        var apiClientUser = new ApiClientUser("https://localhost:7062", httpClient);
-        var apiClientUserFriends = new ApiClientUserFriends("https://localhost:7062", httpClient);
+        var apiClientUser = new UserApiClient("https://localhost:7062", httpClient);
+        var apiClientUserFriends = new UserFriendsApiClient("https://localhost:7062", httpClient);
 
 
         try
