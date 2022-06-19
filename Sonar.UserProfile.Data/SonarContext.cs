@@ -7,6 +7,7 @@ namespace Sonar.UserProfile.Data
     public class SonarContext : DbContext
     {
         public DbSet<UserDbModel> Users { get; set; }
+        public DbSet<UserFriendDbModel> UserFriends { get; set; }
 
         public string ConnectionString { get; }
 
@@ -28,6 +29,14 @@ namespace Sonar.UserProfile.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<UserFriendDbModel>()
+                .HasKey(uf => new
+                    {
+                        uf.UserId,
+                        uf.FriendId
+                    }
+                );
+
             base.OnModelCreating(modelBuilder);
         }
     }

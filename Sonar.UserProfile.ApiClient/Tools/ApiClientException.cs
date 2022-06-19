@@ -1,4 +1,4 @@
-﻿namespace Sonar.UserProfile.ApiClient;
+﻿namespace Sonar.UserProfile.ApiClient.Tools;
 
 public class ApiClientException : Exception
 {

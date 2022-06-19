@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
-using Sonar.UserProfile.Data.Users.Encoders;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 
@@ -14,21 +13,18 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
+    private readonly IPasswordEncoder _passwordEncoder;
 
-    // todo: remove hardcoding
-    private IPasswordEncoder _passwordEncoder = new BCryptPasswordEncoder();
-
-    public UserService(IUserRepository userRepository, IConfiguration configuration)
+    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordEncoder passwordEncoder)
     {
         _userRepository = userRepository;
         _configuration = configuration;
+        _passwordEncoder = passwordEncoder;
     }
 
-    public async Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
-
-        return user;
+        return _userRepository.GetByIdAsync(userId, cancellationToken);
     }
 
     public async Task<string> RegisterAsync(User user, CancellationToken cancellationToken)
@@ -44,7 +40,7 @@ public class UserService : IUserService
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity( new []
+            Subject = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             }),
@@ -76,10 +72,10 @@ public class UserService : IUserService
         var issuer = _configuration["Issuer"];
         var audience = _configuration["Audience"];
         var tokenHandler = new JwtSecurityTokenHandler();
-        
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity( new []
+            Subject = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, dataBaseUser.Id.ToString())
             }),
@@ -91,6 +87,6 @@ public class UserService : IUserService
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        return tokenHandler.WriteToken(token);;
+        return tokenHandler.WriteToken(token);
     }
 }

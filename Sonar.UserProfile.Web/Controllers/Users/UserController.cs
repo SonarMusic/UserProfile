@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using Sonar.UserProfile.Core.Domain.Users.Services;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
@@ -28,7 +29,9 @@ public class UserController : ControllerBase
     [SwaggerResponse(200)]
     [SwaggerResponse(400)]
     [SwaggerResponse(500)]
-    public Task<string> Register(UserRegisterDto userRegisterDto, CancellationToken cancellationToken = default)
+    public Task<string> Register(
+        [Required] UserRegisterDto userRegisterDto,
+        CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -50,7 +53,9 @@ public class UserController : ControllerBase
     [SwaggerResponse(401)]
     [SwaggerResponse(404)]
     [SwaggerResponse(500)]
-    public Task<string> Login(UserLoginDto userLoginDto, CancellationToken cancellationToken = default)
+    public Task<string> Login(
+        [Required] UserLoginDto userLoginDto, 
+        CancellationToken cancellationToken = default)
     {
         var user = new User
         {
@@ -64,6 +69,7 @@ public class UserController : ControllerBase
     /// <summary>
     /// Return a user model if token hasn't expired yet.
     /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
     [HttpGet("get")]
@@ -73,7 +79,21 @@ public class UserController : ControllerBase
     [SwaggerResponse(403)]
     [SwaggerResponse(404)]
     [SwaggerResponse(500)]
-    public async Task<UserGetDto> Get(CancellationToken cancellationToken = default)
+    public async Task<UserGetDto> Get(
+        [FromHeader(Name = "Token")] string token,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetIdFromItems();
+        var user = await _userService.GetByIdAsync(userId, cancellationToken);
+
+        return new UserGetDto
+        {
+            Id = user.Id,
+            Email = user.Email
+        };
+    }
+    
+    private Guid GetIdFromItems()
     {
         var userIdItem = HttpContext.Items["UserId"];
 
@@ -82,13 +102,6 @@ public class UserController : ControllerBase
             throw new Exception("Incorrect user id item");
         }
 
-        var userId = (Guid)userIdItem;
-        var user = await _userService.GetByIdAsync(userId, cancellationToken);
-
-        return new UserGetDto
-        {
-            Id = user.Id,
-            Email = user.Email
-        };
+        return (Guid)userIdItem;
     }
 }

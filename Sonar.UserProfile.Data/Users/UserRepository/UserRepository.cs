@@ -31,7 +31,7 @@ public class UserRepository : IUserRepository
             Password = entity.Password
         };
     }
-    
+
     public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         email = email.ToLower();
@@ -55,7 +55,7 @@ public class UserRepository : IUserRepository
     {
         var users = await _context.Users.ToListAsync(cancellationToken);
 
-        return (IReadOnlyList<User>)users.Select(entity => new User()
+        return (IReadOnlyList<User>)users.Select(entity => new User
         {
             Id = entity.Id,
             Email = entity.Email,
@@ -70,9 +70,9 @@ public class UserRepository : IUserRepository
 
         if (sameEmailUser != null)
         {
-            throw new EmailOccupiedException($"Email {user.Email} is already occupied");
+            throw new DataOccupiedException($"Email {user.Email} is already occupied");
         }
-        
+
         var entity = new UserDbModel
         {
             Id = user.Id,
@@ -95,9 +95,65 @@ public class UserRepository : IUserRepository
             throw new UserNotFoundException($"User with id = {user.Id} does not exists");
         }
 
+        entity.Email = user.Email;
         entity.Password = user.Password;
 
+        _context.Users.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AddFriendAsync(Guid userId, Guid friendId, CancellationToken cancellationToken)
+    {
+        var entityUser =
+            await _context.Users.FirstOrDefaultAsync(it => it.Id == userId, cancellationToken);
+        var entityFriend =
+            await _context.Users.FirstOrDefaultAsync(it => it.Id == friendId, cancellationToken);
+
+        if (entityUser is null)
+        {
+            throw new UserNotFoundException($"User with id = {userId} does not exists");
+        }
+
+        if (entityFriend is null)
+        {
+            throw new UserNotFoundException($"User with id = {friendId} does not exists");
+        }
+
+        _context.UserFriends.Add(new UserFriendDbModel
+        {
+            UserId = userId,
+            FriendId = friendId
+        });
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<User>> GetFriendsByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var friendList = await _context.UserFriends
+            .Where(uf => uf.UserId == id)
+            .Select(uf => new User
+            {
+                Id = uf.FriendId,
+                Email = _context.Users.FirstOrDefault(f => f.Id == uf.FriendId).Email
+            }).ToListAsync(cancellationToken);
+
+        friendList.AddRange(await _context.UserFriends
+            .Where(uf => uf.FriendId == id)
+            .Select(uf => new User
+            {
+                Id = uf.UserId,
+                Email = _context.Users.FirstOrDefault(f => f.Id == uf.UserId).Email
+            }).ToListAsync(cancellationToken));
+
+        return friendList;
+    }
+
+    public Task<bool> IsFriendsAsync(Guid userId, Guid friendId, CancellationToken cancellationToken)
+    {
+        return _context.UserFriends.AnyAsync(uf =>
+            uf.UserId == userId && uf.FriendId == friendId ||
+            uf.UserId == friendId && uf.FriendId == userId, cancellationToken);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
