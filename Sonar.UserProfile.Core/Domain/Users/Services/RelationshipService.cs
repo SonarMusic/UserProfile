@@ -1,15 +1,18 @@
 ﻿using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
+using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 
 public class RelationshipService : IRelationshipService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IRelationshipRepository _relationshipRepository;
 
-    public RelationshipService(IUserRepository userRepository)
+    public RelationshipService(IUserRepository userRepository, IRelationshipRepository relationshipRepository)
     {
         _userRepository = userRepository;
+        _relationshipRepository = relationshipRepository;
     }
     
     public async Task AddFriend(Guid userId, string friendEmail, CancellationToken cancellationToken)
@@ -22,16 +25,16 @@ public class RelationshipService : IRelationshipService
         }
         var dataBaseFriend = await _userRepository.GetByEmailAsync(friendEmail, cancellationToken);
 
-        if (await _userRepository.IsFriendsAsync(userId, dataBaseFriend.Id, cancellationToken))
+        if (await _relationshipRepository.IsFriendsAsync(userId, dataBaseFriend.Id, cancellationToken))
         {
             throw new DataOccupiedException("These users are already friends.");
         }
 
-        await _userRepository.AddFriendAsync(userId, dataBaseFriend.Id, cancellationToken);
+        await _relationshipRepository.SendFriendshipRequestAsync(userId, dataBaseFriend.Id, cancellationToken);
     }
 
     public Task<IReadOnlyList<User>> GetFriendsById(Guid userId, CancellationToken cancellationToken)
     {
-        return _userRepository.GetFriendsByIdAsync(userId, cancellationToken);
+        return _relationshipRepository.GetFriendsByIdAsync(userId, cancellationToken);
     }
 }

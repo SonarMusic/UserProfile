@@ -30,10 +30,10 @@ namespace Sonar.UserProfile.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RelationshipDbModel>()
-                .HasKey(uf => new
+                .HasKey(r => new
                     {
-                        uf.UserId,
-                        uf.FriendId
+                        r.UserId,
+                        r.FriendId
                     }
                 );
 

@@ -102,60 +102,6 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task AddFriendAsync(Guid userId, Guid friendId, CancellationToken cancellationToken)
-    {
-        var entityUser =
-            await _context.Users.FirstOrDefaultAsync(it => it.Id == userId, cancellationToken);
-        var entityFriend =
-            await _context.Users.FirstOrDefaultAsync(it => it.Id == friendId, cancellationToken);
-
-        if (entityUser is null)
-        {
-            throw new UserNotFoundException($"User with id = {userId} does not exists");
-        }
-
-        if (entityFriend is null)
-        {
-            throw new UserNotFoundException($"User with id = {friendId} does not exists");
-        }
-
-        _context.Relationships.Add(new RelationshipDbModel
-        {
-            UserId = userId,
-            FriendId = friendId
-        });
-
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyList<User>> GetFriendsByIdAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var friendList = await _context.Relationships
-            .Where(uf => uf.UserId == id)
-            .Select(uf => new User
-            {
-                Id = uf.FriendId,
-                Email = _context.Users.FirstOrDefault(f => f.Id == uf.FriendId).Email
-            }).ToListAsync(cancellationToken);
-
-        friendList.AddRange(await _context.Relationships
-            .Where(uf => uf.FriendId == id)
-            .Select(uf => new User
-            {
-                Id = uf.UserId,
-                Email = _context.Users.FirstOrDefault(f => f.Id == uf.UserId).Email
-            }).ToListAsync(cancellationToken));
-
-        return friendList;
-    }
-
-    public Task<bool> IsFriendsAsync(Guid userId, Guid friendId, CancellationToken cancellationToken)
-    {
-        return _context.Relationships.AnyAsync(uf =>
-            uf.UserId == userId && uf.FriendId == friendId ||
-            uf.UserId == friendId && uf.FriendId == userId, cancellationToken);
-    }
-
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var entity = await _context.Users.FirstOrDefaultAsync(it => it.Id == id, cancellationToken);

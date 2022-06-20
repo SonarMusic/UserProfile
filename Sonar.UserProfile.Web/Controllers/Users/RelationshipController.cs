@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Sonar.UserProfile.Core.Domain.Users.Services;
+using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
 using Sonar.UserProfile.Web.Filters;
 using Swashbuckle.AspNetCore.Annotations;

@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
+using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 

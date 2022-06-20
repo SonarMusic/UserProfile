@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Services;
+using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 using Sonar.UserProfile.Data.Users.Encoders;
 
 namespace Sonar.UserProfile.Core;
