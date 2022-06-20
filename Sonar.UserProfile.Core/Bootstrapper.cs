@@ -10,7 +10,7 @@ public static class Bootstrapper
     public static IServiceCollection AddCore(this IServiceCollection services)
     {
         services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IUserFriendsService, UserFriendsService>();
+        services.AddScoped<IRelationshipService, RelationshipService>();
         services.AddScoped<IPasswordEncoder, BCryptPasswordEncoder>();
 
         return services;

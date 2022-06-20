@@ -8,14 +8,14 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Sonar.UserProfile.Web.Controllers.Users;
 
 [ApiController]
-[Route("user-friends")]
-public class UserFriendsController : ControllerBase
+[Route("relationship")]
+public class RelationshipController : ControllerBase
 {
-    private readonly IUserFriendsService _userFriendsService;
+    private readonly IRelationshipService _relationshipService;
 
-    public UserFriendsController(IUserFriendsService userFriendsService)
+    public RelationshipController(IRelationshipService relationshipService)
     {
-        _userFriendsService = userFriendsService;
+        _relationshipService = relationshipService;
     }
     
     /// <summary>
@@ -37,7 +37,7 @@ public class UserFriendsController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
-        return _userFriendsService.AddFriend(userId, friendEmail, cancellationToken);
+        return _relationshipService.AddFriend(userId, friendEmail, cancellationToken);
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public class UserFriendsController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
-        var friends = await _userFriendsService.GetFriendsById(userId, cancellationToken);
+        var friends = await _relationshipService.GetFriendsById(userId, cancellationToken);
 
         return friends.Select(f => new UserGetDto
         {

@@ -3,11 +3,11 @@ using Sonar.UserProfile.Core.Domain.Users.Repositories;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 
-public class UserFriendsService : IUserFriendsService
+public class RelationshipService : IRelationshipService
 {
     private readonly IUserRepository _userRepository;
 
-    public UserFriendsService(IUserRepository userRepository)
+    public RelationshipService(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }

@@ -119,7 +119,7 @@ public class UserRepository : IUserRepository
             throw new UserNotFoundException($"User with id = {friendId} does not exists");
         }
 
-        _context.UserFriends.Add(new UserFriendDbModel
+        _context.Relationships.Add(new RelationshipDbModel
         {
             UserId = userId,
             FriendId = friendId
@@ -130,7 +130,7 @@ public class UserRepository : IUserRepository
 
     public async Task<IReadOnlyList<User>> GetFriendsByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var friendList = await _context.UserFriends
+        var friendList = await _context.Relationships
             .Where(uf => uf.UserId == id)
             .Select(uf => new User
             {
@@ -138,7 +138,7 @@ public class UserRepository : IUserRepository
                 Email = _context.Users.FirstOrDefault(f => f.Id == uf.FriendId).Email
             }).ToListAsync(cancellationToken);
 
-        friendList.AddRange(await _context.UserFriends
+        friendList.AddRange(await _context.Relationships
             .Where(uf => uf.FriendId == id)
             .Select(uf => new User
             {
@@ -151,7 +151,7 @@ public class UserRepository : IUserRepository
 
     public Task<bool> IsFriendsAsync(Guid userId, Guid friendId, CancellationToken cancellationToken)
     {
-        return _context.UserFriends.AnyAsync(uf =>
+        return _context.Relationships.AnyAsync(uf =>
             uf.UserId == userId && uf.FriendId == friendId ||
             uf.UserId == friendId && uf.FriendId == userId, cancellationToken);
     }

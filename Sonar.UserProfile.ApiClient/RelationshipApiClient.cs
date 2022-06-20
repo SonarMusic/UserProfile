@@ -6,12 +6,12 @@ using Sonar.UserProfile.Web.Controllers.Users.Dto;
 
 namespace Sonar.UserProfile.ApiClient;
 
-public class UserFriendsApiClient : IUserFriendsApiClient
+public class RelationshipApiClient : IRelationshipApiClient
 {
     private readonly HttpClient _httpClient;
     private readonly RequestCreator _requestCreator;
 
-    public UserFriendsApiClient(string baseUrl, HttpClient httpClient)
+    public RelationshipApiClient(string baseUrl, HttpClient httpClient)
     {
         _httpClient = httpClient;
         _requestCreator = new RequestCreator(baseUrl);
@@ -26,7 +26,7 @@ public class UserFriendsApiClient : IUserFriendsApiClient
     public async Task AddFriendAsync(string token, string friendEmail, CancellationToken cancellationToken)
     {
         var request =
-            _requestCreator.RequestWithContentAndToken("/user-friends/add-friend", "POST", token, friendEmail);
+            _requestCreator.RequestWithContentAndToken("/relationship/add-friend", "POST", token, friendEmail);
 
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
@@ -47,7 +47,7 @@ public class UserFriendsApiClient : IUserFriendsApiClient
     /// <returns>List of user's friends. Every friend is UserGetDto which contains: Id, Email.</returns>
     public async Task<IReadOnlyList<UserGetDto>> GetFriendsAsync(string token, CancellationToken cancellationToken)
     {
-        var request = _requestCreator.RequestWithToken("/user-friends/get-friends", "GET", token);
+        var request = _requestCreator.RequestWithToken("/relationship/get-friends", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
         if (response.StatusCode != HttpStatusCode.OK)
