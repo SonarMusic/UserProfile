@@ -21,7 +21,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new UserNotFoundException($"User with id = {id} does not exists");
+            throw new NotFoundException($"User with id = {id} does not exists");
         }
 
         return new User
@@ -40,7 +40,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new UserNotFoundException($"User with email = {email} does not exists");
+            throw new NotFoundException($"User with email = {email} does not exists");
         }
 
         return new User
@@ -92,7 +92,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new UserNotFoundException($"User with id = {user.Id} does not exists");
+            throw new NotFoundException($"User with id = {user.Id} does not exists");
         }
 
         entity.Email = user.Email;
@@ -108,7 +108,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new UserNotFoundException($"User with id = {id} does not exists");
+            throw new NotFoundException($"User with id = {id} does not exists");
         }
 
         _context.Users.Remove(entity);

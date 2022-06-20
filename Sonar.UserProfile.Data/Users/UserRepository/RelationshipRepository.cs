@@ -24,12 +24,12 @@ public class RelationshipRepository : IRelationshipRepository
 
         if (entityUser is null)
         {
-            throw new UserNotFoundException($"User with id = {userId} does not exists");
+            throw new NotFoundException($"User with id = {userId} does not exists");
         }
 
         if (entityFriend is null)
         {
-            throw new UserNotFoundException($"User with id = {friendId} does not exists");
+            throw new NotFoundException($"User with id = {friendId} does not exists");
         }
 
         _context.Relationships.Add(new RelationshipDbModel
@@ -42,17 +42,17 @@ public class RelationshipRepository : IRelationshipRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public Task<IReadOnlyList<User>> GetFriendsByIdAsync(Guid id, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<User>> GetFriendsAsync(Guid id, CancellationToken cancellationToken)
     {
         return GetRelationshipListByIdAsync(id, RelationshipStatus.Friended, cancellationToken);
     }
 
-    public Task<IReadOnlyList<User>> GetRequestedByIdAsync(Guid id, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<User>> GetRequestedAsync(Guid id, CancellationToken cancellationToken)
     {
         return GetRelationshipListByIdAsync(id, RelationshipStatus.Requested, cancellationToken);
     }
 
-    public Task<IReadOnlyList<User>> GetRejectedByIdAsync(Guid id, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<User>> GetRejectedAsync(Guid id, CancellationToken cancellationToken)
     {
         return GetRelationshipListByIdAsync(id, RelationshipStatus.Rejected, cancellationToken);
     }
@@ -70,6 +70,40 @@ public class RelationshipRepository : IRelationshipRepository
     public Task<bool> IsRejectedAsync(Guid userId, Guid friendId, CancellationToken cancellationToken)
     {
         return IsRelationshipAsync(userId, friendId, RelationshipStatus.Rejected, cancellationToken);
+    }
+
+    public async Task AcceptFriendshipRequestAsync(Guid userId, Guid requestedId, CancellationToken cancellationToken)
+    {
+        var relationship = await _context.Relationships
+            .FirstOrDefaultAsync(r =>
+                r.UserId == requestedId && r.FriendId == userId &&
+                r.RelationshipStatus == RelationshipStatus.Requested, cancellationToken);
+
+        if (relationship is null)
+        {
+            throw new NotFoundException("There is no request from this user");
+        }
+
+        relationship.RelationshipStatus = RelationshipStatus.Friended;
+        _context.Relationships.Update(relationship);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task RejectFriendshipRequestAsync(Guid userId, Guid requestedId, CancellationToken cancellationToken)
+    {
+        var relationship = await _context.Relationships
+            .FirstOrDefaultAsync(r =>
+                r.UserId == requestedId && r.FriendId == userId &&
+                r.RelationshipStatus == RelationshipStatus.Requested, cancellationToken);
+
+        if (relationship is null)
+        {
+            throw new NotFoundException("There is no request from this user");
+        }
+
+        relationship.RelationshipStatus = RelationshipStatus.Requested;
+        _context.Relationships.Update(relationship);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     private async Task<IReadOnlyList<User>> GetRelationshipListByIdAsync(

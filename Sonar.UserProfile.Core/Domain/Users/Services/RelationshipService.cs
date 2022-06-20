@@ -15,7 +15,7 @@ public class RelationshipService : IRelationshipService
         _relationshipRepository = relationshipRepository;
     }
     
-    public async Task AddFriend(Guid userId, string friendEmail, CancellationToken cancellationToken)
+    public async Task AddFriendAsync(Guid userId, string friendEmail, CancellationToken cancellationToken)
     {
         var dataBaseUser = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
@@ -33,8 +33,28 @@ public class RelationshipService : IRelationshipService
         await _relationshipRepository.SendFriendshipRequestAsync(userId, dataBaseFriend.Id, cancellationToken);
     }
 
-    public Task<IReadOnlyList<User>> GetFriendsById(Guid userId, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<User>> GetFriendsAsync(Guid userId, CancellationToken cancellationToken)
     {
-        return _relationshipRepository.GetFriendsByIdAsync(userId, cancellationToken);
+        return _relationshipRepository.GetFriendsAsync(userId, cancellationToken);
+    }
+
+    public Task<IReadOnlyList<User>> GetRequestedAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return _relationshipRepository.GetRequestedAsync(userId, cancellationToken);
+    }
+
+    public Task<IReadOnlyList<User>> GetRejectedAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return _relationshipRepository.GetRejectedAsync(userId, cancellationToken);
+    }
+
+    public Task AcceptFriendshipRequestAsync(Guid userId, Guid requestedId, CancellationToken cancellationToken)
+    {
+        return _relationshipRepository.AcceptFriendshipRequestAsync(userId, requestedId, cancellationToken);
+    }
+
+    public Task RejectFriendshipRequestAsync(Guid userId, Guid requestedId, CancellationToken cancellationToken)
+    {
+        return _relationshipRepository.RejectFriendshipRequestAsync(userId, requestedId, cancellationToken);
     }
 }
