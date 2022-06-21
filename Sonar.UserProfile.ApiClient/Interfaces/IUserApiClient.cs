@@ -1,4 +1,4 @@
-﻿using Sonar.UserProfile.Web.Controllers.Users.Dto;
+﻿using Sonar.UserProfile.ApiClient.Dto;
 
 namespace Sonar.UserProfile.ApiClient.Interfaces;
 

@@ -1,5 +1,6 @@
-﻿using Sonar.UserProfile.ApiClient.Tools;
-using Sonar.UserProfile.Web.Controllers.Users.Dto;
+﻿using Sonar.UserProfile.ApiClient.Dto;
+using Sonar.UserProfile.ApiClient.Tools;
+using Sonar.UserProfile.ApiClient.ValueObjects;
 
 namespace Sonar.UserProfile.ApiClient;
 
@@ -15,18 +16,30 @@ public static class Program
         try
         {
             var token1 = userApiClient.RegisterAsync(
-                new UserRegisterDto { Email = "a1@a.a", Password = "cvsbva" },
+                new UserRegisterDto { Email = "a5@a.a", Password = "cvsbva" },
                 CancellationToken.None).Result;
-            
+
             var token2 = userApiClient.RegisterAsync(
-                new UserRegisterDto { Email = "b1@b.b", Password = "cvsbva" },
+                new UserRegisterDto { Email = "b5@b.b", Password = "cvsbva" },
                 CancellationToken.None).Result;
 
-            await relationshipApiClient.AddFriendAsync(token1, "b1@b.b", CancellationToken.None);
+            await relationshipApiClient.SendFriendshipRequestAsync(token1, "b5@b.b", CancellationToken.None);
 
-            var friends1 = relationshipApiClient.GetFriendsAsync(token1, CancellationToken.None);
-            var friends2 = relationshipApiClient.GetFriendsAsync(token2, CancellationToken.None);
+            var request1 =
+                relationshipApiClient.GetRelationshipsAsync(token1, RelationshipStatus.Request, CancellationToken.None);
+            var request2 =
+                relationshipApiClient.GetRelationshipsAsync(token2, RelationshipStatus.Request, CancellationToken.None);
 
+            Console.WriteLine(request1.Result[0].Email);
+            Console.WriteLine(request2.Result[0].Email);
+
+            await relationshipApiClient.AcceptFriendshipRequestAsync(token2, "a5@a.a", CancellationToken.None);
+
+            var friends1 =
+                relationshipApiClient.GetRelationshipsAsync(token1, RelationshipStatus.Friends, CancellationToken.None);
+            var friends2 =
+                relationshipApiClient.GetRelationshipsAsync(token2, RelationshipStatus.Friends, CancellationToken.None);
+            
             Console.WriteLine(friends1.Result[0].Email);
             Console.WriteLine(friends2.Result[0].Email);
         }

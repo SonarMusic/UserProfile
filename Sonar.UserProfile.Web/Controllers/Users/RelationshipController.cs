@@ -20,7 +20,7 @@ public class RelationshipController : ControllerBase
     }
 
     /// <summary>
-    /// Add a friend to user if token hasn't expired yet.
+    /// Send a friendship request if token hasn't expired yet.
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="targetUserEmail">An email of user who you want to send request.</param>
@@ -57,7 +57,7 @@ public class RelationshipController : ControllerBase
     [SwaggerResponse(500)]
     public async Task<IReadOnlyList<UserGetDto>> GetRelationships(
         [FromHeader(Name = "Token")] string token,
-        RelationshipStatus relationshipStatus,
+        [FromBody] RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
@@ -79,7 +79,7 @@ public class RelationshipController : ControllerBase
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="requestedEmail">An email of user who you want to accept.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    [HttpPost("accept-friendship-request")]
+    [HttpPatch("accept-friendship-request")]
     [AuthorizationFilter]
     [SwaggerResponse(200)]
     [SwaggerResponse(400)]
@@ -101,7 +101,7 @@ public class RelationshipController : ControllerBase
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="requestedEmail">An email of user who you want to reject.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    [HttpPost("reject-friendship-request")]
+    [HttpPatch("reject-friendship-request")]
     [AuthorizationFilter]
     [SwaggerResponse(200)]
     [SwaggerResponse(400)]

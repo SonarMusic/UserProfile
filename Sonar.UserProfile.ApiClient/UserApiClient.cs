@@ -1,8 +1,8 @@
 using System.Net;
 using System.Text.Json;
+using Sonar.UserProfile.ApiClient.Dto;
 using Sonar.UserProfile.ApiClient.Interfaces;
 using Sonar.UserProfile.ApiClient.Tools;
-using Sonar.UserProfile.Web.Controllers.Users.Dto;
 
 namespace Sonar.UserProfile.ApiClient;
 

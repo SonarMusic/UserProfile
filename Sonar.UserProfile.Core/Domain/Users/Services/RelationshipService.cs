@@ -38,6 +38,15 @@ public class RelationshipService : IRelationshipService
         {
             throw new DataOccupiedException("These users are already friends.");
         }
+        
+        if (await _relationshipRepository.IsRelationshipAsync(
+                userId,
+                dataBaseFriend.Id,
+                RelationshipStatus.Request,
+                cancellationToken))
+        {
+            throw new DataOccupiedException("You already send request.");
+        }
 
         await _relationshipRepository.SendFriendshipRequestAsync(userId, dataBaseFriend.Id, cancellationToken);
     }
