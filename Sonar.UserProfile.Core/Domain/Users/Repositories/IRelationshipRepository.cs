@@ -1,14 +1,25 @@
-﻿namespace Sonar.UserProfile.Core.Domain.Users.Repositories;
+﻿using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
+
+namespace Sonar.UserProfile.Core.Domain.Users.Repositories;
 
 public interface IRelationshipRepository
 {
-    Task SendFriendshipRequestAsync(Guid userId, Guid friendId, CancellationToken cancellationToken);
-    Task<IReadOnlyList<User>> GetFriendsAsync(Guid id, CancellationToken cancellationToken);
-    Task<IReadOnlyList<User>> GetRequestedAsync(Guid id, CancellationToken cancellationToken);
-    Task<IReadOnlyList<User>> GetRejectedAsync(Guid id, CancellationToken cancellationToken);
-    Task<bool> IsFriendsAsync(Guid userId, Guid friendId, CancellationToken cancellationToken);
-    Task<bool> IsRequestedAsync(Guid userId, Guid friendId, CancellationToken cancellationToken);
-    Task<bool> IsRejectedAsync(Guid userId, Guid friendId, CancellationToken cancellationToken);
-    Task AcceptFriendshipRequestAsync(Guid userId, Guid requestedId, CancellationToken cancellationToken);
-    Task RejectFriendshipRequestAsync(Guid userId, Guid requestedId, CancellationToken cancellationToken);
+    Task SendFriendshipRequestAsync(Guid userId, Guid targetUserId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<User>> GetRelationshipsAsync(
+        Guid id,
+        RelationshipStatus relationshipStatus,
+        CancellationToken cancellationToken);
+
+    Task<bool> IsRelationshipAsync(
+        Guid userId,
+        Guid friendId,
+        RelationshipStatus relationshipStatus,
+        CancellationToken cancellationToken);
+
+    Task ChangeRelationshipStatusAsync(
+        Guid userId, 
+        Guid requestedId, 
+        RelationshipStatus relationshipStatus,
+        CancellationToken cancellationToken);
 }

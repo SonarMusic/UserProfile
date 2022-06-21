@@ -1,11 +1,16 @@
-﻿namespace Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
+﻿using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
+
+namespace Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 
 public interface IRelationshipService
 {
-    Task AddFriendAsync(Guid userId, string friendEmail, CancellationToken cancellationToken);
-    Task<IReadOnlyList<User>> GetFriendsAsync(Guid userId, CancellationToken cancellationToken);
-    Task<IReadOnlyList<User>> GetRequestedAsync(Guid userId, CancellationToken cancellationToken);
-    Task<IReadOnlyList<User>> GetRejectedAsync(Guid userId, CancellationToken cancellationToken);
-    Task AcceptFriendshipRequestAsync(Guid userId, Guid requestedId, CancellationToken cancellationToken);
-    Task RejectFriendshipRequestAsync(Guid userId, Guid requestedId, CancellationToken cancellationToken);
+    Task SendFriendshipRequestAsync(Guid userId, string targetUserEmail, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<User>> GetRelationshipsAsync(
+        Guid userId, 
+        RelationshipStatus relationshipStatus,
+        CancellationToken cancellationToken);
+
+    Task AcceptFriendshipRequestAsync(Guid userId, string requestedEmail, CancellationToken cancellationToken);
+    Task RejectFriendshipRequestAsync(Guid userId, string requestedEmail, CancellationToken cancellationToken);
 }

@@ -1,4 +1,4 @@
-﻿using Sonar.UserProfile.Data.Users.ValueObjects;
+﻿using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
 
 namespace Sonar.UserProfile.Data.Users;
 
