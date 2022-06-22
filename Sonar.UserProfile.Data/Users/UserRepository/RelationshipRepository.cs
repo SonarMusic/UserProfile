@@ -17,17 +17,17 @@ public class RelationshipRepository : IRelationshipRepository
 
     public async Task SendFriendshipRequestAsync(Guid userId, Guid targetUserId, CancellationToken cancellationToken)
     {
-        var entityUser =
+        var userEntity =
             await _context.Users.FirstOrDefaultAsync(it => it.Id == userId, cancellationToken);
-        var entityFriend =
+        var targetUserEntity =
             await _context.Users.FirstOrDefaultAsync(it => it.Id == targetUserId, cancellationToken);
 
-        if (entityUser is null)
+        if (userEntity is null)
         {
             throw new NotFoundException($"User with id = {userId} does not exists");
         }
 
-        if (entityFriend is null)
+        if (targetUserEntity is null)
         {
             throw new NotFoundException($"User with id = {targetUserId} does not exists");
         }
@@ -42,7 +42,7 @@ public class RelationshipRepository : IRelationshipRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<User>> GetRelationshipsAsync(
+    public async Task<IReadOnlyList<User>> GetRelationshipUsersAsync(
         Guid id,
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken)
@@ -67,25 +67,26 @@ public class RelationshipRepository : IRelationshipRepository
     }
 
     public Task<bool> IsRelationshipAsync(
-        Guid userId,
-        Guid friendId,
+        Guid leftUserId,
+        Guid rightUserId,
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken)
     {
         return _context.Relationships.AnyAsync(r =>
-            (r.UserId == userId && r.FriendId == friendId || r.UserId == friendId && r.FriendId == userId) &&
+            (r.UserId == leftUserId && r.FriendId == rightUserId ||
+             r.UserId == rightUserId && r.FriendId == leftUserId) &&
             r.RelationshipStatus == relationshipStatus, cancellationToken);
     }
-    
-    public async Task ChangeRelationshipStatusAsync(
-        Guid userId, 
-        Guid requestedId, 
+
+    public async Task UpdateStatusAsync(
+        Guid leftUserId,
+        Guid rightUserId,
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken)
     {
         var relationship = await _context.Relationships
             .FirstOrDefaultAsync(r =>
-                r.UserId == requestedId && r.FriendId == userId &&
+                r.UserId == rightUserId && r.FriendId == leftUserId &&
                 r.RelationshipStatus == RelationshipStatus.Request, cancellationToken);
 
         if (relationship is null)
@@ -95,6 +96,21 @@ public class RelationshipRepository : IRelationshipRepository
 
         relationship.RelationshipStatus = relationshipStatus;
         _context.Relationships.Update(relationship);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task Delete(Guid leftUserId, Guid rightUserId, CancellationToken cancellationToken)
+    {
+        var relationship = await _context.Relationships.FirstOrDefaultAsync(
+            r => r.UserId == rightUserId && r.FriendId == leftUserId, cancellationToken);
+
+        if (relationship is null)
+        {
+            throw new NotFoundException("There is no such relationship.");
+        }
+        
+        _context.Relationships.Remove(relationship);
+
         await _context.SaveChangesAsync(cancellationToken);
     }
 }

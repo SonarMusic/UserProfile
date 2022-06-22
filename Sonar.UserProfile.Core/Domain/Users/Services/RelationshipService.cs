@@ -38,7 +38,7 @@ public class RelationshipService : IRelationshipService
         {
             throw new DataOccupiedException("These users are already friends.");
         }
-        
+
         if (await _relationshipRepository.IsRelationshipAsync(
                 userId,
                 dataBaseFriend.Id,
@@ -56,7 +56,7 @@ public class RelationshipService : IRelationshipService
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken)
     {
-        return _relationshipRepository.GetRelationshipsAsync(userId, relationshipStatus, cancellationToken);
+        return _relationshipRepository.GetRelationshipUsersAsync(userId, relationshipStatus, cancellationToken);
     }
 
     public async Task AcceptFriendshipRequestAsync(Guid userId, string requestedEmail,
@@ -73,14 +73,16 @@ public class RelationshipService : IRelationshipService
             throw new NotFoundException("This user didn't request friendship from you.");
         }
 
-        await _relationshipRepository.ChangeRelationshipStatusAsync(
+        await _relationshipRepository.UpdateStatusAsync(
             userId,
             requested.Id,
             RelationshipStatus.Friends,
             cancellationToken);
     }
 
-    public async Task RejectFriendshipRequestAsync(Guid userId, string requestedEmail,
+    public async Task RejectFriendshipRequestAsync(
+        Guid userId, 
+        string requestedEmail,
         CancellationToken cancellationToken)
     {
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
@@ -94,10 +96,6 @@ public class RelationshipService : IRelationshipService
             throw new NotFoundException("This user didn't request friendship from you.");
         }
 
-        await _relationshipRepository.ChangeRelationshipStatusAsync(
-            userId,
-            requested.Id,
-            RelationshipStatus.Reject,
-            cancellationToken);
+        await _relationshipRepository.Delete(userId, requested.Id, cancellationToken);
     }
 }

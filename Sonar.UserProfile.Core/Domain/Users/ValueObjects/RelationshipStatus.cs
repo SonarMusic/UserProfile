@@ -3,6 +3,5 @@
 public enum RelationshipStatus
 {
     Friends,
-    Request,
-    Reject
+    Request
 }
