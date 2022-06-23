@@ -69,9 +69,9 @@ public class RelationshipController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
-        var friends = await _relationshipService.GetRequestsFromUserAsync(userId, cancellationToken);
+        var requests = await _relationshipService.GetRequestsFromUserAsync(userId, cancellationToken);
 
-        return friends.Select(f => new UserDto
+        return requests.Select(f => new UserDto
         {
             Id = f.Id,
             Email = f.Email
@@ -91,9 +91,9 @@ public class RelationshipController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
-        var friends = await _relationshipService.GetRequestsToUserAsync(userId, cancellationToken);
+        var requests = await _relationshipService.GetRequestsToUserAsync(userId, cancellationToken);
 
-        return friends.Select(f => new UserDto
+        return requests.Select(f => new UserDto
         {
             Id = f.Id,
             Email = f.Email

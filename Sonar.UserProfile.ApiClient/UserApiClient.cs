@@ -65,7 +65,7 @@ public class UserApiClient : IUserApiClient
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>User model which contains: ID, email.</returns>
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
-    public async Task<UserGetDto> GetAsync(string token, CancellationToken cancellationToken)
+    public async Task<UserDto> GetAsync(string token, CancellationToken cancellationToken)
     {
         var request = _requestCreator.RequestWithToken("/user/get", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
@@ -77,7 +77,7 @@ public class UserApiClient : IUserApiClient
         }
 
         var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-        var responseDeserialized = JsonSerializer.Deserialize<UserGetDto>(responseString, new JsonSerializerOptions
+        var responseDeserialized = JsonSerializer.Deserialize<UserDto>(responseString, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });

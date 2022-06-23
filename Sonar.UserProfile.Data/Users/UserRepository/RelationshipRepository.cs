@@ -93,7 +93,7 @@ public class RelationshipRepository : IRelationshipRepository
     {
         var relationship = await _context.Relationships
             .FirstOrDefaultAsync(r =>
-                r.SenderUserId == targetUserId && r.TargetUserId == senderUserId, cancellationToken);
+                r.SenderUserId == senderUserId && r.TargetUserId == targetUserId, cancellationToken);
 
         if (relationship is null)
         {
@@ -108,7 +108,7 @@ public class RelationshipRepository : IRelationshipRepository
     public async Task DeleteAsync(Guid senderUserId, Guid targetUserId, CancellationToken cancellationToken)
     {
         var relationship = await _context.Relationships.FirstOrDefaultAsync(
-            r => r.SenderUserId == targetUserId && r.TargetUserId == senderUserId, cancellationToken);
+            r => r.SenderUserId == senderUserId && r.TargetUserId == targetUserId, cancellationToken);
 
         if (relationship is null)
         {
