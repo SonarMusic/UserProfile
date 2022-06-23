@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
-using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
 using Sonar.UserProfile.Web.Filters;
 
@@ -31,7 +30,7 @@ public class RelationshipController : ControllerBase
         [Required] string targetUserEmail,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetIdFromItems();
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
         return _relationshipService.SendFriendshipRequestAsync(userId, targetUserEmail, cancellationToken);
     }
 
@@ -47,7 +46,7 @@ public class RelationshipController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetIdFromItems();
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var friends = await _relationshipService.GetUserFriendsAsync(userId, cancellationToken);
 
         return friends.Select(f => new UserDto
@@ -69,7 +68,7 @@ public class RelationshipController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetIdFromItems();
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var friends = await _relationshipService.GetRequestsFromUserAsync(userId, cancellationToken);
 
         return friends.Select(f => new UserDto
@@ -91,7 +90,7 @@ public class RelationshipController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetIdFromItems();
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var friends = await _relationshipService.GetRequestsToUserAsync(userId, cancellationToken);
 
         return friends.Select(f => new UserDto
@@ -114,7 +113,7 @@ public class RelationshipController : ControllerBase
         [Required] string requestedEmail,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetIdFromItems();
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
         return _relationshipService.AcceptFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
     }
 
@@ -131,19 +130,7 @@ public class RelationshipController : ControllerBase
         [Required] string requestedEmail,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetIdFromItems();
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
         return _relationshipService.RejectFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
-    }
-
-    private Guid GetIdFromItems()
-    {
-        var userIdItem = HttpContext.Items["SenderUserId"];
-
-        if (userIdItem is null)
-        {
-            throw new Exception("Incorrect user id item");
-        }
-
-        return (Guid)userIdItem;
     }
 }

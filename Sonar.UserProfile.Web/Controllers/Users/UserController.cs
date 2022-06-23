@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using Sonar.UserProfile.Core.Domain.Users.Services;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
 using Sonar.UserProfile.Web.Filters;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace Sonar.UserProfile.Web.Controllers.Users;
 
@@ -72,7 +70,7 @@ public class UserController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetIdFromItems();
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var user = await _userService.GetByIdAsync(userId, cancellationToken);
 
         return new UserDto
@@ -80,17 +78,5 @@ public class UserController : ControllerBase
             Id = user.Id,
             Email = user.Email
         };
-    }
-    
-    private Guid GetIdFromItems()
-    {
-        var userIdItem = HttpContext.Items["SenderUserId"];
-
-        if (userIdItem is null)
-        {
-            throw new Exception("Incorrect user id item");
-        }
-
-        return (Guid)userIdItem;
     }
 }
