@@ -40,17 +40,17 @@ public class RelationshipController : ControllerBase
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>List of users. Every user is UserGetDto which contains: Id, Email.</returns>
+    /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
     [HttpGet("get-friends")]
     [AuthorizationFilter]
-    public async Task<IReadOnlyList<UserGetDto>> GetFriends(
+    public async Task<IReadOnlyList<UserDto>> GetFriends(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
         var friends = await _relationshipService.GetUserFriendsAsync(userId, cancellationToken);
 
-        return friends.Select(f => new UserGetDto
+        return friends.Select(f => new UserDto
         {
             Id = f.Id,
             Email = f.Email
@@ -62,17 +62,17 @@ public class RelationshipController : ControllerBase
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>List of users. Every user is UserGetDto which contains: Id, Email.</returns>
+    /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
     [HttpGet("get-requests-from-me")]
     [AuthorizationFilter]
-    public async Task<IReadOnlyList<UserGetDto>> GetRequestsFromMe(
+    public async Task<IReadOnlyList<UserDto>> GetRequestsFromMe(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
         var friends = await _relationshipService.GetRequestsFromUserAsync(userId, cancellationToken);
 
-        return friends.Select(f => new UserGetDto
+        return friends.Select(f => new UserDto
         {
             Id = f.Id,
             Email = f.Email
@@ -84,17 +84,17 @@ public class RelationshipController : ControllerBase
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>List of users. Every user is UserGetDto which contains: Id, Email.</returns>
+    /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
     [HttpGet("get-requests-to-me")]
     [AuthorizationFilter]
-    public async Task<IReadOnlyList<UserGetDto>> GetRequestsToMe(
+    public async Task<IReadOnlyList<UserDto>> GetRequestsToMe(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
         var friends = await _relationshipService.GetRequestsToUserAsync(userId, cancellationToken);
 
-        return friends.Select(f => new UserGetDto
+        return friends.Select(f => new UserDto
         {
             Id = f.Id,
             Email = f.Email

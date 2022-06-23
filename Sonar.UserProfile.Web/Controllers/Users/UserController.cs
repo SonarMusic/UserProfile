@@ -68,14 +68,14 @@ public class UserController : ControllerBase
     /// <returns>User model which contains: ID, email.</returns>
     [HttpGet("get")]
     [AuthorizationFilter]
-    public async Task<UserGetDto> Get(
+    public async Task<UserDto> Get(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
         var user = await _userService.GetByIdAsync(userId, cancellationToken);
 
-        return new UserGetDto
+        return new UserDto
         {
             Id = user.Id,
             Email = user.Email
