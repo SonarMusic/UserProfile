@@ -6,22 +6,26 @@ public interface IRelationshipRepository
 {
     Task SendFriendshipRequestAsync(Guid userId, Guid targetUserId, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<User>> GetRelationshipUsersAsync(
+    Task<IReadOnlyList<User>> GetUsersInRelationshipFromUserAsync(
+        Guid id,
+        RelationshipStatus relationshipStatus,
+        CancellationToken cancellationToken);
+    
+    Task<IReadOnlyList<User>> GetUsersInRelationshipToUserAsync(
         Guid id,
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken);
 
-    Task<bool> IsRelationshipAsync(
-        Guid leftUserId,
-        Guid rightUserId,
-        RelationshipStatus relationshipStatus,
+    Task<RelationshipStatus> CheckStatusAsync(
+        Guid senderUserId,
+        Guid targetUserId,
         CancellationToken cancellationToken);
 
     Task UpdateStatusAsync(
-        Guid leftUserId,
-        Guid rightUserId,
+        Guid senderUserId,
+        Guid targetUserId,
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken);
 
-    Task Delete(Guid leftUserId, Guid rightUserId, CancellationToken cancellationToken);
+    Task DeleteAsync(Guid senderUserId, Guid targetUserId, CancellationToken cancellationToken);
 }

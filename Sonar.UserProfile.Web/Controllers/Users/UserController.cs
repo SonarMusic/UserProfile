@@ -27,9 +27,6 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
     [HttpPost("register")]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(400)]
-    [SwaggerResponse(500)]
     public Task<string> Register(
         [Required] UserRegisterDto userRegisterDto,
         CancellationToken cancellationToken = default)
@@ -50,10 +47,6 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
     [HttpPatch("login")]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(401)]
-    [SwaggerResponse(404)]
-    [SwaggerResponse(500)]
     public Task<string> Login(
         [Required] UserLoginDto userLoginDto, 
         CancellationToken cancellationToken = default)
@@ -75,11 +68,6 @@ public class UserController : ControllerBase
     /// <returns>User model which contains: ID, email.</returns>
     [HttpGet("get")]
     [AuthorizationFilter]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(400)]
-    [SwaggerResponse(403)]
-    [SwaggerResponse(404)]
-    [SwaggerResponse(500)]
     public async Task<UserGetDto> Get(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
@@ -96,7 +84,7 @@ public class UserController : ControllerBase
     
     private Guid GetIdFromItems()
     {
-        var userIdItem = HttpContext.Items["UserId"];
+        var userIdItem = HttpContext.Items["SenderUserId"];
 
         if (userIdItem is null)
         {

@@ -4,7 +4,6 @@ using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
 using Sonar.UserProfile.Web.Filters;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace Sonar.UserProfile.Web.Controllers.Users;
 
@@ -27,14 +26,9 @@ public class RelationshipController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPost("send-friendship-request")]
     [AuthorizationFilter]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(400)]
-    [SwaggerResponse(403)]
-    [SwaggerResponse(404)]
-    [SwaggerResponse(500)]
     public Task SendFriendshipRequest(
         [FromHeader(Name = "Token")] string token,
-        [FromBody] [Required] string targetUserEmail,
+        [Required] string targetUserEmail,
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
@@ -42,29 +36,63 @@ public class RelationshipController : ControllerBase
     }
 
     /// <summary>
-    /// Return list of users who are in special relationship if token hasn't expired yet.
+    /// Return list of user's friends if token hasn't expired yet.
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
-    /// <param name="relationshipStatus">Type of relationship. For example: friends.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>List of users. Every user is UserGetDto which contains: Id, Email.</returns>
-    [HttpGet("get-relationships")]
+    [HttpGet("get-friends")]
     [AuthorizationFilter]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(400)]
-    [SwaggerResponse(403)]
-    [SwaggerResponse(404)]
-    [SwaggerResponse(500)]
-    public async Task<IReadOnlyList<UserGetDto>> GetRelationships(
+    public async Task<IReadOnlyList<UserGetDto>> GetFriends(
         [FromHeader(Name = "Token")] string token,
-        [FromBody] RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
-        var friends = await _relationshipService.GetRelationshipsAsync(
-            userId,
-            relationshipStatus,
-            cancellationToken);
+        var friends = await _relationshipService.GetUserFriendsAsync(userId, cancellationToken);
+
+        return friends.Select(f => new UserGetDto
+        {
+            Id = f.Id,
+            Email = f.Email
+        }).ToList();
+    }
+    
+    /// <summary>
+    /// Return list of users who you've send request.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <returns>List of users. Every user is UserGetDto which contains: Id, Email.</returns>
+    [HttpGet("get-requests-from-me")]
+    [AuthorizationFilter]
+    public async Task<IReadOnlyList<UserGetDto>> GetRequestsFromMe(
+        [FromHeader(Name = "Token")] string token,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetIdFromItems();
+        var friends = await _relationshipService.GetRequestsFromUserAsync(userId, cancellationToken);
+
+        return friends.Select(f => new UserGetDto
+        {
+            Id = f.Id,
+            Email = f.Email
+        }).ToList();
+    }
+    
+    /// <summary>
+    /// Return list of users who have send request to you.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <returns>List of users. Every user is UserGetDto which contains: Id, Email.</returns>
+    [HttpGet("get-requests-to-me")]
+    [AuthorizationFilter]
+    public async Task<IReadOnlyList<UserGetDto>> GetRequestsToMe(
+        [FromHeader(Name = "Token")] string token,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = GetIdFromItems();
+        var friends = await _relationshipService.GetRequestsToUserAsync(userId, cancellationToken);
 
         return friends.Select(f => new UserGetDto
         {
@@ -81,20 +109,15 @@ public class RelationshipController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPatch("accept-friendship-request")]
     [AuthorizationFilter]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(400)]
-    [SwaggerResponse(403)]
-    [SwaggerResponse(404)]
-    [SwaggerResponse(500)]
     public Task AcceptFriendshipRequest(
         [FromHeader(Name = "Token")] string token,
-        [FromBody] [Required] string requestedEmail,
+        [Required] string requestedEmail,
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
         return _relationshipService.AcceptFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
     }
-    
+
     /// <summary>
     /// Reject friendship request if token hasn't expired yet.
     /// </summary>
@@ -103,14 +126,9 @@ public class RelationshipController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPatch("reject-friendship-request")]
     [AuthorizationFilter]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(400)]
-    [SwaggerResponse(403)]
-    [SwaggerResponse(404)]
-    [SwaggerResponse(500)]
     public Task RejectFriendshipRequest(
         [FromHeader(Name = "Token")] string token,
-        [FromBody] [Required] string requestedEmail,
+        [Required] string requestedEmail,
         CancellationToken cancellationToken = default)
     {
         var userId = GetIdFromItems();
@@ -119,7 +137,7 @@ public class RelationshipController : ControllerBase
 
     private Guid GetIdFromItems()
     {
-        var userIdItem = HttpContext.Items["UserId"];
+        var userIdItem = HttpContext.Items["SenderUserId"];
 
         if (userIdItem is null)
         {

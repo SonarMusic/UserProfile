@@ -1,6 +1,5 @@
 ﻿using Sonar.UserProfile.ApiClient.Dto;
 using Sonar.UserProfile.ApiClient.Tools;
-using Sonar.UserProfile.ApiClient.ValueObjects;
 
 namespace Sonar.UserProfile.ApiClient;
 
@@ -31,11 +30,11 @@ public static class Program
             await relationshipApiClient.SendFriendshipRequestAsync(token1, "c5@c.c", CancellationToken.None);
 
             var request1 =
-                relationshipApiClient.GetRelationshipsAsync(token1, RelationshipStatus.Request, CancellationToken.None);
+                relationshipApiClient.GetFriendsAsync(token1, CancellationToken.None);
             var request2 =
-                relationshipApiClient.GetRelationshipsAsync(token2, RelationshipStatus.Request, CancellationToken.None);
+                relationshipApiClient.GetFriendsAsync(token2, CancellationToken.None);
             var request3 =
-                relationshipApiClient.GetRelationshipsAsync(token3, RelationshipStatus.Request, CancellationToken.None);
+                relationshipApiClient.GetFriendsAsync(token3, CancellationToken.None);
 
             Console.WriteLine(request1.Result[0].Email);
             Console.WriteLine(request2.Result[0].Email);
@@ -45,11 +44,11 @@ public static class Program
             await relationshipApiClient.RejectFriendshipRequestAsync(token3, "a5@a.a", CancellationToken.None);
 
             var friends1 =
-                relationshipApiClient.GetRelationshipsAsync(token1, RelationshipStatus.Friends, CancellationToken.None);
+                relationshipApiClient.GetFriendsAsync(token1, CancellationToken.None);
             var friends2 =
-                relationshipApiClient.GetRelationshipsAsync(token2, RelationshipStatus.Friends, CancellationToken.None);
+                relationshipApiClient.GetFriendsAsync(token2, CancellationToken.None);
             var friends3 =
-                relationshipApiClient.GetRelationshipsAsync(token3, RelationshipStatus.Friends, CancellationToken.None);
+                relationshipApiClient.GetFriendsAsync(token3, CancellationToken.None);
 
             Console.WriteLine(friends1.Result[0].Email);
             Console.WriteLine(friends2.Result[0].Email);

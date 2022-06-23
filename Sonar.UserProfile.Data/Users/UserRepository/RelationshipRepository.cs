@@ -34,60 +34,66 @@ public class RelationshipRepository : IRelationshipRepository
 
         _context.Relationships.Add(new RelationshipDbModel
         {
-            UserId = userId,
-            FriendId = targetUserId,
+            SenderUserId = userId,
+            TargetUserId = targetUserId,
             RelationshipStatus = RelationshipStatus.Request
         });
 
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<User>> GetRelationshipUsersAsync(
+    public async Task<IReadOnlyList<User>> GetUsersInRelationshipFromUserAsync(
         Guid id,
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken)
     {
         var relationshipList = await _context.Relationships
-            .Where(r => r.UserId == id && r.RelationshipStatus == relationshipStatus)
+            .Where(r => r.SenderUserId == id && r.RelationshipStatus == relationshipStatus)
             .Select(r => new User
             {
-                Id = r.FriendId,
-                Email = _context.Users.FirstOrDefault(f => f.Id == r.FriendId).Email
+                Id = r.TargetUserId,
+                Email = _context.Users.FirstOrDefault(f => f.Id == r.TargetUserId).Email
             }).ToListAsync(cancellationToken);
-
-        relationshipList.AddRange(await _context.Relationships
-            .Where(r => r.FriendId == id && r.RelationshipStatus == relationshipStatus)
-            .Select(r => new User
-            {
-                Id = r.UserId,
-                Email = _context.Users.FirstOrDefault(f => f.Id == r.UserId).Email
-            }).ToListAsync(cancellationToken));
 
         return relationshipList;
     }
 
-    public Task<bool> IsRelationshipAsync(
-        Guid leftUserId,
-        Guid rightUserId,
+    public async Task<IReadOnlyList<User>> GetUsersInRelationshipToUserAsync(
+        Guid id,
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken)
     {
-        return _context.Relationships.AnyAsync(r =>
-            (r.UserId == leftUserId && r.FriendId == rightUserId ||
-             r.UserId == rightUserId && r.FriendId == leftUserId) &&
-            r.RelationshipStatus == relationshipStatus, cancellationToken);
+        var relationshipList = await _context.Relationships
+            .Where(r => r.TargetUserId == id && r.RelationshipStatus == relationshipStatus)
+            .Select(r => new User
+            {
+                Id = r.SenderUserId,
+                Email = _context.Users.FirstOrDefault(f => f.Id == r.SenderUserId).Email
+            }).ToListAsync(cancellationToken);
+
+        return relationshipList;
+    }
+
+    public async Task<RelationshipStatus> CheckStatusAsync(
+        Guid senderUserId,
+        Guid targetUserId,
+        CancellationToken cancellationToken)
+    {
+        var relationship = await _context.Relationships.FirstOrDefaultAsync(r =>
+            r.SenderUserId == senderUserId && r.TargetUserId == targetUserId, cancellationToken);
+
+        return relationship?.RelationshipStatus ?? RelationshipStatus.Absence;
     }
 
     public async Task UpdateStatusAsync(
-        Guid leftUserId,
-        Guid rightUserId,
+        Guid senderUserId,
+        Guid targetUserId,
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken)
     {
         var relationship = await _context.Relationships
             .FirstOrDefaultAsync(r =>
-                r.UserId == rightUserId && r.FriendId == leftUserId &&
-                r.RelationshipStatus == RelationshipStatus.Request, cancellationToken);
+                r.SenderUserId == targetUserId && r.TargetUserId == senderUserId, cancellationToken);
 
         if (relationship is null)
         {
@@ -99,16 +105,16 @@ public class RelationshipRepository : IRelationshipRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task Delete(Guid leftUserId, Guid rightUserId, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid senderUserId, Guid targetUserId, CancellationToken cancellationToken)
     {
         var relationship = await _context.Relationships.FirstOrDefaultAsync(
-            r => r.UserId == rightUserId && r.FriendId == leftUserId, cancellationToken);
+            r => r.SenderUserId == targetUserId && r.TargetUserId == senderUserId, cancellationToken);
 
         if (relationship is null)
         {
             throw new NotFoundException("There is no such relationship.");
         }
-        
+
         _context.Relationships.Remove(relationship);
 
         await _context.SaveChangesAsync(cancellationToken);

@@ -28,35 +28,56 @@ public class RelationshipService : IRelationshipService
             throw new InvalidRequestException("Users must be different.");
         }
 
-        var dataBaseFriend = await _userRepository.GetByEmailAsync(targetUserEmail, cancellationToken);
+        var dataBaseTarget = await _userRepository.GetByEmailAsync(targetUserEmail, cancellationToken);
 
-        if (await _relationshipRepository.IsRelationshipAsync(
-                userId,
-                dataBaseFriend.Id,
-                RelationshipStatus.Friends,
-                cancellationToken))
+        if (await _relationshipRepository.CheckStatusAsync(userId, dataBaseTarget.Id, cancellationToken)
+            == RelationshipStatus.Friends ||
+            await _relationshipRepository.CheckStatusAsync(dataBaseTarget.Id, userId, cancellationToken)
+            == RelationshipStatus.Friends)
         {
             throw new DataOccupiedException("These users are already friends.");
         }
 
-        if (await _relationshipRepository.IsRelationshipAsync(
-                userId,
-                dataBaseFriend.Id,
-                RelationshipStatus.Request,
-                cancellationToken))
+        if (await _relationshipRepository.CheckStatusAsync(userId, dataBaseTarget.Id, cancellationToken)
+            == RelationshipStatus.Request ||
+            await _relationshipRepository.CheckStatusAsync(dataBaseTarget.Id, userId, cancellationToken)
+            == RelationshipStatus.Request)
         {
-            throw new DataOccupiedException("You already send request.");
+            throw new DataOccupiedException("There are already a request between these users.");
         }
 
-        await _relationshipRepository.SendFriendshipRequestAsync(userId, dataBaseFriend.Id, cancellationToken);
+        await _relationshipRepository.SendFriendshipRequestAsync(userId, dataBaseTarget.Id, cancellationToken);
     }
 
-    public Task<IReadOnlyList<User>> GetRelationshipsAsync(
-        Guid userId,
-        RelationshipStatus relationshipStatus,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<User>> GetUserFriendsAsync(Guid userId, CancellationToken cancellationToken)
     {
-        return _relationshipRepository.GetRelationshipUsersAsync(userId, relationshipStatus, cancellationToken);
+        var friends = (await _relationshipRepository.GetUsersInRelationshipFromUserAsync(
+            userId,
+            RelationshipStatus.Friends,
+            cancellationToken)).ToList();
+
+        friends.AddRange(await _relationshipRepository.GetUsersInRelationshipToUserAsync(
+            userId,
+            RelationshipStatus.Friends,
+            cancellationToken));
+
+        return friends;
+    }
+
+    public Task<IReadOnlyList<User>> GetRequestsFromUserAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return _relationshipRepository.GetUsersInRelationshipFromUserAsync(
+            userId,
+            RelationshipStatus.Request,
+            cancellationToken);
+    }
+
+    public Task<IReadOnlyList<User>> GetRequestsToUserAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return _relationshipRepository.GetUsersInRelationshipToUserAsync(
+            userId,
+            RelationshipStatus.Request,
+            cancellationToken);
     }
 
     public async Task AcceptFriendshipRequestAsync(Guid userId, string requestedEmail,
@@ -64,38 +85,35 @@ public class RelationshipService : IRelationshipService
     {
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
 
-        if (!await _relationshipRepository.IsRelationshipAsync(
-                userId,
-                requested.Id,
-                RelationshipStatus.Request,
-                cancellationToken))
+        if (await _relationshipRepository.CheckStatusAsync(requested.Id, userId, cancellationToken)
+            != RelationshipStatus.Request)
         {
             throw new NotFoundException("This user didn't request friendship from you.");
         }
 
         await _relationshipRepository.UpdateStatusAsync(
-            userId,
             requested.Id,
+            userId,
             RelationshipStatus.Friends,
             cancellationToken);
     }
 
     public async Task RejectFriendshipRequestAsync(
-        Guid userId, 
+        Guid userId,
         string requestedEmail,
         CancellationToken cancellationToken)
     {
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
 
-        if (!await _relationshipRepository.IsRelationshipAsync(
-                userId,
-                requested.Id,
-                RelationshipStatus.Request,
-                cancellationToken))
+        if (await _relationshipRepository.CheckStatusAsync(requested.Id, userId, cancellationToken)
+            != RelationshipStatus.Request)
         {
             throw new NotFoundException("This user didn't request friendship from you.");
         }
 
-        await _relationshipRepository.Delete(userId, requested.Id, cancellationToken);
+        await _relationshipRepository.DeleteAsync(
+            requested.Id,
+            userId,
+            cancellationToken);
     }
 }

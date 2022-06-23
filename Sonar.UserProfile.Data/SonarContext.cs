@@ -32,8 +32,7 @@ namespace Sonar.UserProfile.Data
             modelBuilder.Entity<RelationshipDbModel>()
                 .HasKey(r => new
                     {
-                        r.UserId,
-                        r.FriendId
+                        UserId = r.SenderUserId, FriendId = r.TargetUserId
                     }
                 );
 

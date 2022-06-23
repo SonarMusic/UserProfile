@@ -3,7 +3,6 @@ using System.Text.Json;
 using Sonar.UserProfile.ApiClient.Dto;
 using Sonar.UserProfile.ApiClient.Interfaces;
 using Sonar.UserProfile.ApiClient.Tools;
-using Sonar.UserProfile.ApiClient.ValueObjects;
 
 namespace Sonar.UserProfile.ApiClient;
 
@@ -30,7 +29,7 @@ public class RelationshipApiClient : IRelationshipApiClient
         CancellationToken cancellationToken)
     {
         var request = _requestCreator.RequestWithContentAndToken(
-            "/relationship/send-friendship-request",
+            $"/relationship/send-friendship-request?targetUserEmail={targetUserEmail}",
             "POST",
             token,
             targetUserEmail);
@@ -47,23 +46,18 @@ public class RelationshipApiClient : IRelationshipApiClient
     }
 
     /// <summary>
-    /// Return list of users who are in special relationship if token hasn't expired yet.
+    /// Return list of user's friends if token hasn't expired yet.
     /// </summary>
     /// <param name="token">Token that is used to verify the user.</param>
-    /// <param name="relationshipStatus">Type of relationship. For example: friends.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>List of users. Every user is UserGetDto which contains: Id, Email.</returns>
-    public async Task<IReadOnlyList<UserGetDto>> GetRelationshipsAsync(
-        string token,
-        RelationshipStatus relationshipStatus,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<UserGetDto>> GetFriendsAsync(string token, CancellationToken cancellationToken)
     {
         var request =
-            _requestCreator.RequestWithContentAndToken(
-                "/relationship/get-relationships", 
-                "GET", 
-                token,
-                relationshipStatus);
+            _requestCreator.RequestWithToken(
+                "/relationship/get-friends",
+                "GET",
+                token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
         if (response.StatusCode != HttpStatusCode.OK)
@@ -92,11 +86,10 @@ public class RelationshipApiClient : IRelationshipApiClient
         string requestedEmail,
         CancellationToken cancellationToken)
     {
-        var request = _requestCreator.RequestWithContentAndToken(
-            "/relationship/accept-friendship-request",
+        var request = _requestCreator.RequestWithToken(
+            $"/relationship/accept-friendship-request?requestedEmail={requestedEmail}",
             "PATCH",
-            token,
-            requestedEmail);
+            token);
 
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
@@ -120,11 +113,10 @@ public class RelationshipApiClient : IRelationshipApiClient
         string requestedEmail,
         CancellationToken cancellationToken)
     {
-        var request = _requestCreator.RequestWithContentAndToken(
-            "/relationship/reject-friendship-request",
+        var request = _requestCreator.RequestWithToken(
+            $"/relationship/reject-friendship-request?requestedEmail={requestedEmail}",
             "PATCH",
-            token,
-            requestedEmail);
+            token);
 
         var response = await _httpClient.SendAsync(request, cancellationToken);
 

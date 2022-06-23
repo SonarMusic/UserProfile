@@ -4,7 +4,7 @@ namespace Sonar.UserProfile.Data.Users;
 
 public class RelationshipDbModel
 {
-    public Guid UserId { get; set; }
-    public Guid FriendId { get; set; }
+    public Guid SenderUserId { get; set; }
+    public Guid TargetUserId { get; set; }
     public RelationshipStatus RelationshipStatus { get; set; }
 }
