@@ -90,7 +90,7 @@ public class UserController : ControllerBase
     [AuthorizationFilter]
     public Task Update(
         [FromHeader(Name = "Token")] string token,
-        UserAuthDto userDto,
+        [Required] UserAuthDto userDto,
         CancellationToken cancellationToken = default)
     {
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
