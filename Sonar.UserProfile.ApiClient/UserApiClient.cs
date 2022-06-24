@@ -83,4 +83,24 @@ public class UserApiClient : IUserApiClient
         });
         return responseDeserialized!;
     }
+
+    /// <summary>
+    /// Update a user model if token hasn't expired yet.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="userDto">User model which contains: ID, email.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    public async Task UpdateAsync(string token, UserAuthDto userDto, CancellationToken cancellationToken = default)
+    {
+        var request = _requestCreator.RequestWithToken("/user/put", "PUT", token);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
+
+        if (response.StatusCode is HttpStatusCode.OK)
+        {
+            return;
+        }
+        
+        var errorMessage = await _requestCreator.ErrorMessage(response, cancellationToken);
+        throw new ApiClientException(errorMessage);
+    }
 }

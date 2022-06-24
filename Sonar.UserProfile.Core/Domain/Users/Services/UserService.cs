@@ -28,6 +28,12 @@ public class UserService : IUserService
         return _userRepository.GetByIdAsync(userId, cancellationToken);
     }
 
+    public Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
+    {
+        user.Password = _passwordEncoder.Encode(user.Password);
+        return _userRepository.UpdateAsync(user, cancellationToken);
+    }
+
     public async Task<string> RegisterAsync(User user, CancellationToken cancellationToken)
     {
         user.Id = Guid.NewGuid();

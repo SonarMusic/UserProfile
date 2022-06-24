@@ -46,7 +46,7 @@ public class UserController : ControllerBase
     /// <returns>New token.</returns>
     [HttpPatch("login")]
     public Task<string> Login(
-        [Required] UserAuthDto userAuthDto, 
+        [Required] UserAuthDto userAuthDto,
         CancellationToken cancellationToken = default)
     {
         var user = new User
@@ -78,5 +78,29 @@ public class UserController : ControllerBase
             Id = user.Id,
             Email = user.Email
         };
+    }
+
+    /// <summary>
+    /// Update a user model if token hasn't expired yet.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="userDto">User model which contains: ID, email.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    [HttpPut("put")]
+    [AuthorizationFilter]
+    public Task Update(
+        [FromHeader(Name = "Token")] string token,
+        [Required] UserAuthDto userDto,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
+    
+        return _userService.UpdateUserAsync(new User
+            {
+                Id = userId,
+                Email = userDto.Email,
+                Password = userDto.Password
+            },
+            cancellationToken);
     }
 }
