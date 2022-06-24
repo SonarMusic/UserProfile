@@ -46,7 +46,7 @@ public class UserController : ControllerBase
     /// <returns>New token.</returns>
     [HttpPatch("login")]
     public Task<string> Login(
-        [Required] UserAuthDto userAuthDto, 
+        [Required] UserAuthDto userAuthDto,
         CancellationToken cancellationToken = default)
     {
         var user = new User
@@ -78,5 +78,22 @@ public class UserController : ControllerBase
             Id = user.Id,
             Email = user.Email
         };
+    }
+
+    [HttpPut("put")]
+    [AuthorizationFilter]
+    public Task Update(
+        UserAuthDto userDto,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
+    
+        return _userService.UpdateUserAsync(new User
+            {
+                Id = userId,
+                Email = userDto.Email,
+                Password = userDto.Password
+            },
+            cancellationToken);
     }
 }
