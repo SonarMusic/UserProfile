@@ -18,7 +18,7 @@ public class ExceptionFilter : IExceptionFilter
                 InvalidPasswordException => StatusCodes.Status401Unauthorized,
                 ExpiredTokenException => StatusCodes.Status403Forbidden,
                 TokenNotFoundException => StatusCodes.Status404NotFound,
-                UserNotFoundException => StatusCodes.Status404NotFound,
+                NotFoundException => StatusCodes.Status404NotFound,
                 _ => StatusCodes.Status500InternalServerError
             }
         };

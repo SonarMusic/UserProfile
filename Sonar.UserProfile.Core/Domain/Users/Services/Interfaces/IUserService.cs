@@ -1,4 +1,4 @@
-﻿namespace Sonar.UserProfile.Core.Domain.Users.Services;
+﻿namespace Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 
 public interface IUserService
 {
