@@ -83,6 +83,7 @@ public class UserController : ControllerBase
     [HttpPut("put")]
     [AuthorizationFilter]
     public Task Update(
+        [FromHeader(Name = "Token")] string token,
         UserAuthDto userDto,
         CancellationToken cancellationToken = default)
     {
