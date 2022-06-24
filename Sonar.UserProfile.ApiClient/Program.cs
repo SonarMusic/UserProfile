@@ -29,11 +29,11 @@ public static class Program
         await relationshipApiClient.SendFriendshipRequestAsync(token1, "c5@c.c", CancellationToken.None);
 
         var request1 =
-            relationshipApiClient.GetRequestsFromMe(token1, CancellationToken.None);
+            relationshipApiClient.GetRequestsFromMeAsync(token1, CancellationToken.None);
         var request2 =
-            relationshipApiClient.GetRequestsToMe(token2, CancellationToken.None);
+            relationshipApiClient.GetRequestsToMeAsync(token2, CancellationToken.None);
         var request3 =
-            relationshipApiClient.GetRequestsToMe(token3, CancellationToken.None);
+            relationshipApiClient.GetRequestsToMeAsync(token3, CancellationToken.None);
 
         Console.WriteLine(request1.Result.Count);
         Console.WriteLine(request2.Result[0].Email);
@@ -54,22 +54,22 @@ public static class Program
         Console.WriteLine(friends3.Result.Count);
 
         request1 =
-            relationshipApiClient.GetRequestsToMe(token1, CancellationToken.None);
+            relationshipApiClient.GetRequestsToMeAsync(token1, CancellationToken.None);
         request2 =
-            relationshipApiClient.GetRequestsToMe(token2, CancellationToken.None);
+            relationshipApiClient.GetRequestsToMeAsync(token2, CancellationToken.None);
         request3 =
-            relationshipApiClient.GetRequestsToMe(token3, CancellationToken.None);
+            relationshipApiClient.GetRequestsToMeAsync(token3, CancellationToken.None);
 
         Console.WriteLine(request1.Result.Count);
         Console.WriteLine(request2.Result.Count);
         Console.WriteLine(request3.Result.Count);
 
         request1 =
-            relationshipApiClient.GetRequestsFromMe(token1, CancellationToken.None);
+            relationshipApiClient.GetRequestsFromMeAsync(token1, CancellationToken.None);
         request2 =
-            relationshipApiClient.GetRequestsFromMe(token2, CancellationToken.None);
+            relationshipApiClient.GetRequestsFromMeAsync(token2, CancellationToken.None);
         request3 =
-            relationshipApiClient.GetRequestsFromMe(token3, CancellationToken.None);
+            relationshipApiClient.GetRequestsFromMeAsync(token3, CancellationToken.None);
 
         Console.WriteLine(request1.Result.Count);
         Console.WriteLine(request2.Result.Count);

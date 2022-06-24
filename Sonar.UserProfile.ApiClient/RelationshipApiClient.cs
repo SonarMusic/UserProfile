@@ -81,7 +81,7 @@ public class RelationshipApiClient : IRelationshipApiClient
     /// <param name="token">Token that is used to verify the user.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
-    public async Task<IReadOnlyList<UserDto>> GetRequestsFromMe(string token, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<UserDto>> GetRequestsFromMeAsync(string token, CancellationToken cancellationToken)
     {
         var request =
             _requestCreator.RequestWithToken(
@@ -111,7 +111,7 @@ public class RelationshipApiClient : IRelationshipApiClient
     /// <param name="token">Token that is used to verify the user.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
-    public async Task<IReadOnlyList<UserDto>> GetRequestsToMe(string token, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<UserDto>> GetRequestsToMeAsync(string token, CancellationToken cancellationToken)
     {
         var request =
             _requestCreator.RequestWithToken(
