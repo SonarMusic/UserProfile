@@ -36,7 +36,7 @@ public class RelationshipApiClient : IRelationshipApiClient
 
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode == HttpStatusCode.OK)
+        if (response.StatusCode is HttpStatusCode.OK)
         {
             return;
         }
@@ -60,7 +60,7 @@ public class RelationshipApiClient : IRelationshipApiClient
                 token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode != HttpStatusCode.OK)
+        if (response.StatusCode is not HttpStatusCode.OK)
         {
             var errorMessage = await _requestCreator.ErrorMessage(response, cancellationToken);
             throw new ApiClientException(errorMessage);
@@ -90,7 +90,7 @@ public class RelationshipApiClient : IRelationshipApiClient
                 token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode != HttpStatusCode.OK)
+        if (response.StatusCode is not HttpStatusCode.OK)
         {
             var errorMessage = await _requestCreator.ErrorMessage(response, cancellationToken);
             throw new ApiClientException(errorMessage);
@@ -120,7 +120,7 @@ public class RelationshipApiClient : IRelationshipApiClient
                 token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode != HttpStatusCode.OK)
+        if (response.StatusCode is not HttpStatusCode.OK)
         {
             var errorMessage = await _requestCreator.ErrorMessage(response, cancellationToken);
             throw new ApiClientException(errorMessage);
@@ -153,7 +153,7 @@ public class RelationshipApiClient : IRelationshipApiClient
 
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode == HttpStatusCode.OK)
+        if (response.StatusCode is HttpStatusCode.OK)
         {
             return;
         }
@@ -180,7 +180,7 @@ public class RelationshipApiClient : IRelationshipApiClient
 
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode == HttpStatusCode.OK)
+        if (response.StatusCode is HttpStatusCode.OK)
         {
             return;
         }

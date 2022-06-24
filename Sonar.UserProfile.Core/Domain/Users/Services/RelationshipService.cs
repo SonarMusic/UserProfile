@@ -31,17 +31,17 @@ public class RelationshipService : IRelationshipService
         var dataBaseTarget = await _userRepository.GetByEmailAsync(targetUserEmail, cancellationToken);
 
         if (await _relationshipRepository.CheckStatusAsync(userId, dataBaseTarget.Id, cancellationToken)
-            == RelationshipStatus.Friends ||
+                is RelationshipStatus.Friends ||
             await _relationshipRepository.CheckStatusAsync(dataBaseTarget.Id, userId, cancellationToken)
-            == RelationshipStatus.Friends)
+                is RelationshipStatus.Friends)
         {
             throw new DataOccupiedException("These users are already friends.");
         }
 
         if (await _relationshipRepository.CheckStatusAsync(userId, dataBaseTarget.Id, cancellationToken)
-            == RelationshipStatus.Request ||
+                is RelationshipStatus.Request ||
             await _relationshipRepository.CheckStatusAsync(dataBaseTarget.Id, userId, cancellationToken)
-            == RelationshipStatus.Request)
+                is RelationshipStatus.Request)
         {
             throw new DataOccupiedException("There are already a request between these users.");
         }
@@ -86,7 +86,7 @@ public class RelationshipService : IRelationshipService
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
 
         if (await _relationshipRepository.CheckStatusAsync(requested.Id, userId, cancellationToken)
-            != RelationshipStatus.Request)
+            is not RelationshipStatus.Request)
         {
             throw new NotFoundException("This user didn't request friendship from you.");
         }
@@ -106,7 +106,7 @@ public class RelationshipService : IRelationshipService
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
 
         if (await _relationshipRepository.CheckStatusAsync(requested.Id, userId, cancellationToken)
-            != RelationshipStatus.Request)
+            is not RelationshipStatus.Request)
         {
             throw new NotFoundException("This user didn't request friendship from you.");
         }

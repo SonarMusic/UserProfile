@@ -29,7 +29,7 @@ public class UserApiClient : IUserApiClient
         var request = _requestCreator.RequestWithContent("/user/register", "POST", userAuthDto);
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode == HttpStatusCode.OK)
+        if (response.StatusCode is HttpStatusCode.OK)
         {
             return await response.Content.ReadAsStringAsync(cancellationToken);
         }
@@ -49,7 +49,7 @@ public class UserApiClient : IUserApiClient
     {
         var request = _requestCreator.RequestWithContent("/user/login", "PATCH", userAuthDto);
         var response = await _httpClient.SendAsync(request, cancellationToken);
-        if (response.StatusCode == HttpStatusCode.OK)
+        if (response.StatusCode is HttpStatusCode.OK)
         {
             return await response.Content.ReadAsStringAsync(cancellationToken);
         }
@@ -70,7 +70,7 @@ public class UserApiClient : IUserApiClient
         var request = _requestCreator.RequestWithToken("/user/get", "GET", token);
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode != HttpStatusCode.OK)
+        if (response.StatusCode is not HttpStatusCode.OK)
         {
             var errorMessage = await _requestCreator.ErrorMessage(response, cancellationToken);
             throw new ApiClientException(errorMessage);
