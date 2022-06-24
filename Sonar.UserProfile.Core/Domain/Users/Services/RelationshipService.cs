@@ -31,9 +31,9 @@ public class RelationshipService : IRelationshipService
         var dataBaseTarget = await _userRepository.GetByEmailAsync(targetUserEmail, cancellationToken);
         
         var relationshipStatus =
-            await _relationshipRepository.CheckStatusAsync(userId, dataBaseTarget.Id, cancellationToken);
+            await _relationshipRepository.GetStatusAsync(userId, dataBaseTarget.Id, cancellationToken);
         var relationshipStatusInverse =
-            await _relationshipRepository.CheckStatusAsync(dataBaseTarget.Id, userId, cancellationToken);
+            await _relationshipRepository.GetStatusAsync(dataBaseTarget.Id, userId, cancellationToken);
         
         if (relationshipStatus is RelationshipStatus.Friends || relationshipStatusInverse is RelationshipStatus.Friends)
         {
@@ -86,7 +86,7 @@ public class RelationshipService : IRelationshipService
 
 
         var relationshipStatus =
-            await _relationshipRepository.CheckStatusAsync(requested.Id, userId, cancellationToken);
+            await _relationshipRepository.GetStatusAsync(requested.Id, userId, cancellationToken);
         if (relationshipStatus is not RelationshipStatus.Request)
         {
             throw new NotFoundException("This user didn't request friendship from you.");
@@ -107,7 +107,7 @@ public class RelationshipService : IRelationshipService
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
 
         var relationshipStatus =
-            await _relationshipRepository.CheckStatusAsync(requested.Id, userId, cancellationToken);
+            await _relationshipRepository.GetStatusAsync(requested.Id, userId, cancellationToken);
         if (relationshipStatus is not RelationshipStatus.Request)
         {
             throw new NotFoundException("This user didn't request friendship from you.");

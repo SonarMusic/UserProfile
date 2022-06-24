@@ -74,7 +74,7 @@ public class RelationshipRepository : IRelationshipRepository
         return relationshipList;
     }
 
-    public async Task<RelationshipStatus> CheckStatusAsync(
+    public async Task<RelationshipStatus> GetStatusAsync(
         Guid senderUserId,
         Guid targetUserId,
         CancellationToken cancellationToken)

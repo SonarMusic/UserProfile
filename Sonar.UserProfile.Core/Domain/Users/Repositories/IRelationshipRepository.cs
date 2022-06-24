@@ -16,7 +16,7 @@ public interface IRelationshipRepository
         RelationshipStatus relationshipStatus,
         CancellationToken cancellationToken);
 
-    Task<RelationshipStatus> CheckStatusAsync(
+    Task<RelationshipStatus> GetStatusAsync(
         Guid senderUserId,
         Guid targetUserId,
         CancellationToken cancellationToken);
