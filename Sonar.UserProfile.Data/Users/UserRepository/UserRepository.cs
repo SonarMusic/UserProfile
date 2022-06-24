@@ -95,6 +95,14 @@ public class UserRepository : IUserRepository
             throw new NotFoundException($"User with id = {user.Id} does not exists");
         }
 
+        var sameEmailEntity = 
+            await _context.Users.FirstOrDefaultAsync(it => it.Email == user.Email, cancellationToken);
+
+        if (sameEmailEntity != null)
+        {
+            throw new DataOccupiedException($"User with mail = {user.Email} already exists");
+        }
+
         entity.Email = user.Email;
         entity.Password = user.Password;
 
