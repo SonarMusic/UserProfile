@@ -98,7 +98,7 @@ public class UserRepository : IUserRepository
         var sameEmailEntity = 
             await _context.Users.FirstOrDefaultAsync(it => it.Email == user.Email, cancellationToken);
 
-        if (sameEmailEntity != null)
+        if (sameEmailEntity is not null)
         {
             throw new DataOccupiedException($"User with mail = {user.Email} already exists");
         }
