@@ -21,18 +21,18 @@ public class UserController : ControllerBase
     /// <summary>
     /// Create new user with new token which will expire in 7 days.
     /// </summary>
-    /// <param name="userRegisterDto">DTO which contains parameters for new user: email, password.</param>
+    /// <param name="userAuthDto">DTO which contains parameters for new user: email, password.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
     [HttpPost("register")]
     public Task<string> Register(
-        [Required] UserRegisterDto userRegisterDto,
+        [Required] UserAuthDto userAuthDto,
         CancellationToken cancellationToken = default)
     {
         var user = new User
         {
-            Email = userRegisterDto.Email,
-            Password = userRegisterDto.Password
+            Email = userAuthDto.Email,
+            Password = userAuthDto.Password
         };
 
         return _userService.RegisterAsync(user, cancellationToken);
@@ -41,18 +41,18 @@ public class UserController : ControllerBase
     /// <summary>
     /// Generate new token to user if password matched. Token will expire in 7 days.
     /// </summary>
-    /// <param name="userLoginDto">DTO which contains parameters to identify user: email, password</param>
+    /// <param name="userAuthDto">DTO which contains parameters to identify user: email, password</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
     [HttpPatch("login")]
     public Task<string> Login(
-        [Required] UserLoginDto userLoginDto, 
+        [Required] UserAuthDto userAuthDto, 
         CancellationToken cancellationToken = default)
     {
         var user = new User
         {
-            Email = userLoginDto.Email,
-            Password = userLoginDto.Password
+            Email = userAuthDto.Email,
+            Password = userAuthDto.Password
         };
 
         return _userService.LoginAsync(user, cancellationToken);

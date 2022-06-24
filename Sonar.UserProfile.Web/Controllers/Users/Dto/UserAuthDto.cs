@@ -2,7 +2,7 @@
 
 namespace Sonar.UserProfile.Web.Controllers.Users.Dto;
 
-public class UserRegisterDto
+public class UserAuthDto
 {
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Email is incorrect")]

@@ -14,15 +14,15 @@ public static class Program
 
 
         var token1 = userApiClient.RegisterAsync(
-            new UserRegisterDto { Email = "a5@a.a", Password = "string" },
+            new UserAuthDto { Email = "a5@a.a", Password = "string" },
             CancellationToken.None).Result;
 
         var token2 = userApiClient.RegisterAsync(
-            new UserRegisterDto { Email = "b5@b.b", Password = "string" },
+            new UserAuthDto { Email = "b5@b.b", Password = "string" },
             CancellationToken.None).Result;
 
         var token3 = userApiClient.RegisterAsync(
-            new UserRegisterDto { Email = "c5@c.c", Password = "string" },
+            new UserAuthDto { Email = "c5@c.c", Password = "string" },
             CancellationToken.None).Result;
 
         await relationshipApiClient.SendFriendshipRequestAsync(token1, "b5@b.b", CancellationToken.None);

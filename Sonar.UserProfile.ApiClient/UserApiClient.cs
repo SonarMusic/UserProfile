@@ -20,13 +20,13 @@ public class UserApiClient : IUserApiClient
     /// <summary>
     /// Create new user with new token which will expire in 7 days.
     /// </summary>
-    /// <param name="userRegisterDto">DTO which contains parameters for new user: email, password.</param>
+    /// <param name="userAuthDto">DTO which contains parameters for new user: email, password.</param>
     /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
     /// <returns>New token.</returns>
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
-    public async Task<string> RegisterAsync(UserRegisterDto userRegisterDto, CancellationToken cancellationToken)
+    public async Task<string> RegisterAsync(UserAuthDto userAuthDto, CancellationToken cancellationToken)
     {
-        var request = _requestCreator.RequestWithContent("/user/register", "POST", userRegisterDto);
+        var request = _requestCreator.RequestWithContent("/user/register", "POST", userAuthDto);
         var response = await _httpClient.SendAsync(request, cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.OK)
@@ -41,13 +41,13 @@ public class UserApiClient : IUserApiClient
     /// <summary>
     /// Generate new token to user if password matched. Token will expire in 7 days.
     /// </summary>
-    /// <param name="userLoginDto">DTO which contains parameters to identify user: email, password</param>
+    /// <param name="userAuthDto">DTO which contains parameters to identify user: email, password</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
-    public async Task<string> LoginAsync(UserLoginDto userLoginDto, CancellationToken cancellationToken)
+    public async Task<string> LoginAsync(UserAuthDto userAuthDto, CancellationToken cancellationToken)
     {
-        var request = _requestCreator.RequestWithContent("/user/login", "PATCH", userLoginDto);
+        var request = _requestCreator.RequestWithContent("/user/login", "PATCH", userAuthDto);
         var response = await _httpClient.SendAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.OK)
         {
