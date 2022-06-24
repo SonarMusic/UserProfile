@@ -30,6 +30,7 @@ public class UserService : IUserService
 
     public Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
     {
+        user.Password = _passwordEncoder.Encode(user.Password);
         return _userRepository.UpdateAsync(user, cancellationToken);
     }
 
