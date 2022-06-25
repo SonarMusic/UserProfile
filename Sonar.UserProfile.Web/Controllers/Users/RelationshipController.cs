@@ -11,10 +11,12 @@ namespace Sonar.UserProfile.Web.Controllers.Users;
 public class RelationshipController : ControllerBase
 {
     private readonly IRelationshipService _relationshipService;
-
-    public RelationshipController(IRelationshipService relationshipService)
+    private readonly ILogger<RelationshipController> _logger;
+    
+    public RelationshipController(IRelationshipService relationshipService, ILogger<RelationshipController> logger)
     {
         _relationshipService = relationshipService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -25,13 +27,16 @@ public class RelationshipController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPost("send-friendship-request")]
     [AuthorizationFilter]
-    public Task SendFriendshipRequest(
+    public async Task SendFriendshipRequest(
         [FromHeader(Name = "Token")] string token,
         [Required] string targetUserEmail,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to send friendship request");
+        
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
-        return _relationshipService.SendFriendshipRequestAsync(userId, targetUserEmail, cancellationToken);
+        await _relationshipService.SendFriendshipRequestAsync(userId, targetUserEmail, cancellationToken);
+        _logger.LogInformation("Friendship request successfully sent");
     }
 
     /// <summary>
@@ -46,14 +51,18 @@ public class RelationshipController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to get friends list");
+        
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var friends = await _relationshipService.GetUserFriendsAsync(userId, cancellationToken);
 
-        return friends.Select(f => new UserDto
+        var friendsDto = friends.Select(f => new UserDto
         {
             Id = f.Id,
             Email = f.Email
         }).ToList();
+        _logger.LogInformation("Friends list successfully retrieved");
+        return friendsDto;
     }
     
     /// <summary>
@@ -68,14 +77,20 @@ public class RelationshipController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to get user's outgoing requests");
+
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var requests = await _relationshipService.GetRequestsFromUserAsync(userId, cancellationToken);
 
-        return requests.Select(f => new UserDto
+        var userDto = requests.Select(f => new UserDto
         {
             Id = f.Id,
             Email = f.Email
         }).ToList();
+        
+        _logger.LogInformation("Outgoing user's requests successfully retrieved");
+
+        return userDto;
     }
     
     /// <summary>
@@ -90,14 +105,20 @@ public class RelationshipController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to get user's incoming requests");
+
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var requests = await _relationshipService.GetRequestsToUserAsync(userId, cancellationToken);
 
-        return requests.Select(f => new UserDto
+        var userDto = requests.Select(f => new UserDto
         {
             Id = f.Id,
             Email = f.Email
         }).ToList();
+        
+        _logger.LogInformation("Incoming user's requests successfully retrieved");
+
+        return userDto;
     }
 
     /// <summary>
@@ -108,13 +129,17 @@ public class RelationshipController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPatch("accept-friendship-request")]
     [AuthorizationFilter]
-    public Task AcceptFriendshipRequest(
+    public async Task AcceptFriendshipRequest(
         [FromHeader(Name = "Token")] string token,
         [Required] string requestedEmail,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to get accept friendship request");
+
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
-        return _relationshipService.AcceptFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
+        await _relationshipService.AcceptFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
+        
+        _logger.LogInformation("Friendship request successfully accepted");
     }
 
     /// <summary>
@@ -125,12 +150,16 @@ public class RelationshipController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPatch("reject-friendship-request")]
     [AuthorizationFilter]
-    public Task RejectFriendshipRequest(
+    public async Task RejectFriendshipRequest(
         [FromHeader(Name = "Token")] string token,
         [Required] string requestedEmail,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to get reject friendship request");
+        
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
-        return _relationshipService.RejectFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
+        await _relationshipService.RejectFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
+        
+        _logger.LogInformation("Friendship request successfully rejected");
     }
 }
