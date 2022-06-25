@@ -172,20 +172,20 @@ public class RelationshipController : ControllerBase
     /// Get bool statement if users are friends.
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
-    /// <param name="friendEmail">Email of user, friendship with who you want to check.</param>
+    /// <param name="friendId">Id of user, friendship with who you want to check.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>True if users are friends and false if opposite.</returns>
     [HttpGet("is-friends")]
     [AuthorizationFilter]
     public async Task<bool> IsFriends(
         [FromHeader(Name = "Token")] string token,
-        string friendEmail,
+        Guid friendId,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to get if users are friends");
 
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
-        var isFriends = await _relationshipService.IsFriends(userId, friendEmail, cancellationToken);
+        var isFriends = await _relationshipService.IsFriends(userId, friendId, cancellationToken);
 
         _logger.LogInformation("Bool statement successfully retrieved");
         return isFriends;

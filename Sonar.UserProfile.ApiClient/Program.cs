@@ -38,19 +38,5 @@ public static class Program
         Console.WriteLine(request1.Result.Count);
         Console.WriteLine(request2.Result[0].Email);
         Console.WriteLine(request3.Result[0].Email);
-
-        await relationshipApiClient.AcceptFriendshipRequestAsync(token2, "a5@a.a", CancellationToken.None);
-        await relationshipApiClient.RejectFriendshipRequestAsync(token3, "a5@a.a", CancellationToken.None);
-
-        var friends1 =
-            relationshipApiClient.IsFriends(token1, "a5@a.a", CancellationToken.None);
-        var friends2 =
-            relationshipApiClient.IsFriends(token2, "a5@a.a", CancellationToken.None);
-        var friends3 =
-            relationshipApiClient.IsFriends(token3, "a5@a.a", CancellationToken.None);
-
-        Console.WriteLine(friends1.Result);
-        Console.WriteLine(friends2.Result);
-        Console.WriteLine(friends3.Result);
     }
 }
