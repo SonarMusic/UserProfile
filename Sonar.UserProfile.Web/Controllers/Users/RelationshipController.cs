@@ -12,7 +12,7 @@ public class RelationshipController : ControllerBase
 {
     private readonly IRelationshipService _relationshipService;
     private readonly ILogger<RelationshipController> _logger;
-    
+
     public RelationshipController(IRelationshipService relationshipService, ILogger<RelationshipController> logger)
     {
         _relationshipService = relationshipService;
@@ -33,7 +33,7 @@ public class RelationshipController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to send friendship request");
-        
+
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         await _relationshipService.SendFriendshipRequestAsync(userId, targetUserEmail, cancellationToken);
         _logger.LogInformation("Friendship request successfully sent");
@@ -52,7 +52,7 @@ public class RelationshipController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to get friends list");
-        
+
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var friends = await _relationshipService.GetUserFriendsAsync(userId, cancellationToken);
 
@@ -64,7 +64,30 @@ public class RelationshipController : ControllerBase
         _logger.LogInformation("Friends list successfully retrieved");
         return friendsDto;
     }
-    
+
+    /// <summary>
+    /// Get bool statement if users are friends.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user.</param>
+    /// <param name="friendId">Id of user, friendship with who you want to check.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <returns>True if users are friends and false if opposite.</returns>
+    [HttpGet("is-friends")]
+    [AuthorizationFilter]
+    public async Task<bool> IsFriends(
+        [FromHeader(Name = "Token")] string token,
+        [Required] Guid friendId,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Trying to get is friend statement");
+
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
+        var isFriends = await _relationshipService.IsFriends(userId, friendId, cancellationToken);
+        
+        _logger.LogInformation("Is friend statement successfully retrieved");
+        return isFriends;
+    }
+
     /// <summary>
     /// Return list of users who you've send request.
     /// </summary>
@@ -87,12 +110,12 @@ public class RelationshipController : ControllerBase
             Id = f.Id,
             Email = f.Email
         }).ToList();
-        
+
         _logger.LogInformation("Outgoing user's requests successfully retrieved");
 
         return userDto;
     }
-    
+
     /// <summary>
     /// Return list of users who have send request to you.
     /// </summary>
@@ -115,7 +138,7 @@ public class RelationshipController : ControllerBase
             Id = f.Id,
             Email = f.Email
         }).ToList();
-        
+
         _logger.LogInformation("Incoming user's requests successfully retrieved");
 
         return userDto;
@@ -138,7 +161,7 @@ public class RelationshipController : ControllerBase
 
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         await _relationshipService.AcceptFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
-        
+
         _logger.LogInformation("Friendship request successfully accepted");
     }
 
@@ -156,13 +179,13 @@ public class RelationshipController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to get reject friendship request");
-        
+
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         await _relationshipService.RejectFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
-        
+
         _logger.LogInformation("Friendship request successfully rejected");
     }
-    
+
     /// <summary>
     /// Ban friendship request if token hasn't expired yet.
     /// </summary>
@@ -180,7 +203,7 @@ public class RelationshipController : ControllerBase
 
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         await _relationshipService.BanFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
-        
+
         _logger.LogInformation("Friendship request successfully banned");
     }
 }
