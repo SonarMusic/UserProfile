@@ -138,10 +138,10 @@ public class RelationshipService : IRelationshipService
     
     public async Task BanFriendshipRequestAsync(
         Guid userId,
-        string requestedEmail,
+        string targetEmail,
         CancellationToken cancellationToken)
     {
-        var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
+        var requested = await _userRepository.GetByEmailAsync(targetEmail, cancellationToken);
         
         var relationshipStatus =
             await _relationshipRepository.GetStatusAsync(requested.Id, userId, cancellationToken);
