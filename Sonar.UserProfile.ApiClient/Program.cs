@@ -43,36 +43,14 @@ public static class Program
         await relationshipApiClient.RejectFriendshipRequestAsync(token3, "a5@a.a", CancellationToken.None);
 
         var friends1 =
-            relationshipApiClient.GetFriendsAsync(token1, CancellationToken.None);
+            relationshipApiClient.IsFriends(token1, "a5@a.a", CancellationToken.None);
         var friends2 =
-            relationshipApiClient.GetFriendsAsync(token2, CancellationToken.None);
+            relationshipApiClient.IsFriends(token2, "a5@a.a", CancellationToken.None);
         var friends3 =
-            relationshipApiClient.GetFriendsAsync(token3, CancellationToken.None);
+            relationshipApiClient.IsFriends(token3, "a5@a.a", CancellationToken.None);
 
-        Console.WriteLine(friends1.Result[0].Email);
-        Console.WriteLine(friends2.Result[0].Email);
-        Console.WriteLine(friends3.Result.Count);
-
-        request1 =
-            relationshipApiClient.GetRequestsToMeAsync(token1, CancellationToken.None);
-        request2 =
-            relationshipApiClient.GetRequestsToMeAsync(token2, CancellationToken.None);
-        request3 =
-            relationshipApiClient.GetRequestsToMeAsync(token3, CancellationToken.None);
-
-        Console.WriteLine(request1.Result.Count);
-        Console.WriteLine(request2.Result.Count);
-        Console.WriteLine(request3.Result.Count);
-
-        request1 =
-            relationshipApiClient.GetRequestsFromMeAsync(token1, CancellationToken.None);
-        request2 =
-            relationshipApiClient.GetRequestsFromMeAsync(token2, CancellationToken.None);
-        request3 =
-            relationshipApiClient.GetRequestsFromMeAsync(token3, CancellationToken.None);
-
-        Console.WriteLine(request1.Result.Count);
-        Console.WriteLine(request2.Result.Count);
-        Console.WriteLine(request3.Result.Count);
+        Console.WriteLine(friends1.Result);
+        Console.WriteLine(friends2.Result);
+        Console.WriteLine(friends3.Result);
     }
 }
