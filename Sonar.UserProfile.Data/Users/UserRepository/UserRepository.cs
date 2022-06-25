@@ -21,7 +21,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new UserNotFoundException($"User with id = {id} does not exists");
+            throw new NotFoundException($"User with id = {id} does not exists");
         }
 
         return new User
@@ -31,7 +31,7 @@ public class UserRepository : IUserRepository
             Password = entity.Password
         };
     }
-    
+
     public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         email = email.ToLower();
@@ -40,7 +40,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new UserNotFoundException($"User with email = {email} does not exists");
+            throw new NotFoundException($"User with email = {email} does not exists");
         }
 
         return new User
@@ -55,7 +55,7 @@ public class UserRepository : IUserRepository
     {
         var users = await _context.Users.ToListAsync(cancellationToken);
 
-        return (IReadOnlyList<User>)users.Select(entity => new User()
+        return (IReadOnlyList<User>)users.Select(entity => new User
         {
             Id = entity.Id,
             Email = entity.Email,
@@ -70,9 +70,9 @@ public class UserRepository : IUserRepository
 
         if (sameEmailUser != null)
         {
-            throw new EmailOccupiedException($"Email {user.Email} is already occupied");
+            throw new DataOccupiedException($"Email {user.Email} is already occupied");
         }
-        
+
         var entity = new UserDbModel
         {
             Id = user.Id,
@@ -92,11 +92,21 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new UserNotFoundException($"User with id = {user.Id} does not exists");
+            throw new NotFoundException($"User with id = {user.Id} does not exists");
         }
 
+        var sameEmailEntity = 
+            await _context.Users.FirstOrDefaultAsync(it => it.Email == user.Email, cancellationToken);
+
+        if (sameEmailEntity is not null)
+        {
+            throw new DataOccupiedException($"User with mail = {user.Email} already exists");
+        }
+
+        entity.Email = user.Email;
         entity.Password = user.Password;
 
+        _context.Users.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
     }
 
@@ -106,7 +116,7 @@ public class UserRepository : IUserRepository
 
         if (entity is null)
         {
-            throw new UserNotFoundException($"User with id = {id} does not exists");
+            throw new NotFoundException($"User with id = {id} does not exists");
         }
 
         _context.Users.Remove(entity);
