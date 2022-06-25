@@ -15,7 +15,11 @@ public class RelationshipRepository : IRelationshipRepository
         _context = context;
     }
 
-    public async Task SendFriendshipRequestAsync(Guid userId, Guid targetUserId, CancellationToken cancellationToken)
+    public async Task AddRelationshipAsync(
+        Guid userId, 
+        Guid targetUserId, 
+        RelationshipStatus relationshipStatus, 
+        CancellationToken cancellationToken)
     {
         var userEntity =
             await _context.Users.FirstOrDefaultAsync(it => it.Id == userId, cancellationToken);
