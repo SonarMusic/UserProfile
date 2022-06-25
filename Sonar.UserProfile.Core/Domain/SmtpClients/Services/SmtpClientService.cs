@@ -20,12 +20,12 @@ public class SmtpClientService : ISmtpClientService
     {
         var mailMessage = new MailMessage
         {
-            From = new MailAddress(_configuration["NoReplyEmail"]),
+            From = new MailAddress(_configuration["SmtpNoReplyMail"]),
             Subject = subject,
             Body = body,
             IsBodyHtml = true
         };
         mailMessage.To.Add(email);
-        _smtpClientProvider.SendEmailAsync(mailMessage, "smtp.gmail.com");
+        _smtpClientProvider.SendEmailAsync(mailMessage, email);
     }
 }

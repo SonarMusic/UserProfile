@@ -19,7 +19,7 @@ public class SmtpClientProvider : ISmtpClientProvider
             EnableSsl = true,
             Host = configuration["SmtpHost"],
             Port = Convert.ToInt32(configuration["SmtpPort"]),
-            Credentials = new NetworkCredential(configuration["SmtpNoReplyMail"], configuration["SmtpPassword"]),
+            Credentials = new NetworkCredential(configuration["SmtpNoReplyMail"], configuration["SmtpNoReplyMailPassword"]),
         };
     }
 
