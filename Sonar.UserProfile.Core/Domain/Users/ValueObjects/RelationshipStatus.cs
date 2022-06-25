@@ -4,5 +4,6 @@ public enum RelationshipStatus
 {
     Friends,
     Request,
-    Absence
+    Absence,
+    Banned
 }
