@@ -29,23 +29,23 @@ public class RelationshipService : IRelationshipService
         }
 
         var dataBaseTarget = await _userRepository.GetByEmailAsync(targetUserEmail, cancellationToken);
-        
+
         var relationshipStatus =
             await _relationshipRepository.GetStatusAsync(userId, dataBaseTarget.Id, cancellationToken);
         var relationshipStatusInverse =
             await _relationshipRepository.GetStatusAsync(dataBaseTarget.Id, userId, cancellationToken);
-        
+
         if (relationshipStatus is RelationshipStatus.Friends || relationshipStatusInverse is RelationshipStatus.Friends)
         {
             throw new DataOccupiedException("These users are already friends.");
         }
-        
+
         if (relationshipStatus is RelationshipStatus.Request || relationshipStatusInverse is RelationshipStatus.Request)
         {
             throw new DataOccupiedException("There are already a request between these users.");
         }
 
-        await _relationshipRepository.SendFriendshipRequestAsync(userId, dataBaseTarget.Id, cancellationToken);
+        await _relationshipRepository.AddRelationshipAsync(userId, dataBaseTarget.Id, RelationshipStatus.Request, cancellationToken);
     }
 
     public async Task<IReadOnlyList<User>> GetUserFriendsAsync(Guid userId, CancellationToken cancellationToken)
@@ -79,7 +79,24 @@ public class RelationshipService : IRelationshipService
             cancellationToken);
     }
 
-    public async Task AcceptFriendshipRequestAsync(Guid userId, string requestedEmail,
+    public async Task<bool> IsFriends(Guid leftUserId, Guid rightUserId, CancellationToken cancellationToken)
+    {
+        var isFriends = await _relationshipRepository.GetStatusAsync(
+            leftUserId, 
+            rightUserId, 
+            cancellationToken);
+
+        if (isFriends is RelationshipStatus.Absence)
+        {
+            isFriends = await _relationshipRepository.GetStatusAsync(rightUserId, leftUserId, cancellationToken);
+        }
+
+        return isFriends is not RelationshipStatus.Absence;
+    }
+
+    public async Task AcceptFriendshipRequestAsync(
+        Guid userId,
+        string requestedEmail,
         CancellationToken cancellationToken)
     {
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
@@ -116,6 +133,32 @@ public class RelationshipService : IRelationshipService
         await _relationshipRepository.DeleteAsync(
             requested.Id,
             userId,
+            cancellationToken);
+    }
+    
+    public async Task BanFriendshipRequestAsync(
+        Guid userId,
+        string targetEmail,
+        CancellationToken cancellationToken)
+    {
+        var requested = await _userRepository.GetByEmailAsync(targetEmail, cancellationToken);
+        
+        var relationshipStatus =
+            await _relationshipRepository.GetStatusAsync(requested.Id, userId, cancellationToken);
+        if (relationshipStatus is RelationshipStatus.Absence)
+        {
+            await _relationshipRepository.AddRelationshipAsync(
+                requested.Id,
+                userId,
+                RelationshipStatus.Banned,
+                cancellationToken);
+            return;
+        }
+
+        await _relationshipRepository.UpdateStatusAsync(
+            requested.Id,
+            userId,
+            RelationshipStatus.Banned,
             cancellationToken);
     }
 }
