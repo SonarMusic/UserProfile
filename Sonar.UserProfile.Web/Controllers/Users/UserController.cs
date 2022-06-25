@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using Sonar.UserProfile.Core.Domain.Users.Services;
 using Sonar.UserProfile.Core.Domain.Users;
+using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
 using Sonar.UserProfile.Web.Filters;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace Sonar.UserProfile.Web.Controllers.Users;
 
@@ -22,21 +21,18 @@ public class UserController : ControllerBase
     /// <summary>
     /// Create new user with new token which will expire in 7 days.
     /// </summary>
-    /// <param name="userRegisterDto">DTO which contains parameters for new user: email, password.</param>
+    /// <param name="userAuthDto">DTO which contains parameters for new user: email, password.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
     [HttpPost("register")]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(400)]
-    [SwaggerResponse(500)]
     public Task<string> Register(
-        [Required] UserRegisterDto userRegisterDto,
+        [Required] UserAuthDto userAuthDto,
         CancellationToken cancellationToken = default)
     {
         var user = new User
         {
-            Email = userRegisterDto.Email,
-            Password = userRegisterDto.Password
+            Email = userAuthDto.Email,
+            Password = userAuthDto.Password
         };
 
         return _userService.RegisterAsync(user, cancellationToken);
@@ -45,22 +41,18 @@ public class UserController : ControllerBase
     /// <summary>
     /// Generate new token to user if password matched. Token will expire in 7 days.
     /// </summary>
-    /// <param name="userLoginDto">DTO which contains parameters to identify user: email, password</param>
+    /// <param name="userAuthDto">DTO which contains parameters to identify user: email, password</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
     [HttpPatch("login")]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(401)]
-    [SwaggerResponse(404)]
-    [SwaggerResponse(500)]
     public Task<string> Login(
-        [Required] UserLoginDto userLoginDto, 
+        [Required] UserAuthDto userAuthDto,
         CancellationToken cancellationToken = default)
     {
         var user = new User
         {
-            Email = userLoginDto.Email,
-            Password = userLoginDto.Password
+            Email = userAuthDto.Email,
+            Password = userAuthDto.Password
         };
 
         return _userService.LoginAsync(user, cancellationToken);
@@ -74,34 +66,41 @@ public class UserController : ControllerBase
     /// <returns>User model which contains: ID, email.</returns>
     [HttpGet("get")]
     [AuthorizationFilter]
-    [SwaggerResponse(200)]
-    [SwaggerResponse(400)]
-    [SwaggerResponse(403)]
-    [SwaggerResponse(404)]
-    [SwaggerResponse(500)]
-    public async Task<UserGetDto> Get(
+    public async Task<UserDto> Get(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
-        var userId = GetIdFromItems();
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var user = await _userService.GetByIdAsync(userId, cancellationToken);
 
-        return new UserGetDto
+        return new UserDto
         {
             Id = user.Id,
             Email = user.Email
         };
     }
-    
-    private Guid GetIdFromItems()
+
+    /// <summary>
+    /// Update a user model if token hasn't expired yet.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="userDto">User model which contains: ID, email.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    [HttpPut("put")]
+    [AuthorizationFilter]
+    public Task Update(
+        [FromHeader(Name = "Token")] string token,
+        [Required] UserAuthDto userDto,
+        CancellationToken cancellationToken = default)
     {
-        var userIdItem = HttpContext.Items["UserId"];
-
-        if (userIdItem is null)
-        {
-            throw new Exception("Incorrect user id item");
-        }
-
-        return (Guid)userIdItem;
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
+    
+        return _userService.UpdateUserAsync(new User
+            {
+                Id = userId,
+                Email = userDto.Email,
+                Password = userDto.Password
+            },
+            cancellationToken);
     }
 }

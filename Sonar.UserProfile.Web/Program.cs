@@ -1,5 +1,5 @@
 using System.Reflection;
-using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 using Sonar.UserProfile.Core;
 using Sonar.UserProfile.Data;
 using Sonar.UserProfile.Web.Filters;
@@ -8,7 +8,12 @@ using Sonar.UserProfile.Web.Tools;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers(options => options.Filters.Add<ExceptionFilter>())
+builder.Services
+    .AddControllers(options => options.Filters.Add<ExceptionFilter>())
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    })
     .ConfigureApiBehaviorOptions(options =>
     {
         options.InvalidModelStateResponseFactory = ModelStateValidator.ValidateModelState;

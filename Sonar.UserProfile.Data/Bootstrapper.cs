@@ -11,6 +11,7 @@ public static class Bootstrapper
     public static IServiceCollection AddData(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRelationshipRepository, RelationshipRepository>();
 
         services.AddDbContext<SonarContext>(options => options
             .UseLazyLoadingProxies()

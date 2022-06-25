@@ -73,6 +73,6 @@ public class AuthorizationFilter : Attribute, IAuthorizationFilter
             return;
         }
         
-        context.HttpContext.Items.Add("UserId", Guid.Parse(userId.Value));
+        context.HttpContext.Items.Add("SenderUserId", Guid.Parse(userId.Value));
     }
 }

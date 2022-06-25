@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
+using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 
@@ -25,6 +26,12 @@ public class UserService : IUserService
     public Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return _userRepository.GetByIdAsync(userId, cancellationToken);
+    }
+
+    public Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
+    {
+        user.Password = _passwordEncoder.Encode(user.Password);
+        return _userRepository.UpdateAsync(user, cancellationToken);
     }
 
     public async Task<string> RegisterAsync(User user, CancellationToken cancellationToken)
