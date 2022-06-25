@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Net.Mail;
+﻿using System.Net.Mail;
+using Microsoft.Extensions.Configuration;
+using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.SmtpClients.Providers;
 
 namespace Sonar.UserProfile.Core.Domain.SmtpClients.Services;
@@ -7,25 +8,24 @@ namespace Sonar.UserProfile.Core.Domain.SmtpClients.Services;
 public class SmtpClientService : ISmtpClientService
 {
     private readonly ISmtpClientProvider _smtpClientProvider;
+    private readonly IConfiguration _configuration;
 
-    public SmtpClientService(ISmtpClientProvider smtpClientProvider)
+    public SmtpClientService(ISmtpClientProvider smtpClientProvider, IConfiguration configuration)
     {
         _smtpClientProvider = smtpClientProvider;
+        _configuration = configuration;
     }
 
-    public void SendEmailsAsync(IEnumerable<string> emails, MailMessage mailMessage)
+    public void SendEmailAsync(string email, string subject, string body)
     {
-        foreach (var email in emails)
+        var mailMessage = new MailMessage
         {
-            try
-            {
-                var currentMail = new MailAddress(email);
-                _smtpClientProvider.SendEmailAsync(currentMail, mailMessage);
-            }
-            catch (Exception invalidEmailException)
-            {
-                //somethingDI.log($'user with email={email} has invalid email');
-            }
-        }
+            From = new MailAddress(_configuration["NoReplyEmail"]),
+            Subject = subject,
+            Body = body,
+            IsBodyHtml = true
+        };
+        mailMessage.To.Add(email);
+        _smtpClientProvider.SendEmailAsync(mailMessage, "smtp.gmail.com");
     }
 }

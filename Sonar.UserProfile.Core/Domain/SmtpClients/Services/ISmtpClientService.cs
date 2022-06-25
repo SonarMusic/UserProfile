@@ -4,5 +4,5 @@ namespace Sonar.UserProfile.Core.Domain.SmtpClients.Services;
 
 public interface ISmtpClientService
 {
-    void SendEmailsAsync(IEnumerable<string> emails, MailMessage mailMessage);
+    void SendEmailAsync(string email, string subject, string body);
 }
