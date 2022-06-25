@@ -18,6 +18,11 @@ public class SmtpClientService : ISmtpClientService
 
     public void SendEmailAsync(string email, string subject, string body)
     {
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(body))
+        {
+            throw new InvalidEmailException($"Email, subject or body is empty while sending email {email}");
+        }
+        
         var mailMessage = new MailMessage
         {
             From = new MailAddress(_configuration["SmtpNoReplyMail"]),
@@ -25,6 +30,7 @@ public class SmtpClientService : ISmtpClientService
             Body = body,
             IsBodyHtml = true
         };
+        
         mailMessage.To.Add(email);
         _smtpClientProvider.SendEmailAsync(mailMessage, email);
     }
