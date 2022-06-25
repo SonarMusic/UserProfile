@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users;
 using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 using Sonar.UserProfile.Web.Controllers.Users.Dto;
@@ -12,10 +13,12 @@ namespace Sonar.UserProfile.Web.Controllers.Users;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly ILogger<UserController> _logger;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, ILogger<UserController> logger)
     {
         _userService = userService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -25,17 +28,19 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
     [HttpPost("register")]
-    public Task<string> Register(
+    public async Task<string> Register(
         [Required] UserAuthDto userAuthDto,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to register user");
         var user = new User
         {
             Email = userAuthDto.Email,
             Password = userAuthDto.Password
         };
-
-        return _userService.RegisterAsync(user, cancellationToken);
+        var str = await _userService.RegisterAsync(user, cancellationToken);
+        _logger.LogInformation("User successfully registered");
+        return str;
     }
 
     /// <summary>
@@ -45,17 +50,21 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
     [HttpPatch("login")]
-    public Task<string> Login(
+    public async Task<string> Login(
         [Required] UserAuthDto userAuthDto,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to login user");
+        
         var user = new User
         {
             Email = userAuthDto.Email,
             Password = userAuthDto.Password
         };
 
-        return _userService.LoginAsync(user, cancellationToken);
+        string str = await _userService.LoginAsync(user, cancellationToken);
+        _logger.LogInformation("User successfully logged in");
+        return str;
     }
 
     /// <summary>
@@ -70,9 +79,12 @@ public class UserController : ControllerBase
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to get user");
+        
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var user = await _userService.GetByIdAsync(userId, cancellationToken);
-
+        
+        _logger.LogInformation("User successfully retrieved");
         return new UserDto
         {
             Id = user.Id,
@@ -88,19 +100,22 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPut("put")]
     [AuthorizationFilter]
-    public Task Update(
+    public async Task Update(
         [FromHeader(Name = "Token")] string token,
         [Required] UserAuthDto userDto,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Trying to update user");
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
-    
-        return _userService.UpdateUserAsync(new User
+
+        await _userService.UpdateUserAsync(new User
             {
                 Id = userId,
                 Email = userDto.Email,
                 Password = userDto.Password
             },
             cancellationToken);
+        
+        _logger.LogInformation("User successfully updated");
     }
 }
