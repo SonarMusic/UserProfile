@@ -4,7 +4,11 @@ namespace Sonar.UserProfile.Core.Domain.Users.Repositories;
 
 public interface IRelationshipRepository
 {
-    Task SendFriendshipRequestAsync(Guid userId, Guid targetUserId, CancellationToken cancellationToken);
+    Task AddRelationshipAsync(
+        Guid userId, 
+        Guid targetUserId, 
+        RelationshipStatus relationshipStatus,
+        CancellationToken cancellationToken);
 
     Task<IReadOnlyList<User>> GetUsersInRelationshipFromUserAsync(
         Guid id,

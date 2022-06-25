@@ -10,4 +10,6 @@ public interface IRelationshipService
     Task<IReadOnlyList<User>> GetRequestsToUserAsync(Guid userId, CancellationToken cancellationToken);
     Task AcceptFriendshipRequestAsync(Guid userId, string requestedEmail, CancellationToken cancellationToken);
     Task RejectFriendshipRequestAsync(Guid userId, string requestedEmail, CancellationToken cancellationToken);
+    Task BanFriendshipRequestAsync(Guid userId, string requestedEmail, CancellationToken cancellationToken);
+    
 }
