@@ -11,11 +11,16 @@ namespace Sonar.UserProfile.Web.Controllers.Users;
 public class RelationshipController : ControllerBase
 {
     private readonly IRelationshipService _relationshipService;
+    private readonly IUserService _userService;
     private readonly ILogger<RelationshipController> _logger;
-    
-    public RelationshipController(IRelationshipService relationshipService, ILogger<RelationshipController> logger)
+
+    public RelationshipController(
+        IRelationshipService relationshipService,
+        IUserService userService,
+        ILogger<RelationshipController> logger)
     {
         _relationshipService = relationshipService;
+        _userService = userService;
         _logger = logger;
     }
 
@@ -33,38 +38,12 @@ public class RelationshipController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to send friendship request");
-        
+
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         await _relationshipService.SendFriendshipRequestAsync(userId, targetUserEmail, cancellationToken);
         _logger.LogInformation("Friendship request successfully sent");
     }
 
-    /// <summary>
-    /// Return list of user's friends if token hasn't expired yet.
-    /// </summary>
-    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
-    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
-    [HttpGet("get-friends")]
-    [AuthorizationFilter]
-    public async Task<IReadOnlyList<UserDto>> GetFriends(
-        [FromHeader(Name = "Token")] string token,
-        CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Trying to get friends list");
-        
-        var userId = HttpExtensions.GetIdFromItems(HttpContext);
-        var friends = await _relationshipService.GetUserFriendsAsync(userId, cancellationToken);
-
-        var friendsDto = friends.Select(f => new UserDto
-        {
-            Id = f.Id,
-            Email = f.Email
-        }).ToList();
-        _logger.LogInformation("Friends list successfully retrieved");
-        return friendsDto;
-    }
-    
     /// <summary>
     /// Return list of users who you've send request.
     /// </summary>
@@ -87,12 +66,12 @@ public class RelationshipController : ControllerBase
             Id = f.Id,
             Email = f.Email
         }).ToList();
-        
+
         _logger.LogInformation("Outgoing user's requests successfully retrieved");
 
         return userDto;
     }
-    
+
     /// <summary>
     /// Return list of users who have send request to you.
     /// </summary>
@@ -115,7 +94,7 @@ public class RelationshipController : ControllerBase
             Id = f.Id,
             Email = f.Email
         }).ToList();
-        
+
         _logger.LogInformation("Incoming user's requests successfully retrieved");
 
         return userDto;
@@ -138,7 +117,7 @@ public class RelationshipController : ControllerBase
 
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         await _relationshipService.AcceptFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
-        
+
         _logger.LogInformation("Friendship request successfully accepted");
     }
 
@@ -156,10 +135,59 @@ public class RelationshipController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to get reject friendship request");
-        
+
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         await _relationshipService.RejectFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
-        
+
         _logger.LogInformation("Friendship request successfully rejected");
+    }
+
+    /// <summary>
+    /// Return list of user's friends if token hasn't expired yet.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
+    [HttpGet("get-friends")]
+    [AuthorizationFilter]
+    public async Task<IReadOnlyList<UserDto>> GetFriends(
+        [FromHeader(Name = "Token")] string token,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Trying to get friends list");
+
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
+        var friends = await _relationshipService.GetUserFriendsAsync(userId, cancellationToken);
+
+        var friendsDto = friends.Select(f => new UserDto
+        {
+            Id = f.Id,
+            Email = f.Email
+        }).ToList();
+        _logger.LogInformation("Friends list successfully retrieved");
+        return friendsDto;
+    }
+
+    /// <summary>
+    /// Get bool statement if users are friends.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="friendEmail">Email of user, friendship with who you want to check.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <returns>True if users are friends and false if opposite.</returns>
+    [HttpGet("is-friends")]
+    [AuthorizationFilter]
+    public async Task<bool> IsFriends(
+        [FromHeader(Name = "Token")] string token,
+        string friendEmail,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Trying to get if users are friends");
+
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
+        var isFriends = await _relationshipService.IsFriends(userId, friendEmail, cancellationToken);
+
+        _logger.LogInformation("Bool statement successfully retrieved");
+        return isFriends;
     }
 }
