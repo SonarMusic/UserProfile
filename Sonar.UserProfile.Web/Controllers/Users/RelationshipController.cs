@@ -162,4 +162,19 @@ public class RelationshipController : ControllerBase
         
         _logger.LogInformation("Friendship request successfully rejected");
     }
+    
+    [HttpPatch("ban-friendship-request")]
+    [AuthorizationFilter]
+    public async Task BanFriendshipRequest(
+        [FromHeader(Name = "Token")] string token,
+        [Required] string requestedEmail,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Trying to get ban friendship request");
+
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
+        await _relationshipService.BanFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
+        
+        _logger.LogInformation("Friendship request successfully banned");
+    }
 }
