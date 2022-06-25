@@ -96,4 +96,8 @@ public class UserService : IUserService
 
         return tokenHandler.WriteToken(token);
     }
+    public async Task RecoverPassword(string email, CancellationToken cancellationToken = default)
+    {
+        // return await _userRepository.GetByEmailAsync(email, cancellationToken);
+    }
 }
