@@ -79,17 +79,16 @@ public class RelationshipService : IRelationshipService
             cancellationToken);
     }
 
-    public async Task<bool> IsFriends(Guid leftUserId, string rightUserEmail, CancellationToken cancellationToken)
+    public async Task<bool> IsFriends(Guid leftUserId, Guid rightUserId, CancellationToken cancellationToken)
     {
-        var rightUser = await _userRepository.GetByEmailAsync(rightUserEmail, cancellationToken);
         var isFriends = await _relationshipRepository.GetStatusAsync(
             leftUserId, 
-            rightUser.Id, 
+            rightUserId, 
             cancellationToken);
 
         if (isFriends is RelationshipStatus.Absence)
         {
-            isFriends = await _relationshipRepository.GetStatusAsync(rightUser.Id, leftUserId, cancellationToken);
+            isFriends = await _relationshipRepository.GetStatusAsync(rightUserId, leftUserId, cancellationToken);
         }
 
         return isFriends is not RelationshipStatus.Absence;

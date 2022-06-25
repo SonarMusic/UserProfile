@@ -193,13 +193,13 @@ public class RelationshipApiClient : IRelationshipApiClient
     /// Get bool statement if users are friends.
     /// </summary>
     /// <param name="token">Token that is used to verify the user.</param>
-    /// <param name="friendEmail">Email of user, friendship with who you want to check.</param>
+    /// <param name="friendId">Id of user, friendship with who you want to check.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>True if users are friends and false if opposite.</returns>
-    public async Task<bool> IsFriends(string token, string friendEmail, CancellationToken cancellationToken)
+    public async Task<bool> IsFriends(string token, Guid friendId, CancellationToken cancellationToken)
     {
         var request = _requestCreator.RequestWithToken(
-            $"/relationship/is-friends?friendEmail={friendEmail}",
+            $"/relationship/is-friends?friendId={friendId}",
             "GET",
             token);
 

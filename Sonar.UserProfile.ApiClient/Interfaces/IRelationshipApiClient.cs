@@ -10,5 +10,5 @@ public interface IRelationshipApiClient
     Task AcceptFriendshipRequestAsync(string token, string requestedEmail, CancellationToken cancellationToken);
     Task RejectFriendshipRequestAsync(string token, string requestedEmail, CancellationToken cancellationToken);
     Task<IReadOnlyList<UserDto>> GetFriendsAsync(string token, CancellationToken cancellationToken);
-    public Task<bool> IsFriends(string token, string friendEmail, CancellationToken cancellationToken);
+    public Task<bool> IsFriends(string token, Guid friendId, CancellationToken cancellationToken);
 }
