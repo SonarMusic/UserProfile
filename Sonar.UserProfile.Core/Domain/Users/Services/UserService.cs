@@ -1,90 +1,99 @@
-﻿using Sonar.UserProfile.Core.Domain.Exceptions;
-using Sonar.UserProfile.Core.Domain.Tokens;
-using Sonar.UserProfile.Core.Domain.Tokens.Repositories;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
-using Sonar.UserProfile.Data.Users.Encoders;
+using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
-    private readonly ITokenRepository _tokenRepository;
-    // todo: remove hardcoding
-    private IPasswordEncoder _passwordEncoder = new BCryptPasswordEncoder();
+    private readonly IConfiguration _configuration;
+    private readonly IPasswordEncoder _passwordEncoder;
 
-    public UserService(IUserRepository userRepository, ITokenRepository tokenRepository)
+    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordEncoder passwordEncoder)
     {
         _userRepository = userRepository;
-        _tokenRepository = tokenRepository;
+        _configuration = configuration;
+        _passwordEncoder = passwordEncoder;
     }
 
-    public async Task<User> GetByIdAsync(Guid tokenId, CancellationToken cancellationToken = default)
+    public Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var token = await _tokenRepository.GetByIdAsync(tokenId, cancellationToken);
-
-        if (token.ExpirationDate < DateTime.UtcNow)
-        {
-            throw new ExpiredTokenException($"Token has expired {token.ExpirationDate}");
-        }
-
-        var user = await _userRepository.GetByIdAsync(token.UserId, cancellationToken);
-
-        return user;
+        return _userRepository.GetByIdAsync(userId, cancellationToken);
     }
 
-    public async Task<Guid> RegisterAsync(User user, CancellationToken cancellationToken)
+    public Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
+    {
+        user.Password = _passwordEncoder.Encode(user.Password);
+        return _userRepository.UpdateAsync(user, cancellationToken);
+    }
+
+    public async Task<string> RegisterAsync(User user, CancellationToken cancellationToken)
     {
         user.Id = Guid.NewGuid();
         user.Password = _passwordEncoder.Encode(user.Password);
 
         const int tokenLifeDays = 7;
-        var token = new Token
+        var secret = _configuration["Secret"];
+        var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
+        var issuer = _configuration["Issuer"];
+        var audience = _configuration["Audience"];
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            }),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature),
+            Expires = DateTime.UtcNow.AddDays(tokenLifeDays)
         };
 
-        await _userRepository.CreateAsync(user, cancellationToken);
-        await _tokenRepository.CreateAsync(token, cancellationToken);
+        var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        return token.Id;
+        await _userRepository.CreateAsync(user, cancellationToken);
+
+        return tokenHandler.WriteToken(token);
     }
 
-    public async Task<Guid> LoginAsync(User user, CancellationToken cancellationToken = default)
+    public async Task<string> LoginAsync(User user, CancellationToken cancellationToken = default)
     {
         var dataBaseUser = await _userRepository.GetByEmailAsync(user.Email, cancellationToken);
-        
+
         if (!_passwordEncoder.Matches(user.Password, dataBaseUser.Password))
         {
             throw new InvalidPasswordException("Incorrect password.");
         }
 
-        // TODO: Пуcть какой-то провайдер поставляет дни для жизни токена, а не магическое число.
         const int tokenLifeDays = 7;
-        var token = new Token
+        var secret = _configuration["Secret"];
+        var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
+        var issuer = _configuration["Issuer"];
+        var audience = _configuration["Audience"];
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Id = Guid.NewGuid(),
-            UserId = dataBaseUser.Id,
-            ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, dataBaseUser.Id.ToString())
+            }),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature),
+            Expires = DateTime.UtcNow.AddDays(tokenLifeDays)
         };
 
-        await _tokenRepository.CreateAsync(token, cancellationToken);
+        var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        return token.Id;
-    }
-
-    public async Task Logout(Guid tokenId, CancellationToken cancellationToken)
-    {
-        var token = await _tokenRepository.GetByIdAsync(tokenId, cancellationToken);
-
-        if (token.ExpirationDate < DateTime.UtcNow)
-        {
-            throw new ExpiredTokenException($"Token has expired {token.ExpirationDate}");
-        }
-
-        await _tokenRepository.DeleteAsync(tokenId, cancellationToken);
+        return tokenHandler.WriteToken(token);
     }
 }

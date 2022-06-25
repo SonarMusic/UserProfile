@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Sonar.UserProfile.Data.Tokens;
 using Sonar.UserProfile.Data.Users;
 
 namespace Sonar.UserProfile.Data
@@ -8,7 +7,7 @@ namespace Sonar.UserProfile.Data
     public class SonarContext : DbContext
     {
         public DbSet<UserDbModel> Users { get; set; }
-        public DbSet<TokenDbModel> Tokens { get; set; }
+        public DbSet<RelationshipDbModel> Relationships { get; set; }
 
         public string ConnectionString { get; }
 
@@ -30,6 +29,13 @@ namespace Sonar.UserProfile.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<RelationshipDbModel>()
+                .HasKey(r => new
+                    {
+                        UserId = r.SenderUserId, FriendId = r.TargetUserId
+                    }
+                );
+
             base.OnModelCreating(modelBuilder);
         }
     }

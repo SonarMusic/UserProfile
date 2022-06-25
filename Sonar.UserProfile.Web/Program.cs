@@ -1,12 +1,42 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
+using Serilog;
 using Sonar.UserProfile.Core;
 using Sonar.UserProfile.Data;
 using Sonar.UserProfile.Web.Filters;
+using Sonar.UserProfile.Web.Tools;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers(options => options.Filters.Add<ExceptionFilter>());
+/*
+using var loggerFactory = LoggerFactory.Create(lb => lb.SetMinimumLevel(LogLevel.Trace));
+loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(), "logger.txt"));
+var logger = loggerFactory.CreateLogger("FileLogger");
+*/
+
+/*
+builder.Host.UseSerilog((ctx, lc) => lc
+    .WriteTo.File(Path.Combine(Directory.GetCurrentDirectory(), "logger.txt")));*/
+
+var logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File(Path.Combine(Directory.GetCurrentDirectory(), "logger.txt"))
+    .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+
+builder.Services
+    .AddControllers(options => options.Filters.Add<ExceptionFilter>())
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    })
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = ModelStateValidator.ValidateModelState;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
