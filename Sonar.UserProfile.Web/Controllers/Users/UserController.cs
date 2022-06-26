@@ -55,7 +55,7 @@ public class UserController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to login user");
-        
+
         var user = new User
         {
             Email = userAuthDto.Email,
@@ -80,10 +80,10 @@ public class UserController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to get user");
-        
+
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var user = await _userService.GetByIdAsync(userId, cancellationToken);
-        
+
         _logger.LogInformation("User successfully retrieved");
         return new UserDto
         {
@@ -117,7 +117,25 @@ public class UserController : ControllerBase
                 AccountType = userUpdateDtoDto.AccountType,
             },
             cancellationToken);
-        
+
         _logger.LogInformation("User successfully updated");
+    }
+
+    /// <summary>
+    /// Sends a new password to the email specified at registration if it is possible
+    /// </summary>
+    /// <param name="userEmail">User model which contains: ID, email, AccountType.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    [HttpPut("put")]
+    [AuthorizationFilter]
+    public async Task RecoveryPassword(
+        [Required] string userEmail,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Trying to recover password");
+        
+        await _userService.RecoverPasswordAsync(userEmail, cancellationToken);
+        
+        _logger.LogInformation("Password successfully recovered");
     }
 }

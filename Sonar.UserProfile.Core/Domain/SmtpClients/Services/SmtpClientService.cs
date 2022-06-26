@@ -36,8 +36,8 @@ public class SmtpClientService : ISmtpClientService
         return mailMessage;
     }
     
-    public async void SendMailMessageAsync(MailMessage mailMessage, string userState, CancellationToken cancellationToken)
+    public async Task<bool> SendMailMessageAsync(MailMessage mailMessage, string userState, CancellationToken cancellationToken)
     {
-        _smtpClientProvider.SendEmailAsync(mailMessage, userState);
+        return await _smtpClientProvider.SendEmailAsync(mailMessage, userState);
     }
 }
