@@ -1,6 +1,4 @@
-﻿using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
-
-namespace Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
+﻿namespace Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 
 public interface IRelationshipService
 {
