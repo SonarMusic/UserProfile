@@ -23,21 +23,19 @@ public class SmtpClientService : ISmtpClientService
         {
             throw new InvalidEmailException($"Email, subject or body is empty while sending email {email}");
         }
-        
-        var mailMessage = new MailMessage
-        {
-            From = new MailAddress(_configuration["SmtpNoReplyMail"]),
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = true,
-            To = { email }
-        };
-        
+
+
+        var from = new MailAddress(_configuration["SmtpNoReplyMail"], "Sonar Music Streaming");
+        var to = new MailAddress(email);
+        var mailMessage = new MailMessage(from, to);
+        mailMessage.Subject = subject;
+        mailMessage.Body = body;
+        mailMessage.IsBodyHtml = true;
         return mailMessage;
     }
     
-    public async Task<bool> SendMailMessageAsync(MailMessage mailMessage, string userState, CancellationToken cancellationToken)
+    public async Task SendMailMessageAsync(MailMessage mailMessage, CancellationToken cancellationToken)
     {
-        return await _smtpClientProvider.SendEmailAsync(mailMessage, userState);
+        await _smtpClientProvider.SendEmailAsync(mailMessage);
     }
 }

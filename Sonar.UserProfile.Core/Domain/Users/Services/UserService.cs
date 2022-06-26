@@ -69,10 +69,11 @@ public class UserService : IUserService
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         await _userRepository.CreateAsync(user, cancellationToken);
-        var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email, "Registration",
-            $"Hello {user.Email}, you have successfully registered in Sonar User Profile. To confirm account follow this link {_configuration["uri"] + "/user/register/" + user.Id.ToString() + _passwordEncoder.Encode(user.Id.ToString())}",
+        var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email,
+            "Registration on Sonar Music Streaming",
+            $"Hello {user.Email}, you have successfully registered in Sonar Music Streaming. To confirm your account follow this link {_configuration["uri"] + "/user/confirm-mail/" + user.Id.ToString()}",
             cancellationToken);
-        await _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken);
+        await _smtpClientService.SendMailMessageAsync(mailMessage, cancellationToken);
 
         return tokenHandler.WriteToken(token);
     }
@@ -145,31 +146,18 @@ public class UserService : IUserService
         user.Password = _passwordEncoder.Encode(newPassword);
         var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email, "Recover Password",
             $"Hello {user.Email}, your new password is {newPassword}.", cancellationToken);
-        if (await _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken))
-        {
-            await _userRepository.UpdateAsync(user, cancellationToken);
-        }
-        else
-        {
-            throw new SmtpClientException($"Failed to send mail message to {email} during password recovery.");
-        }
+        await _smtpClientService.SendMailMessageAsync(mailMessage, cancellationToken);
+        await _userRepository.UpdateAsync(user, cancellationToken);
     }
 
     public async Task ConfirmMailAsync(string confirmToken, CancellationToken cancellationToken = default)
     {
-        var separatedToken = confirmToken.Split("-");
-        var userId = separatedToken[0];
-        var hashedUserId = separatedToken[1];
-        var user = await _userRepository.GetByEmailAsync(userId, cancellationToken);
+        var userId = Guid.Parse(confirmToken);
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
         if (user is null)
         {
             throw new NotFoundException($"User with id {userId} not found.");
-        }
-
-        if (!_passwordEncoder.Matches(hashedUserId, userId))
-        {
-            throw new InvalidPasswordException($"Invalid token for user {userId}.");
         }
 
         user.ConfirmStatus = ConfirmStatus.Confirmed;

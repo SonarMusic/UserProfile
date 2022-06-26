@@ -123,6 +123,7 @@ public class UserController : ControllerBase
             Id = user.Id,
             Email = user.Email,
             AccountType = user.AccountType,
+            ConfirmStatus = user.ConfirmStatus
         };
     }
 
@@ -148,6 +149,7 @@ public class UserController : ControllerBase
                 Email = userUpdateDtoDto.Email,
                 Password = userUpdateDtoDto.Password,
                 AccountType = userUpdateDtoDto.AccountType,
+                ConfirmStatus = userUpdateDtoDto.ConfirmStatus,
             },
             cancellationToken);
 

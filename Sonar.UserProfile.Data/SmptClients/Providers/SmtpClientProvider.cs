@@ -13,53 +13,13 @@ public class SmtpClientProvider : ISmtpClientProvider
 
     public SmtpClientProvider(IConfiguration configuration)
     {
-        _smtpClient = new SmtpClient
-        {
-            UseDefaultCredentials = false,
-            EnableSsl = true,
-            Host = configuration["SmtpHost"],
-            Port = Convert.ToInt32(configuration["SmtpPort"]),
-            Credentials = new NetworkCredential(configuration["SmtpNoReplyMail"], configuration["SmtpNoReplyMailPassword"]),
-        };
+        _smtpClient = new SmtpClient(configuration["SmtpHost"], Convert.ToInt32(configuration["SmtpPort"]));
+        _smtpClient.Credentials = new NetworkCredential(configuration["SmtpNoReplyMail"], configuration["SmtpNoReplyMailPassword"]);
+        _smtpClient.EnableSsl = true;
     }
 
-    public async Task<bool> SendEmailAsync(MailMessage mailMessage, string userState)
+    public async Task SendEmailAsync(MailMessage mailMessage)
     {
-        _isMailSent = false;
-        _smtpClient.SendCompleted += SendCompletedCallback;
-
-        _smtpClient.SendAsync(mailMessage, userState);
-
-        if (_isMailSent == false)
-        {
-            _smtpClient.SendAsyncCancel();
-        }
-
-        mailMessage.Dispose();
-        return _isMailSent;
-    }
-
-
-    private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
-    {
-        // TODO: make this a log?
-        var token = (string)e.UserState;
-
-        if (e.Cancelled)
-        {
-            Console.WriteLine("[{0}] Send canceled.", token);
-        }
-
-        else if (e.Error is not null)
-        {
-            Console.WriteLine("[{0}] {1}", token, e.Error.ToString());
-        }
-        
-        else
-        {
-            Console.WriteLine($"[{e.UserState}] Message sent.");
-        }
-
-        _isMailSent = true;
+        _smtpClient.Send(mailMessage);
     }
 }
