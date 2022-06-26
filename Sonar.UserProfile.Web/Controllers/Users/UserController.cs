@@ -59,7 +59,7 @@ public class UserController : ControllerBase
         var user = new User
         {
             Email = userAuthDto.Email,
-            Password = userAuthDto.Password
+            Password = userAuthDto.Password,
         };
 
         string str = await _userService.LoginAsync(user, cancellationToken);
@@ -72,7 +72,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>User model which contains: ID, email.</returns>
+    /// <returns>User model which contains: ID, email, AccountType.</returns>
     [HttpGet("get")]
     [AuthorizationFilter]
     public async Task<UserDto> Get(
@@ -88,7 +88,8 @@ public class UserController : ControllerBase
         return new UserDto
         {
             Id = user.Id,
-            Email = user.Email
+            Email = user.Email,
+            AccountType = user.AccountType,
         };
     }
 
@@ -96,13 +97,13 @@ public class UserController : ControllerBase
     /// Update a user model if token hasn't expired yet.
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
-    /// <param name="userDto">User model which contains: ID, email.</param>
+    /// <param name="userUpdateDtoDto">User model which contains: ID, email, AccountType.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPut("put")]
     [AuthorizationFilter]
     public async Task Update(
         [FromHeader(Name = "Token")] string token,
-        [Required] UserAuthDto userDto,
+        [Required] UserUpdateDto userUpdateDtoDto,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to update user");
@@ -111,8 +112,9 @@ public class UserController : ControllerBase
         await _userService.UpdateUserAsync(new User
             {
                 Id = userId,
-                Email = userDto.Email,
-                Password = userDto.Password
+                Email = userUpdateDtoDto.Email,
+                Password = userUpdateDtoDto.Password,
+                AccountType = userUpdateDtoDto.AccountType,
             },
             cancellationToken);
         
