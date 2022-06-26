@@ -67,7 +67,7 @@ public class UserService : IUserService
 
         await _userRepository.CreateAsync(user, cancellationToken);
         var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email, "Registration",
-            $"Hello {user.Email}, you have successfully registered in Sonar User Profile. To confirm account follow this link {_configuration["uri"] + "/user/register/" + _passwordEncoder.Encode(user.Email)}",
+            $"Hello {user.Email}, you have successfully registered in Sonar User Profile. To confirm account follow this link {_configuration["uri"] + "/user/register/" + user.Id.ToString() + _passwordEncoder.Encode(user.Id.ToString())}",
             cancellationToken);
         await _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken);
 
@@ -124,10 +124,24 @@ public class UserService : IUserService
         }
     }
 
-    public Task ConfirmMailAsync(string token, CancellationToken cancellationToken = default)
+    public async Task ConfirmMailAsync(string confirmToken, CancellationToken cancellationToken = default)
     {
-        var user = _userRepository.GetByEmail(token, cancellationToken);
+        var separatedToken = confirmToken.Split("-");
+        var userId = separatedToken[0];
+        var hashedUserId = separatedToken[1];
+        var user = await _userRepository.GetByEmailAsync(userId, cancellationToken);
+
+        if (user is null)
+        {
+            throw new NotFoundException($"User with id {userId} not found.");
+        }
+
+        if (!_passwordEncoder.Matches(hashedUserId, userId))
+        {
+            throw new InvalidPasswordException($"Invalid token for user {userId}.");
+        }
+
         user.ConfirmStatus = ConfirmStatus.Confirmed;
-        return _userRepository.UpdateAsync(user, cancellationToken);
+        await _userRepository.UpdateAsync(user, cancellationToken);
     }
 }
