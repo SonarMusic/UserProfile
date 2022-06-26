@@ -187,14 +187,14 @@ public class RelationshipController : ControllerBase
     }
 
     /// <summary>
-    /// Ban friendship request if token hasn't expired yet.
+    /// Ban user if token hasn't expired yet.
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="requestedEmail">An email of user who you want to ban.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    [HttpPatch("ban-friendship-request")]
+    [HttpPatch("ban-user")]
     [AuthorizationFilter]
-    public async Task BanFriendshipRequest(
+    public async Task UnbanUser(
         [FromHeader(Name = "Token")] string token,
         [Required] string requestedEmail,
         CancellationToken cancellationToken = default)
