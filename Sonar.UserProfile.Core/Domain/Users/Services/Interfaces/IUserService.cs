@@ -8,4 +8,5 @@ public interface IUserService
     Task<string> LoginAsync(User user, CancellationToken cancellationToken);
     Task<string> LoginByDiscordBotAsync(string email, CancellationToken cancellationToken);
     Task RecoverPasswordAsync(string email, CancellationToken cancellationToken = default);
+    Task ConfirmMailAsync(string confirmToken, CancellationToken cancellationToken = default);
 }
