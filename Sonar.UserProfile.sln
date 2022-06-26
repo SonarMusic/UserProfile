@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonar.UserProfile.Core", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonar.UserProfile.ApiClient", "Sonar.UserProfile.ApiClient\Sonar.UserProfile.ApiClient.csproj", "{270F1878-2B7E-4873-BC48-2D0C8BBC2604}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D673E090-1D8A-4525-B769-CDC3ACEEA58A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonar.UserProfile.Core.Tests", "Sonar.UserProfile.Core.Tests\Sonar.UserProfile.Core.Tests.csproj", "{AA5A3246-5263-4D78-90A2-CB3D3BA124AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,12 @@ Global
 		{270F1878-2B7E-4873-BC48-2D0C8BBC2604}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{270F1878-2B7E-4873-BC48-2D0C8BBC2604}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{270F1878-2B7E-4873-BC48-2D0C8BBC2604}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA5A3246-5263-4D78-90A2-CB3D3BA124AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA5A3246-5263-4D78-90A2-CB3D3BA124AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA5A3246-5263-4D78-90A2-CB3D3BA124AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA5A3246-5263-4D78-90A2-CB3D3BA124AE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AA5A3246-5263-4D78-90A2-CB3D3BA124AE} = {D673E090-1D8A-4525-B769-CDC3ACEEA58A}
 	EndGlobalSection
 EndGlobal
