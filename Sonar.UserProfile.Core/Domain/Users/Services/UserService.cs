@@ -68,7 +68,7 @@ public class UserService : IUserService
         await _userRepository.CreateAsync(user, cancellationToken);
         var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email, "Registration",
             $"Hello {user.Email}, you have successfully registered in Sonar User Profile.", cancellationToken);
-        _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken);
+        await _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken);
 
         return tokenHandler.WriteToken(token);
     }
@@ -119,7 +119,7 @@ public class UserService : IUserService
         }
         else
         {
-            throw new SmtpClientException($"Failed to send mail message to {email}.");
+            throw new SmtpClientException($"Failed to send mail message to {email} during password recovery.");
         }
     }
 }
