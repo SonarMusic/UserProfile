@@ -223,7 +223,7 @@ public class RelationshipController : ControllerBase
         _logger.LogInformation("Trying to unban user");
 
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
-        await _relationshipService.BanUser(userId, requestedEmail, cancellationToken);
+        await _relationshipService.UnbanUser(userId, requestedEmail, cancellationToken);
 
         _logger.LogInformation("User successfully unbanned");
     }
