@@ -124,9 +124,9 @@ public class UserController : ControllerBase
     /// <summary>
     /// Sends a new password to the email specified at registration if it is possible
     /// </summary>
-    /// <param name="userEmail">User model which contains: ID, email, AccountType.</param>
+    /// <param name="userEmail">Mail for the password recovery</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    [HttpPut("put")]
+    [HttpPut("recover-password")]
     [AuthorizationFilter]
     public async Task RecoveryPassword(
         [Required] string userEmail,
