@@ -16,7 +16,8 @@ public class SmtpClientService : ISmtpClientService
         _configuration = configuration;
     }
 
-    public MailMessage CreateMailMessageAsync(string email, string subject, string body)
+    public async Task<MailMessage> CreateMailMessageAsync(string email, string subject, string body,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(body))
         {
@@ -35,7 +36,7 @@ public class SmtpClientService : ISmtpClientService
         return mailMessage;
     }
     
-    public void SendMailMessageAsync(MailMessage mailMessage, string userState)
+    public async void SendMailMessageAsync(MailMessage mailMessage, string userState, CancellationToken cancellationToken)
     {
         _smtpClientProvider.SendEmailAsync(mailMessage, userState);
     }

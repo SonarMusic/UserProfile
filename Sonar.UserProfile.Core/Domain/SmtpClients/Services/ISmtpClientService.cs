@@ -4,5 +4,6 @@ namespace Sonar.UserProfile.Core.Domain.SmtpClients.Services;
 
 public interface ISmtpClientService
 {
-    MailMessage CreateMailMessageAsync(string email, string subject, string body);
+    Task<MailMessage> CreateMailMessageAsync(string email, string subject, string body, CancellationToken cancellationToken);
+    void SendMailMessageAsync(MailMessage mailMessage, string userState, CancellationToken cancellationToken);
 }
