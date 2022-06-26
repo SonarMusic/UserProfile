@@ -49,13 +49,14 @@ public class SmtpClientProvider : ISmtpClientProvider
             Console.WriteLine("[{0}] Send canceled.", token);
         }
 
-        if (e.Error is not null)
+        else if (e.Error is not null)
         {
             Console.WriteLine("[{0}] {1}", token, e.Error.ToString());
         }
+        
         else
         {
-            Console.WriteLine("Message sent.");
+            Console.WriteLine($"[{e.UserState}] Message sent.");
         }
 
         _mailSent = true;
