@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Sonar.UserProfile.ApiClient\Sonar.UserProfile.ApiClient.csproj" />
       <ProjectReference Include="..\Sonar.UserProfile.Core\Sonar.UserProfile.Core.csproj" />
     </ItemGroup>
 
