@@ -6,4 +6,5 @@ public interface IUserService
     Task UpdateUserAsync(User user, CancellationToken cancellationToken);
     Task<string> RegisterAsync(User user, CancellationToken cancellationToken);
     Task<string> LoginAsync(User user, CancellationToken cancellationToken);
+    Task RecoverPasswordAsync(string email, CancellationToken cancellationToken = default);
 }
