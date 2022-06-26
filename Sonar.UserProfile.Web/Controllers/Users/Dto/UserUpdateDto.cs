@@ -14,4 +14,5 @@ public class UserUpdateDto
     public string Password { get; set; }
 
     public AccountType AccountType { get; set; }
+    public ConfirmStatus ConfirmStatus { get; set; }
 }

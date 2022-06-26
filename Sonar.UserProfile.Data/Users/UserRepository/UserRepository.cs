@@ -30,6 +30,7 @@ public class UserRepository : IUserRepository
             Email = entity.Email,
             Password = entity.Password,
             AccountType = entity.AccountType,
+            ConfirmStatus = entity.ConfirmStatus
         };
     }
 
@@ -50,6 +51,7 @@ public class UserRepository : IUserRepository
             Email = entity.Email,
             Password = entity.Password,
             AccountType = entity.AccountType,
+            ConfirmStatus = entity.ConfirmStatus
         };
     }
 
@@ -63,6 +65,7 @@ public class UserRepository : IUserRepository
             Email = entity.Email,
             Password = entity.Password,
             AccountType = entity.AccountType,
+            ConfirmStatus = entity.ConfirmStatus
         });
     }
 
@@ -82,6 +85,7 @@ public class UserRepository : IUserRepository
             Email = user.Email,
             Password = user.Password,
             AccountType = user.AccountType,
+            ConfirmStatus = user.ConfirmStatus
         };
 
         await _context.Users.AddAsync(entity, cancellationToken);
@@ -99,7 +103,7 @@ public class UserRepository : IUserRepository
             throw new NotFoundException($"User with id = {user.Id} does not exists");
         }
 
-        var sameEmailEntity = 
+        var sameEmailEntity =
             await _context.Users.FirstOrDefaultAsync(it => it.Email == user.Email, cancellationToken);
 
         if (sameEmailEntity is not null && sameEmailEntity.Email != entity.Email)
@@ -110,7 +114,7 @@ public class UserRepository : IUserRepository
         entity.Email = user.Email;
         entity.Password = user.Password;
         entity.AccountType = user.AccountType;
-
+        entity.ConfirmStatus = user.ConfirmStatus;
         _context.Users.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
     }
