@@ -46,11 +46,11 @@ public class RelationshipService : IRelationshipService
             throw new DataOccupiedException("There are already a request between these users.");
         }
 
-        if (relationshipStatus is RelationshipStatus.Banned || relationshipStatusInverse is RelationshipStatus.Banned)
+        if (relationshipStatus is RelationshipStatus.Absence || relationshipStatusInverse is RelationshipStatus.Banned)
         {
             throw new IAmATeapotException("You can't send requests to banned users");
         }
-
+        
         await _relationshipRepository.AddRelationshipAsync(userId, dataBaseTarget.Id, RelationshipStatus.Request, cancellationToken);
     }
 
@@ -142,7 +142,7 @@ public class RelationshipService : IRelationshipService
             cancellationToken);
     }
     
-    public async Task BanFriendshipRequestAsync(
+    public async Task BanUser(
         Guid userId,
         string requestedEmail,
         CancellationToken cancellationToken)
@@ -162,12 +162,17 @@ public class RelationshipService : IRelationshipService
         }
 
         await _relationshipRepository.UpdateStatusAsync(
-            requested.Id,
             userId,
+            requested.Id,
             RelationshipStatus.Banned,
             cancellationToken);
-    }
 
+        await _relationshipRepository.DeleteAsync(
+            requested.Id,
+            userId,
+            cancellationToken);
+    }
+    
     public async Task Unfriend(
         Guid userId,
         string requestedEmail,
@@ -183,10 +188,14 @@ public class RelationshipService : IRelationshipService
             throw new DataOccupiedException("User is not you friend");
         }
 
-        await _relationshipRepository.UpdateStatusAsync(
+        await _relationshipRepository.DeleteAsync(
             requested.Id,
             userId,
-            RelationshipStatus.Absence,
+            cancellationToken);
+        
+        await _relationshipRepository.DeleteAsync(
+            userId,
+            requested.Id,
             cancellationToken);
     }
 }
