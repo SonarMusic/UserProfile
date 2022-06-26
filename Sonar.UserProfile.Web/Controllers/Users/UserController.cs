@@ -122,9 +122,9 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Sends a new password to the email specified at registration if it is possible
+    /// Sends a new password to the email specified at registration if it is possible.
     /// </summary>
-    /// <param name="userEmail">Mail for the password recovery</param>
+    /// <param name="userEmail">Mail for the password recovery.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPut("recovery-password")]
     public async Task RecoveryPassword(
@@ -139,10 +139,9 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Sends a new password to the email specified at registration if it is possible
+    /// handles email confirmation links and updates user's status to confirmed if token is valid.
     /// </summary>
-    /// <param name="userEmail">Mail for the password recovery</param>
-    /// <param name="confirmToken"></param>
+    /// <param name="confirmToken">token from route for mail confirmation.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPut("confirm-mail/{confirmToken}")]
     public async Task ConfirmMail(
