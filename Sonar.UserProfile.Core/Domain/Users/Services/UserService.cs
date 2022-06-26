@@ -4,9 +4,11 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Sonar.UserProfile.Core.Domain.Exceptions;
+using Sonar.UserProfile.Core.Domain.SmtpClients.Services;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
 using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
+using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 
@@ -15,12 +17,13 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
     private readonly IPasswordEncoder _passwordEncoder;
-
-    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordEncoder passwordEncoder)
+    private readonly ISmtpClientService _smtpClientService;
+    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordEncoder passwordEncoder, ISmtpClientService smtpClientService)
     {
         _userRepository = userRepository;
         _configuration = configuration;
         _passwordEncoder = passwordEncoder;
+        _smtpClientService = smtpClientService;
     }
 
     public Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
@@ -38,6 +41,7 @@ public class UserService : IUserService
     {
         user.Id = Guid.NewGuid();
         user.Password = _passwordEncoder.Encode(user.Password);
+        user.AccountType = AccountType.Open;
 
         const int tokenLifeDays = 7;
         var secret = _configuration["Secret"];
@@ -60,7 +64,9 @@ public class UserService : IUserService
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         await _userRepository.CreateAsync(user, cancellationToken);
-
+        var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email, "Registration", $"Hello {user.Email}, you have successfully registered in Sonar User Profile.", cancellationToken);
+        _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken);
+        
         return tokenHandler.WriteToken(token);
     }
 
