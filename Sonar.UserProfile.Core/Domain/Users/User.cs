@@ -8,5 +8,5 @@ public class User
     public string Email { get; set; }
     public string Password { get; set; }
     public AccountType AccountType { get; set; }
-    public ConfirmStatus ConfirmStatus { get; set; }
+    public ConfirmStatus ConfirmStatus { get; set; } = ConfirmStatus.Unconfirmed;
 }
