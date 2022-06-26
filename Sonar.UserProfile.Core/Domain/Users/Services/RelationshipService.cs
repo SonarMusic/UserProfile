@@ -173,6 +173,26 @@ public class RelationshipService : IRelationshipService
             cancellationToken);
     }
     
+    public async Task UnbanUser(
+        Guid userId,
+        string requestedEmail,
+        CancellationToken cancellationToken)
+    {
+        var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
+        
+        var relationshipStatus =
+            await _relationshipRepository.GetStatusAsync(userId, requested.Id, cancellationToken);
+        if (relationshipStatus is not RelationshipStatus.Banned)
+        {
+            throw new DataOccupiedException("User is not banned");
+        }
+
+        await _relationshipRepository.DeleteAsync(
+            userId,
+            requested.Id,
+            cancellationToken);
+    }
+    
     public async Task Unfriend(
         Guid userId,
         string requestedEmail,
