@@ -1,28 +1,36 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using Sonar.UserProfile.Core.Domain.Exceptions;
-using Sonar.UserProfile.Core.Domain.Tokens;
-using Sonar.UserProfile.Core.Domain.Tokens.Repositories;
+using Sonar.UserProfile.Core.Domain.SmtpClients.Services;
 using Sonar.UserProfile.Core.Domain.Users;
+using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
 using Sonar.UserProfile.Core.Domain.Users.Services;
+using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
+using Sonar.UserProfile.Data.Users.Encoders;
 using Xunit;
 using Xunit.Abstractions;
+using IConfiguration = Castle.Core.Configuration.IConfiguration;
 
 namespace Sonar.UserProfile.Core.Tests;
-// TODO: нужно перенести создание токена на уровень Data в репозиторий, мне кажется это не обязанность Core. 
 public class UserServiceTests
 {
     private readonly IUserService _userService;
     private readonly Mock<IUserRepository> _fakeUserRepository;
-    private readonly Mock<ITokenRepository> _fakeTokenRepository;
-
+    private readonly Mock<IConfigurationSection> _fakeConfiguration;
+    private readonly Mock<IPasswordEncoder> _fakePasswordEncoder;
+    private readonly Mock<ISmtpClientService> _fakeSmtpClientService;
     public UserServiceTests()
     {
         _fakeUserRepository = new Mock<IUserRepository>();
-        _fakeTokenRepository = new Mock<ITokenRepository>();
-        _userService = new UserService(_fakeUserRepository.Object, _fakeTokenRepository.Object);
+        _fakeConfiguration = new Mock<IConfigurationSection>();
+        _fakePasswordEncoder = new Mock<IPasswordEncoder>();
+        _fakeSmtpClientService = new Mock<ISmtpClientService>();
+ 
+        _userService = new UserService(_fakeUserRepository.Object, _fakeConfiguration.Object, _fakePasswordEncoder.Object, _fakeSmtpClientService.Object);
     }
 
     [Fact]
@@ -43,24 +51,16 @@ public class UserServiceTests
         
         _userService.RegisterAsync(user, default);
         
-        _fakeUserRepository.Verify(work => work.CreateAsync(user, default), Times.Once);
+        _fakeUserRepository.Verify(work => work.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public void GetUserById_Success_ShouldReturnUser()
     {
-        var user = new User { Id = Guid.NewGuid(), Email = "email@example.ru", Password = "123456" };
-        const int tokenLifeDays = 7;
-        var token = new Token
-        {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
-        };
-        
-        _fakeTokenRepository.Setup(repo => repo.GetByIdAsync(token.Id, default).Result).Returns(token);
+        var user = new User { Id = Guid.Empty, Email = "email@example.ru", Password = "123456" };
+
         _fakeUserRepository.Setup(repo => repo.GetByIdAsync(user.Id, default).Result).Returns(user);
-        var returnedUser = _userService.GetByIdAsync(token.Id, default).Result;
+        var returnedUser = _userService.GetByIdAsync(user.Id, default).Result;
         
         Assert.Equal(returnedUser.Password, user.Password);
         Assert.Equal(returnedUser.Email, user.Email);
@@ -77,16 +77,9 @@ public class UserServiceTests
     public void UserLogin_Success_ShouldLogin()
     {
         var user = new User { Id = Guid.NewGuid(), Email = "email@example.ru", Password = "123456" };
-        const int tokenLifeDays = 7;
-        var token = new Token
-        {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            ExpirationDate = DateTime.UtcNow.AddDays(tokenLifeDays)
-        };
-        
+
         _fakeUserRepository.Setup(repo => repo.GetByIdAsync(user.Id, default).Result).Returns(user);
-        _fakeTokenRepository.Setup(repo => repo.GetByIdAsync(token.Id, default).Result).Returns(token);
+
         _fakeUserRepository.Setup(repo => repo.GetByEmailAsync(user.Email, default).Result).Returns(user);
         var result = _userService.RegisterAsync(user, default).Result;
         // TODO: вынести IPasswordEncoder в bootstrapper и протестировать 
@@ -94,11 +87,5 @@ public class UserServiceTests
 
         // _fakeUserRepository.Verify(work => work.GetByEmailAsync(user.Email, default), Times.Once);
         // _fakeTokenRepository.Verify(work => work.CreateAsync(token, default), Times.Once);
-    }
-    
-    [Fact]
-    public void UserLogout_Success_ShouldLogout()
-    {
-        //TODO: нужно реализовать 
     }
 }
