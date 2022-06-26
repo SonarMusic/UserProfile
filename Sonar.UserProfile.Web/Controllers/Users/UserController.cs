@@ -137,4 +137,22 @@ public class UserController : ControllerBase
         
         _logger.LogInformation("Password successfully recovered");
     }
+
+    /// <summary>
+    /// Sends a new password to the email specified at registration if it is possible
+    /// </summary>
+    /// <param name="userEmail">Mail for the password recovery</param>
+    /// <param name="confirmToken"></param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    [HttpPut("confirm-mail/{confirmToken}")]
+    public async Task ConfirmMail(
+        [Required] string confirmToken,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Trying to recover password");
+        
+        await _userService.ConfirmMailAsync(confirmToken, cancellationToken);
+        
+        _logger.LogInformation("Password successfully recovered");
+    }
 }
