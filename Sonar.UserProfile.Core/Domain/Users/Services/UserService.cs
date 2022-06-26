@@ -67,7 +67,8 @@ public class UserService : IUserService
 
         await _userRepository.CreateAsync(user, cancellationToken);
         var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email, "Registration",
-            $"Hello {user.Email}, you have successfully registered in Sonar User Profile.", cancellationToken);
+            $"Hello {user.Email}, you have successfully registered in Sonar User Profile. To confirm account follow this link {_configuration["uri"] + "/user/register/" + _passwordEncoder.Encode(user.Email)}",
+            cancellationToken);
         await _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken);
 
         return tokenHandler.WriteToken(token);
@@ -121,5 +122,12 @@ public class UserService : IUserService
         {
             throw new SmtpClientException($"Failed to send mail message to {email} during password recovery.");
         }
+    }
+
+    public Task ConfirmMailAsync(string token, CancellationToken cancellationToken = default)
+    {
+        var user = _userRepository.GetByEmail(token, cancellationToken);
+        user.ConfirmStatus = ConfirmStatus.Confirmed;
+        return _userRepository.UpdateAsync(user, cancellationToken);
     }
 }
