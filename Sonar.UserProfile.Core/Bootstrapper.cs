@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Sonar.UserProfile.Core.Domain.SmtpClients.Services;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Services;
 using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
@@ -13,6 +14,7 @@ public static class Bootstrapper
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRelationshipService, RelationshipService>();
         services.AddScoped<IPasswordEncoder, BCryptPasswordEncoder>();
+        services.AddScoped<ISmtpClientService, SmtpClientService>();
 
         return services;
     }
