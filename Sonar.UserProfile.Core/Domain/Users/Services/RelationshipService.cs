@@ -45,6 +45,11 @@ public class RelationshipService : IRelationshipService
             throw new DataOccupiedException("There are already a request between these users.");
         }
 
+        if (relationshipStatus is RelationshipStatus.Banned || relationshipStatusInverse is RelationshipStatus.Banned)
+        {
+            throw new IAmATeapotException("You can't send requests to banned users");
+        }
+
         await _relationshipRepository.AddRelationshipAsync(userId, dataBaseTarget.Id, RelationshipStatus.Request, cancellationToken);
     }
 
