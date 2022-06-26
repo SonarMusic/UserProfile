@@ -59,7 +59,7 @@ public class UserController : ControllerBase
         var user = new User
         {
             Email = userAuthDto.Email,
-            Password = userAuthDto.Password
+            Password = userAuthDto.Password,
         };
 
         string str = await _userService.LoginAsync(user, cancellationToken);
@@ -88,7 +88,8 @@ public class UserController : ControllerBase
         return new UserDto
         {
             Id = user.Id,
-            Email = user.Email
+            Email = user.Email,
+            AccountType = user.AccountType,
         };
     }
 
@@ -102,7 +103,7 @@ public class UserController : ControllerBase
     [AuthorizationFilter]
     public async Task Update(
         [FromHeader(Name = "Token")] string token,
-        [Required] UserAuthDto userDto,
+        [Required] UserUpdateDto userDto,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to update user");
@@ -112,7 +113,8 @@ public class UserController : ControllerBase
             {
                 Id = userId,
                 Email = userDto.Email,
-                Password = userDto.Password
+                Password = userDto.Password,
+                AccountType = userDto.AccountType,
             },
             cancellationToken);
         

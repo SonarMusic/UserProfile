@@ -28,7 +28,8 @@ public class UserRepository : IUserRepository
         {
             Id = entity.Id,
             Email = entity.Email,
-            Password = entity.Password
+            Password = entity.Password,
+            AccountType = entity.AccountType,
         };
     }
 
@@ -47,7 +48,8 @@ public class UserRepository : IUserRepository
         {
             Id = entity.Id,
             Email = entity.Email,
-            Password = entity.Password
+            Password = entity.Password,
+            AccountType = entity.AccountType,
         };
     }
 
@@ -59,7 +61,8 @@ public class UserRepository : IUserRepository
         {
             Id = entity.Id,
             Email = entity.Email,
-            Password = entity.Password
+            Password = entity.Password,
+            AccountType = entity.AccountType,
         });
     }
 
@@ -77,7 +80,8 @@ public class UserRepository : IUserRepository
         {
             Id = user.Id,
             Email = user.Email,
-            Password = user.Password
+            Password = user.Password,
+            AccountType = user.AccountType,
         };
 
         await _context.Users.AddAsync(entity, cancellationToken);
@@ -105,6 +109,7 @@ public class UserRepository : IUserRepository
 
         entity.Email = user.Email;
         entity.Password = user.Password;
+        entity.AccountType = user.AccountType;
 
         _context.Users.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);
