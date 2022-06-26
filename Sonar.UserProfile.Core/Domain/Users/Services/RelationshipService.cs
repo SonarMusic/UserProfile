@@ -46,12 +46,18 @@ public class RelationshipService : IRelationshipService
             throw new DataOccupiedException("There are already a request between these users.");
         }
 
-        if (relationshipStatus is RelationshipStatus.Banned || relationshipStatusInverse is RelationshipStatus.Banned)
+        if (relationshipStatus is RelationshipStatus.Banned)
         {
             throw new IAmATeapotException("You can't send requests to banned users");
         }
 
-        await _relationshipRepository.AddRelationshipAsync(userId, dataBaseTarget.Id, RelationshipStatus.Request, cancellationToken);
+        if (relationshipStatusInverse is RelationshipStatus.Banned)
+        {
+            throw new IAmATeapotException("You can't send request to this user because you're banned");
+        }
+
+        await _relationshipRepository.AddRelationshipAsync(userId, dataBaseTarget.Id, RelationshipStatus.Request,
+            cancellationToken);
     }
 
     public async Task<IReadOnlyList<User>> GetUserFriendsAsync(Guid userId, CancellationToken cancellationToken)
@@ -88,8 +94,8 @@ public class RelationshipService : IRelationshipService
     public async Task<bool> IsFriends(Guid leftUserId, Guid rightUserId, CancellationToken cancellationToken)
     {
         var isFriends = await _relationshipRepository.GetStatusAsync(
-            leftUserId, 
-            rightUserId, 
+            leftUserId,
+            rightUserId,
             cancellationToken);
 
         if (isFriends is RelationshipStatus.Absence)
@@ -106,7 +112,6 @@ public class RelationshipService : IRelationshipService
         CancellationToken cancellationToken)
     {
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
-
 
         var relationshipStatus =
             await _relationshipRepository.GetStatusAsync(requested.Id, userId, cancellationToken);
@@ -141,30 +146,67 @@ public class RelationshipService : IRelationshipService
             userId,
             cancellationToken);
     }
-    
-    public async Task BanFriendshipRequestAsync(
+
+    public async Task BanUser(
         Guid userId,
         string requestedEmail,
         CancellationToken cancellationToken)
     {
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
-        
+
         var relationshipStatus =
+            await _relationshipRepository.GetStatusAsync(userId,requested.Id, cancellationToken);
+        var relationshipStatusInverse =
             await _relationshipRepository.GetStatusAsync(requested.Id, userId, cancellationToken);
-        if (relationshipStatus is RelationshipStatus.Absence)
+        
+        if (relationshipStatus is RelationshipStatus.Banned)
         {
-            await _relationshipRepository.AddRelationshipAsync(
-                requested.Id,
-                userId,
-                RelationshipStatus.Banned,
-                cancellationToken);
-            return;
+            throw new DataOccupiedException("User is already banned");
         }
 
-        await _relationshipRepository.UpdateStatusAsync(
-            requested.Id,
+        if (relationshipStatus is not RelationshipStatus.Absence)
+        {
+            await _relationshipRepository.UpdateStatusAsync(
+                userId,
+                requested.Id,
+                RelationshipStatus.Banned,
+                cancellationToken);
+        }
+        else
+        {
+            await _relationshipRepository.AddRelationshipAsync(
+                userId,
+                requested.Id,
+                RelationshipStatus.Banned,
+                cancellationToken);   
+        }
+
+        if (relationshipStatusInverse is not RelationshipStatus.Banned && relationshipStatusInverse is not RelationshipStatus.Absence)
+        {
+            await _relationshipRepository.DeleteAsync(
+                requested.Id,
+                userId,
+                cancellationToken);
+        }
+    }
+
+    public async Task UnbanUser(
+        Guid userId,
+        string requestedEmail,
+        CancellationToken cancellationToken)
+    {
+        var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
+
+        var relationshipStatus =
+            await _relationshipRepository.GetStatusAsync(userId, requested.Id, cancellationToken);
+        if (relationshipStatus is not RelationshipStatus.Banned)
+        {
+            throw new DataOccupiedException("User is not banned");
+        }
+
+        await _relationshipRepository.DeleteAsync(
             userId,
-            RelationshipStatus.Banned,
+            requested.Id,
             cancellationToken);
     }
 
@@ -174,19 +216,30 @@ public class RelationshipService : IRelationshipService
         CancellationToken cancellationToken)
     {
         var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
-        
+
         var relationshipStatus =
             await _relationshipRepository.GetStatusAsync(requested.Id, userId, cancellationToken);
+        var relationshipStatusInverse =
+            await _relationshipRepository.GetStatusAsync(userId,requested.Id, cancellationToken);
+
         
-        if (relationshipStatus is not RelationshipStatus.Friends)
+        if (relationshipStatus is not RelationshipStatus.Friends && relationshipStatusInverse is not RelationshipStatus.Friends)
         {
             throw new DataOccupiedException("User is not you friend");
         }
 
-        await _relationshipRepository.UpdateStatusAsync(
-            requested.Id,
+        if (relationshipStatus is not RelationshipStatus.Friends)
+        {
+            await _relationshipRepository.DeleteAsync(
+                requested.Id,
+                userId,
+                cancellationToken);
+            return;
+        }
+        
+        await _relationshipRepository.DeleteAsync(
             userId,
-            RelationshipStatus.Absence,
+            requested.Id,
             cancellationToken);
     }
 }

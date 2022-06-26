@@ -40,7 +40,7 @@ public class RelationshipRepository : IRelationshipRepository
         {
             SenderUserId = userId,
             TargetUserId = targetUserId,
-            RelationshipStatus = RelationshipStatus.Request
+            RelationshipStatus = relationshipStatus
         });
 
         await _context.SaveChangesAsync(cancellationToken);
