@@ -126,8 +126,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="userEmail">Mail for the password recovery</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    [HttpPut("recover-password")]
-    [AuthorizationFilter]
+    [HttpPut("recovery-password")]
     public async Task RecoveryPassword(
         [Required] string userEmail,
         CancellationToken cancellationToken = default)
