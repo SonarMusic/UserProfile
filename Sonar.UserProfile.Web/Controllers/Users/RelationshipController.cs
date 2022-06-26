@@ -187,24 +187,45 @@ public class RelationshipController : ControllerBase
     }
 
     /// <summary>
-    /// Ban friendship request if token hasn't expired yet.
+    /// Ban user if token hasn't expired yet.
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="requestedEmail">An email of user who you want to ban.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    [HttpPatch("ban-friendship-request")]
+    [HttpPatch("ban-user")]
     [AuthorizationFilter]
-    public async Task BanFriendshipRequest(
+    public async Task BanUser(
         [FromHeader(Name = "Token")] string token,
         [Required] string requestedEmail,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Trying to get ban friendship request");
+        _logger.LogInformation("Trying to ban user");
 
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
-        await _relationshipService.BanFriendshipRequestAsync(userId, requestedEmail, cancellationToken);
+        await _relationshipService.BanUser(userId, requestedEmail, cancellationToken);
 
-        _logger.LogInformation("Friendship request successfully banned");
+        _logger.LogInformation("User successfully banned");
+    }
+    
+    /// <summary>
+    /// Unban user if token hasn't expired yet.
+    /// </summary>
+    /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
+    /// <param name="requestedEmail">An email of user who you want to unban.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    [HttpPatch("unban-user")]
+    [AuthorizationFilter]
+    public async Task UnbanUser(
+        [FromHeader(Name = "Token")] string token,
+        [Required] string requestedEmail,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Trying to unban user");
+
+        var userId = HttpExtensions.GetIdFromItems(HttpContext);
+        await _relationshipService.UnbanUser(userId, requestedEmail, cancellationToken);
+
+        _logger.LogInformation("User successfully unbanned");
     }
     
     /// <summary>

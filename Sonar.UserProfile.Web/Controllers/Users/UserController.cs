@@ -14,11 +14,13 @@ public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly ILogger<UserController> _logger;
+    private readonly IConfiguration _configuration;
 
-    public UserController(IUserService userService, ILogger<UserController> logger)
+    public UserController(IUserService userService, ILogger<UserController> logger, IConfiguration configuration)
     {
         _userService = userService;
         _logger = logger;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -49,7 +51,7 @@ public class UserController : ControllerBase
     /// <param name="userAuthDto">DTO which contains parameters to identify user: email, password</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New token.</returns>
-    [HttpPatch("login")]
+    [HttpPost("login")]
     public async Task<string> Login(
         [Required] UserAuthDto userAuthDto,
         CancellationToken cancellationToken = default)
@@ -62,8 +64,39 @@ public class UserController : ControllerBase
             Password = userAuthDto.Password,
         };
 
-        string str = await _userService.LoginAsync(user, cancellationToken);
+        var str = await _userService.LoginAsync(user, cancellationToken);
         _logger.LogInformation("User successfully logged in");
+        return str;
+    }
+
+    /// <summary>
+    /// Generate new user token to discord bot. Token will expire in 7 days.
+    /// </summary>
+    /// <param name="discordBotToken">Token of sonar discord bot. Token locates in header "Token".</param>
+    /// <param name="userEmail">Email address of target user.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    /// <returns>New user token.</returns>
+    [HttpPost("login-by-discord-bot")]
+    public async Task<string> LoginByDiscordBot(
+        [FromHeader(Name = "Token")] string discordBotToken,
+        [Required] [FromQuery] string userEmail,
+        CancellationToken cancellationToken = default)
+    {
+        if (discordBotToken is null)
+        {
+            throw new TokenNotFoundException("There is no discord bot token.");
+        }
+
+        if (discordBotToken != _configuration["DiscordBotToken"])
+        {
+            throw new InvalidRequestException("Incorrect discord bot token.");
+        }
+
+        _logger.LogInformation("Trying to login user by discord bot");
+
+        var str = await _userService.LoginByDiscordBotAsync(userEmail, cancellationToken);
+
+        _logger.LogInformation("User successfully logged in by discord bot");
         return str;
     }
 
@@ -122,9 +155,9 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Sends a new password to the email specified at registration if it is possible
+    /// Sends a new password to the email specified at registration if it is possible.
     /// </summary>
-    /// <param name="userEmail">Mail for the password recovery</param>
+    /// <param name="userEmail">Mail for the password recovery.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPut("recovery-password")]
     public async Task RecoveryPassword(
@@ -132,9 +165,26 @@ public class UserController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to recover password");
-        
+
         await _userService.RecoverPasswordAsync(userEmail, cancellationToken);
-        
+
         _logger.LogInformation("Password successfully recovered");
+    }
+
+    /// <summary>
+    /// handles email confirmation links and updates user's status to confirmed if token is valid.
+    /// </summary>
+    /// <param name="confirmToken">token from route for mail confirmation.</param>
+    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+    [HttpPut("confirm-mail/{confirmToken}")]
+    public async Task ConfirmMail(
+        [Required] string confirmToken,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Trying to confirm mail");
+        
+        await _userService.ConfirmMailAsync(confirmToken, cancellationToken);
+        
+        _logger.LogInformation("Mail confirmation success");
     }
 }
