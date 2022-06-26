@@ -19,7 +19,10 @@ public class UserService : IUserService
     private readonly IPasswordEncoder _passwordEncoder;
     private readonly ISmtpClientService _smtpClientService;
 
-    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordEncoder passwordEncoder,
+    public UserService(
+        IUserRepository userRepository, 
+        IConfiguration configuration, 
+        IPasswordEncoder passwordEncoder,
         ISmtpClientService smtpClientService)
     {
         _userRepository = userRepository;
@@ -81,6 +84,34 @@ public class UserService : IUserService
         {
             throw new InvalidPasswordException("Incorrect password.");
         }
+
+        const int tokenLifeDays = 7;
+        var secret = _configuration["Secret"];
+        var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
+        var issuer = _configuration["Issuer"];
+        var audience = _configuration["Audience"];
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, dataBaseUser.Id.ToString())
+            }),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature),
+            Expires = DateTime.UtcNow.AddDays(tokenLifeDays)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        return tokenHandler.WriteToken(token);
+    }
+
+    public async Task<string> LoginByDiscordBotAsync(string email, CancellationToken cancellationToken)
+    {
+        var dataBaseUser = await _userRepository.GetByEmailAsync(email, cancellationToken);
 
         const int tokenLifeDays = 7;
         var secret = _configuration["Secret"];
