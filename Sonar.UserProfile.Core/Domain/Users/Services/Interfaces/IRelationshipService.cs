@@ -11,6 +11,7 @@ public interface IRelationshipService
     Task<bool> IsFriends(Guid leftUserId, Guid rightUserId, CancellationToken cancellationToken);
     Task AcceptFriendshipRequestAsync(Guid userId, string requestedEmail, CancellationToken cancellationToken);
     Task RejectFriendshipRequestAsync(Guid userId, string requestedEmail, CancellationToken cancellationToken);
-    Task BanFriendshipRequestAsync(Guid userId, string targetEmail, CancellationToken cancellationToken);
+    Task BanFriendshipRequestAsync(Guid userId, string requestedEmail, CancellationToken cancellationToken);
+    Task Unfriend(Guid userId, string requestedEmail, CancellationToken cancellationToken);
     
 }

@@ -9,7 +9,7 @@ namespace Sonar.UserProfile.Data.SmptClients.Providers;
 public class SmtpClientProvider : ISmtpClientProvider
 {
     private readonly SmtpClient _smtpClient;
-    private static bool _mailSent;
+    private static bool _isMailSent;
 
     public SmtpClientProvider(IConfiguration configuration)
     {
@@ -23,19 +23,20 @@ public class SmtpClientProvider : ISmtpClientProvider
         };
     }
 
-    public async void SendEmailAsync(MailMessage mailMessage, string userState)
+    public async Task<bool> SendEmailAsync(MailMessage mailMessage, string userState)
     {
-        _mailSent = false;
+        _isMailSent = false;
         _smtpClient.SendCompleted += SendCompletedCallback;
 
         _smtpClient.SendAsync(mailMessage, userState);
 
-        if (_mailSent == false)
+        if (_isMailSent == false)
         {
             _smtpClient.SendAsyncCancel();
         }
 
         mailMessage.Dispose();
+        return _isMailSent;
     }
 
 
@@ -59,6 +60,6 @@ public class SmtpClientProvider : ISmtpClientProvider
             Console.WriteLine($"[{e.UserState}] Message sent.");
         }
 
-        _mailSent = true;
+        _isMailSent = true;
     }
 }

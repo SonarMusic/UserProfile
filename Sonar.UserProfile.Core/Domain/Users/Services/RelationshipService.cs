@@ -1,4 +1,5 @@
-﻿using Sonar.UserProfile.Core.Domain.Exceptions;
+﻿using System.Data;
+using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
 using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
@@ -43,6 +44,11 @@ public class RelationshipService : IRelationshipService
         if (relationshipStatus is RelationshipStatus.Request || relationshipStatusInverse is RelationshipStatus.Request)
         {
             throw new DataOccupiedException("There are already a request between these users.");
+        }
+
+        if (relationshipStatus is RelationshipStatus.Banned || relationshipStatusInverse is RelationshipStatus.Banned)
+        {
+            throw new IAmATeapotException("You can't send requests to banned users");
         }
 
         await _relationshipRepository.AddRelationshipAsync(userId, dataBaseTarget.Id, RelationshipStatus.Request, cancellationToken);
@@ -138,10 +144,10 @@ public class RelationshipService : IRelationshipService
     
     public async Task BanFriendshipRequestAsync(
         Guid userId,
-        string targetEmail,
+        string requestedEmail,
         CancellationToken cancellationToken)
     {
-        var requested = await _userRepository.GetByEmailAsync(targetEmail, cancellationToken);
+        var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
         
         var relationshipStatus =
             await _relationshipRepository.GetStatusAsync(requested.Id, userId, cancellationToken);
@@ -159,6 +165,28 @@ public class RelationshipService : IRelationshipService
             requested.Id,
             userId,
             RelationshipStatus.Banned,
+            cancellationToken);
+    }
+
+    public async Task Unfriend(
+        Guid userId,
+        string requestedEmail,
+        CancellationToken cancellationToken)
+    {
+        var requested = await _userRepository.GetByEmailAsync(requestedEmail, cancellationToken);
+        
+        var relationshipStatus =
+            await _relationshipRepository.GetStatusAsync(requested.Id, userId, cancellationToken);
+        
+        if (relationshipStatus is not RelationshipStatus.Friends)
+        {
+            throw new DataOccupiedException("User is not you friend");
+        }
+
+        await _relationshipRepository.UpdateStatusAsync(
+            requested.Id,
+            userId,
+            RelationshipStatus.Absence,
             cancellationToken);
     }
 }

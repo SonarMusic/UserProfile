@@ -18,7 +18,9 @@ public class UserService : IUserService
     private readonly IConfiguration _configuration;
     private readonly IPasswordEncoder _passwordEncoder;
     private readonly ISmtpClientService _smtpClientService;
-    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordEncoder passwordEncoder, ISmtpClientService smtpClientService)
+
+    public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordEncoder passwordEncoder,
+        ISmtpClientService smtpClientService)
     {
         _userRepository = userRepository;
         _configuration = configuration;
@@ -64,9 +66,10 @@ public class UserService : IUserService
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         await _userRepository.CreateAsync(user, cancellationToken);
-        var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email, "Registration", $"Hello {user.Email}, you have successfully registered in Sonar User Profile.", cancellationToken);
-        _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken);
-        
+        var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email, "Registration",
+            $"Hello {user.Email}, you have successfully registered in Sonar User Profile.", cancellationToken);
+        await _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken);
+
         return tokenHandler.WriteToken(token);
     }
 
@@ -101,5 +104,22 @@ public class UserService : IUserService
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         return tokenHandler.WriteToken(token);
+    }
+
+    public async Task RecoverPasswordAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
+        var newPassword = Guid.NewGuid().ToString()[..8];
+        user.Password = _passwordEncoder.Encode(newPassword);
+        var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email, "Recover Password",
+            $"Hello {user.Email}, your new password is {newPassword}.", cancellationToken);
+        if (await _smtpClientService.SendMailMessageAsync(mailMessage, user.Email, cancellationToken))
+        {
+            await _userRepository.UpdateAsync(user, cancellationToken);
+        }
+        else
+        {
+            throw new SmtpClientException($"Failed to send mail message to {email} during password recovery.");
+        }
     }
 }
