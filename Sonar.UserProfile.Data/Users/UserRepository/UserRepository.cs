@@ -28,7 +28,8 @@ public class UserRepository : IUserRepository
         {
             Id = entity.Id,
             Email = entity.Email,
-            Password = entity.Password
+            Password = entity.Password,
+            AccountType = entity.AccountType,
         };
     }
 
@@ -47,7 +48,8 @@ public class UserRepository : IUserRepository
         {
             Id = entity.Id,
             Email = entity.Email,
-            Password = entity.Password
+            Password = entity.Password,
+            AccountType = entity.AccountType,
         };
     }
 
@@ -59,7 +61,8 @@ public class UserRepository : IUserRepository
         {
             Id = entity.Id,
             Email = entity.Email,
-            Password = entity.Password
+            Password = entity.Password,
+            AccountType = entity.AccountType,
         });
     }
 
@@ -77,7 +80,8 @@ public class UserRepository : IUserRepository
         {
             Id = user.Id,
             Email = user.Email,
-            Password = user.Password
+            Password = user.Password,
+            AccountType = user.AccountType,
         };
 
         await _context.Users.AddAsync(entity, cancellationToken);
@@ -98,13 +102,14 @@ public class UserRepository : IUserRepository
         var sameEmailEntity = 
             await _context.Users.FirstOrDefaultAsync(it => it.Email == user.Email, cancellationToken);
 
-        if (sameEmailEntity is not null)
+        if (sameEmailEntity is not null && sameEmailEntity.Email != entity.Email)
         {
             throw new DataOccupiedException($"User with mail = {user.Email} already exists");
         }
 
         entity.Email = user.Email;
         entity.Password = user.Password;
+        entity.AccountType = user.AccountType;
 
         _context.Users.Update(entity);
         await _context.SaveChangesAsync(cancellationToken);

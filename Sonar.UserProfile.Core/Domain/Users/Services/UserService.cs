@@ -8,6 +8,7 @@ using Sonar.UserProfile.Core.Domain.SmtpClients.Services;
 using Sonar.UserProfile.Core.Domain.Users.Encoders;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
 using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
+using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
 
 namespace Sonar.UserProfile.Core.Domain.Users.Services;
 
@@ -40,6 +41,7 @@ public class UserService : IUserService
     {
         user.Id = Guid.NewGuid();
         user.Password = _passwordEncoder.Encode(user.Password);
+        user.AccountType = AccountType.Open;
 
         const int tokenLifeDays = 7;
         var secret = _configuration["Secret"];
