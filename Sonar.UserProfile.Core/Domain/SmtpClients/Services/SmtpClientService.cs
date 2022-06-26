@@ -16,7 +16,7 @@ public class SmtpClientService : ISmtpClientService
         _configuration = configuration;
     }
 
-    public void SendEmailAsync(string email, string subject, string body)
+    public MailMessage CreateMailMessageAsync(string email, string subject, string body)
     {
         if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(body))
         {
@@ -28,10 +28,15 @@ public class SmtpClientService : ISmtpClientService
             From = new MailAddress(_configuration["SmtpNoReplyMail"]),
             Subject = subject,
             Body = body,
-            IsBodyHtml = true
+            IsBodyHtml = true,
+            To = { email }
         };
         
-        mailMessage.To.Add(email);
-        _smtpClientProvider.SendEmailAsync(mailMessage, email);
+        return mailMessage;
+    }
+    
+    public void SendMailMessageAsync(MailMessage mailMessage, string userState)
+    {
+        _smtpClientProvider.SendEmailAsync(mailMessage, userState);
     }
 }
