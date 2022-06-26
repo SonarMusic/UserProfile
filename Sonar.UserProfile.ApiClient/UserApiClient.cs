@@ -22,7 +22,7 @@ public class UserApiClient : IUserApiClient
     /// </summary>
     /// <param name="token">User token.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>User model which contains: ID, email.</returns>
+    /// <returns>User model which contains: ID, email, AccountType.</returns>
     /// <exception cref="ApiClientException">Throws if error status code appears.</exception>
     public async Task<UserDto> GetAsync(string token, CancellationToken cancellationToken)
     {
