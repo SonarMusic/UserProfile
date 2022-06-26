@@ -148,10 +148,10 @@ public class UserController : ControllerBase
         [Required] string confirmToken,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Trying to recover password");
+        _logger.LogInformation("Trying to confirm mail");
         
         await _userService.ConfirmMailAsync(confirmToken, cancellationToken);
         
-        _logger.LogInformation("Password successfully recovered");
+        _logger.LogInformation("Mail confirmation success");
     }
 }
