@@ -48,16 +48,16 @@ public class UserApiClient : IUserApiClient
     /// Generate new user token to discord bot. Token will expire in 7 days.
     /// </summary>
     /// <param name="discordBotToken">Token of sonar discord bot.</param>
-    /// <param name="userEmail">Email address of target user.</param>
+    /// <param name="userDiscordId">Email address of target user.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New user token.</returns>
     public async Task<string> LoginByDiscordBotAsync(
         string discordBotToken,
-        string userEmail,
+        string userDiscordId,
         CancellationToken cancellationToken)
     {
         var request = _requestCreator.RequestWithToken(
-            $"/user/login-by-discord-bot?userEmail={userEmail}", 
+            $"/user/login-by-discord-bot?userDiscordId={userDiscordId}", 
             "POST", 
             discordBotToken);
         var response = await _httpClient.SendAsync(request, cancellationToken);

@@ -20,8 +20,8 @@ public class UserService : IUserService
     private readonly ISmtpClientService _smtpClientService;
 
     public UserService(
-        IUserRepository userRepository, 
-        IConfiguration configuration, 
+        IUserRepository userRepository,
+        IConfiguration configuration,
         IPasswordEncoder passwordEncoder,
         ISmtpClientService smtpClientService)
     {
@@ -31,12 +31,12 @@ public class UserService : IUserService
         _smtpClientService = smtpClientService;
     }
 
-    public Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public Task<User> GetByIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         return _userRepository.GetByIdAsync(userId, cancellationToken);
     }
 
-    public Task UpdateUserAsync(User user, CancellationToken cancellationToken = default)
+    public Task UpdateUserAsync(User user, CancellationToken cancellationToken)
     {
         user.Password = _passwordEncoder.Encode(user.Password);
         return _userRepository.UpdateAsync(user, cancellationToken);
@@ -71,14 +71,15 @@ public class UserService : IUserService
         await _userRepository.CreateAsync(user, cancellationToken);
         var mailMessage = await _smtpClientService.CreateMailMessageAsync(user.Email,
             "Registration on Sonar Music Streaming",
-            $"Hello {user.Email}, you have successfully registered in Sonar Music Streaming. To confirm your account follow this link {_configuration["uri"] + "/user/confirm-mail/" + user.Id.ToString()}",
+            $"Hello {user.Email}, you have successfully registered in Sonar Music Streaming. " +
+            $"To confirm your account follow this link {_configuration["uri"] + "/user/confirm-mail/" + user.Id}",
             cancellationToken);
         await _smtpClientService.SendMailMessageAsync(mailMessage, cancellationToken);
 
         return tokenHandler.WriteToken(token);
     }
 
-    public async Task<string> LoginAsync(User user, CancellationToken cancellationToken = default)
+    public async Task<string> LoginAsync(User user, CancellationToken cancellationToken)
     {
         var dataBaseUser = await _userRepository.GetByEmailAsync(user.Email, cancellationToken);
 
@@ -111,9 +112,9 @@ public class UserService : IUserService
         return tokenHandler.WriteToken(token);
     }
 
-    public async Task<string> LoginByDiscordBotAsync(string email, CancellationToken cancellationToken)
+    public async Task<string> LoginByDiscordBotAsync(string discordId, CancellationToken cancellationToken)
     {
-        var dataBaseUser = await _userRepository.GetByEmailAsync(email, cancellationToken);
+        var dataBaseUser = await _userRepository.GetByDiscordId(discordId, cancellationToken);
 
         const int tokenLifeDays = 7;
         var secret = _configuration["Secret"];
@@ -139,7 +140,7 @@ public class UserService : IUserService
         return tokenHandler.WriteToken(token);
     }
 
-    public async Task RecoverPasswordAsync(string email, CancellationToken cancellationToken = default)
+    public async Task RecoverPasswordAsync(string email, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
         var newPassword = Guid.NewGuid().ToString()[..8];
@@ -150,7 +151,7 @@ public class UserService : IUserService
         await _userRepository.UpdateAsync(user, cancellationToken);
     }
 
-    public async Task ConfirmMailAsync(string confirmToken, CancellationToken cancellationToken = default)
+    public async Task ConfirmMailAsync(string confirmToken, CancellationToken cancellationToken)
     {
         var userId = Guid.Parse(confirmToken);
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);

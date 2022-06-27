@@ -44,10 +44,10 @@ public class RelationshipController : ControllerBase
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
+    /// <returns>List of users. Every user is FriendDto which contains: Id, Email.</returns>
     [HttpGet("get-friends")]
     [AuthorizationFilter]
-    public async Task<IReadOnlyList<UserDto>> GetFriends(
+    public async Task<IReadOnlyList<FriendDto>> GetFriends(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
@@ -56,13 +56,13 @@ public class RelationshipController : ControllerBase
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var friends = await _relationshipService.GetUserFriendsAsync(userId, cancellationToken);
 
-        var friendsDto = friends.Select(f => new UserDto
+        var friendDto = friends.Select(f => new FriendDto
         {
             Id = f.Id,
             Email = f.Email
         }).ToList();
         _logger.LogInformation("Friends list successfully retrieved");
-        return friendsDto;
+        return friendDto;
     }
 
     /// <summary>
@@ -93,10 +93,10 @@ public class RelationshipController : ControllerBase
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
+    /// <returns>List of users. Every user is FriendDto which contains: Id, Email.</returns>
     [HttpGet("get-requests-from-me")]
     [AuthorizationFilter]
-    public async Task<IReadOnlyList<UserDto>> GetRequestsFromMe(
+    public async Task<IReadOnlyList<FriendDto>> GetRequestsFromMe(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
@@ -105,7 +105,7 @@ public class RelationshipController : ControllerBase
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var requests = await _relationshipService.GetRequestsFromUserAsync(userId, cancellationToken);
 
-        var userDto = requests.Select(f => new UserDto
+        var friendDto = requests.Select(f => new FriendDto
         {
             Id = f.Id,
             Email = f.Email
@@ -113,7 +113,7 @@ public class RelationshipController : ControllerBase
 
         _logger.LogInformation("Outgoing user's requests successfully retrieved");
 
-        return userDto;
+        return friendDto;
     }
 
     /// <summary>
@@ -121,10 +121,10 @@ public class RelationshipController : ControllerBase
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>List of users. Every user is UserDto which contains: Id, Email.</returns>
+    /// <returns>List of users. Every user is FriendDto which contains: Id, Email.</returns>
     [HttpGet("get-requests-to-me")]
     [AuthorizationFilter]
-    public async Task<IReadOnlyList<UserDto>> GetRequestsToMe(
+    public async Task<IReadOnlyList<FriendDto>> GetRequestsToMe(
         [FromHeader(Name = "Token")] string token,
         CancellationToken cancellationToken = default)
     {
@@ -133,7 +133,7 @@ public class RelationshipController : ControllerBase
         var userId = HttpExtensions.GetIdFromItems(HttpContext);
         var requests = await _relationshipService.GetRequestsToUserAsync(userId, cancellationToken);
 
-        var userDto = requests.Select(f => new UserDto
+        var friendDto = requests.Select(f => new FriendDto
         {
             Id = f.Id,
             Email = f.Email
@@ -141,7 +141,7 @@ public class RelationshipController : ControllerBase
 
         _logger.LogInformation("Incoming user's requests successfully retrieved");
 
-        return userDto;
+        return friendDto;
     }
 
     /// <summary>
