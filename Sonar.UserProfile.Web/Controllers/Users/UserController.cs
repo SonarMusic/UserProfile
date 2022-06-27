@@ -73,13 +73,13 @@ public class UserController : ControllerBase
     /// Generate new user token to discord bot. Token will expire in 7 days.
     /// </summary>
     /// <param name="discordBotToken">Token of sonar discord bot. Token locates in header "Token".</param>
-    /// <param name="userEmail">Email address of target user.</param>
+    /// <param name="userDiscordId">Discord id of target user.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     /// <returns>New user token.</returns>
     [HttpPost("login-by-discord-bot")]
     public async Task<string> LoginByDiscordBot(
         [FromHeader(Name = "Token")] string discordBotToken,
-        [Required] [FromQuery] string userEmail,
+        [Required] [FromQuery] string userDiscordId,
         CancellationToken cancellationToken = default)
     {
         if (discordBotToken is null)
@@ -94,7 +94,7 @@ public class UserController : ControllerBase
 
         _logger.LogInformation("Trying to login user by discord bot");
 
-        var str = await _userService.LoginByDiscordBotAsync(userEmail, cancellationToken);
+        var str = await _userService.LoginByDiscordBotAsync(userDiscordId, cancellationToken);
 
         _logger.LogInformation("User successfully logged in by discord bot");
         return str;
@@ -105,7 +105,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>User model which contains: ID, email, AccountType.</returns>
+    /// <returns>User model which contains: Id, email, discordId, AccountType.</returns>
     [HttpGet("get")]
     [AuthorizationFilter]
     public async Task<UserDto> Get(
@@ -123,6 +123,7 @@ public class UserController : ControllerBase
             Id = user.Id,
             Email = user.Email,
             AccountType = user.AccountType,
+            DiscordId = user.DiscordId,
             ConfirmStatus = user.ConfirmStatus
         };
     }
@@ -131,13 +132,13 @@ public class UserController : ControllerBase
     /// Update a user model if token hasn't expired yet.
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
-    /// <param name="userUpdateDtoDto">User model which contains: ID, email, AccountType.</param>
+    /// <param name="userUpdateDto">User model which contains: ID, email, AccountType, DiscordId.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPut("put")]
     [AuthorizationFilter]
     public async Task Update(
         [FromHeader(Name = "Token")] string token,
-        [Required] UserUpdateDto userUpdateDtoDto,
+        [Required] UserUpdateDto userUpdateDto,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Trying to update user");
@@ -146,10 +147,11 @@ public class UserController : ControllerBase
         await _userService.UpdateUserAsync(new User
             {
                 Id = userId,
-                Email = userUpdateDtoDto.Email,
-                Password = userUpdateDtoDto.Password,
-                AccountType = userUpdateDtoDto.AccountType,
-                ConfirmStatus = userUpdateDtoDto.ConfirmStatus,
+                Email = userUpdateDto.Email,
+                Password = userUpdateDto.Password,
+                DiscordId = userUpdateDto.DiscordId,
+                AccountType = userUpdateDto.AccountType,
+                ConfirmStatus = userUpdateDto.ConfirmStatus,
             },
             cancellationToken);
 
@@ -178,7 +180,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="confirmToken">token from route for mail confirmation.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    [HttpPut("confirm-mail/{confirmToken}")]
+    [HttpGet("confirm-mail/{confirmToken}")]
     public async Task ConfirmMail(
         [Required] string confirmToken,
         CancellationToken cancellationToken = default)

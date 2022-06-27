@@ -29,6 +29,7 @@ public class UserRepository : IUserRepository
             Id = entity.Id,
             Email = entity.Email,
             Password = entity.Password,
+            DiscordId = entity.DiscordId,
             AccountType = entity.AccountType,
             ConfirmStatus = entity.ConfirmStatus
         };
@@ -50,6 +51,28 @@ public class UserRepository : IUserRepository
             Id = entity.Id,
             Email = entity.Email,
             Password = entity.Password,
+            DiscordId = entity.DiscordId,
+            AccountType = entity.AccountType,
+            ConfirmStatus = entity.ConfirmStatus
+        };
+    }
+
+    public async Task<User> GetByDiscordId(string discordId, CancellationToken cancellationToken)
+    {
+        var entity = await _context.Users
+            .FirstOrDefaultAsync(it => string.Equals(it.DiscordId, discordId), cancellationToken);
+
+        if (entity is null)
+        {
+            throw new NotFoundException($"User with discord id = {discordId} does not exists");
+        }
+
+        return new User
+        {
+            Id = entity.Id,
+            Email = entity.Email,
+            Password = entity.Password,
+            DiscordId = entity.DiscordId,
             AccountType = entity.AccountType,
             ConfirmStatus = entity.ConfirmStatus
         };
@@ -64,6 +87,7 @@ public class UserRepository : IUserRepository
             Id = entity.Id,
             Email = entity.Email,
             Password = entity.Password,
+            DiscordId = entity.DiscordId,
             AccountType = entity.AccountType,
             ConfirmStatus = entity.ConfirmStatus
         });
@@ -84,6 +108,7 @@ public class UserRepository : IUserRepository
             Id = user.Id,
             Email = user.Email,
             Password = user.Password,
+            DiscordId = user.DiscordId,
             AccountType = user.AccountType,
             ConfirmStatus = user.ConfirmStatus
         };
@@ -113,6 +138,7 @@ public class UserRepository : IUserRepository
 
         entity.Email = user.Email;
         entity.Password = user.Password;
+        entity.DiscordId = user.DiscordId;
         entity.AccountType = user.AccountType;
         entity.ConfirmStatus = user.ConfirmStatus;
         _context.Users.Update(entity);
