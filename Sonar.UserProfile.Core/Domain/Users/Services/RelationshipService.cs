@@ -103,7 +103,7 @@ public class RelationshipService : IRelationshipService
             isFriends = await _relationshipRepository.GetStatusAsync(rightUserId, leftUserId, cancellationToken);
         }
 
-        return isFriends is not RelationshipStatus.Absence;
+        return isFriends is RelationshipStatus.Friends;
     }
 
     public async Task AcceptFriendshipRequestAsync(
