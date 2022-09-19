@@ -112,34 +112,6 @@ public class UserService : IUserService
         return tokenHandler.WriteToken(token);
     }
 
-    public async Task<string> LoginByDiscordBotAsync(string discordId, CancellationToken cancellationToken)
-    {
-        var dataBaseUser = await _userRepository.GetByDiscordId(discordId, cancellationToken);
-
-        const int tokenLifeDays = 7;
-        var secret = _configuration["Secret"];
-        var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
-        var issuer = _configuration["Issuer"];
-        var audience = _configuration["Audience"];
-        var tokenHandler = new JwtSecurityTokenHandler();
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, dataBaseUser.Id.ToString())
-            }),
-            Issuer = issuer,
-            Audience = audience,
-            SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature),
-            Expires = DateTime.UtcNow.AddDays(tokenLifeDays)
-        };
-
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return tokenHandler.WriteToken(token);
-    }
-
     public async Task RecoverPasswordAsync(string email, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByEmailAsync(email, cancellationToken);

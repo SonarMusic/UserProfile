@@ -70,42 +70,11 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Generate new user token to discord bot. Token will expire in 7 days.
-    /// </summary>
-    /// <param name="discordBotToken">Token of sonar discord bot. Token locates in header "Token".</param>
-    /// <param name="userDiscordId">Discord id of target user.</param>
-    /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>New user token.</returns>
-    [HttpPost("login-by-discord-bot")]
-    public async Task<string> LoginByDiscordBot(
-        [FromHeader(Name = "Token")] string discordBotToken,
-        [Required] [FromQuery] string userDiscordId,
-        CancellationToken cancellationToken = default)
-    {
-        if (discordBotToken is null)
-        {
-            throw new TokenNotFoundException("There is no discord bot token.");
-        }
-
-        if (discordBotToken != _configuration["DiscordBotToken"])
-        {
-            throw new InvalidRequestException("Incorrect discord bot token.");
-        }
-
-        _logger.LogInformation("Trying to login user by discord bot");
-
-        var str = await _userService.LoginByDiscordBotAsync(userDiscordId, cancellationToken);
-
-        _logger.LogInformation("User successfully logged in by discord bot");
-        return str;
-    }
-
-    /// <summary>
     /// Return a user model if token hasn't expired yet.
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
-    /// <returns>User model which contains: Id, email, discordId, AccountType.</returns>
+    /// <returns>User model which contains: Id, email, AccountType.</returns>
     [HttpGet("get")]
     [AuthorizationFilter]
     public async Task<UserDto> Get(
@@ -123,7 +92,6 @@ public class UserController : ControllerBase
             Id = user.Id,
             Email = user.Email,
             AccountType = user.AccountType,
-            DiscordId = user.DiscordId,
             ConfirmStatus = user.ConfirmStatus
         };
     }
@@ -132,7 +100,7 @@ public class UserController : ControllerBase
     /// Update a user model if token hasn't expired yet.
     /// </summary>
     /// <param name="token">Token that is used to verify the user. Token locates on header "Token".</param>
-    /// <param name="userUpdateDto">User model which contains: ID, email, AccountType, DiscordId.</param>
+    /// <param name="userUpdateDto">User model which contains: Id, email, AccountType.</param>
     /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
     [HttpPut("put")]
     [AuthorizationFilter]
@@ -149,7 +117,6 @@ public class UserController : ControllerBase
                 Id = userId,
                 Email = userUpdateDto.Email,
                 Password = userUpdateDto.Password,
-                DiscordId = userUpdateDto.DiscordId,
                 AccountType = userUpdateDto.AccountType,
                 ConfirmStatus = userUpdateDto.ConfirmStatus,
             },
