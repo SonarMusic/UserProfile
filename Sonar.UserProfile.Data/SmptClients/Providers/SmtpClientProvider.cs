@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
 using Sonar.UserProfile.Core.Domain.SmtpClients.Providers;
 using Microsoft.Extensions.Configuration;

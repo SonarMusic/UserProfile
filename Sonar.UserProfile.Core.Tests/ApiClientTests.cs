@@ -1,10 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading;
-using Moq;
-using Sonar.UserProfile.ApiClient;
-using Sonar.UserProfile.ApiClient.Dto;
-using Xunit;
+﻿using Xunit;
 
 
 namespace Sonar.UserProfile.Core.Tests;

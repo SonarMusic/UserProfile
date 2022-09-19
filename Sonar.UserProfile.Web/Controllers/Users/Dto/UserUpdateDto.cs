@@ -13,7 +13,6 @@ public class UserUpdateDto
     [MinLength(6, ErrorMessage = "Password must be at least 6 characters long")]
     public string Password { get; set; }
 
-    public string DiscordId { get; set; }
     public AccountType AccountType { get; set; }
     public ConfirmStatus ConfirmStatus { get; set; }
 }
