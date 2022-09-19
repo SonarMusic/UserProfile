@@ -1,5 +1,4 @@
-﻿using Sonar.UserProfile.ApiClient.Tools;
-using Sonar.UserProfile.ApiClient.ValueObjects;
+﻿using Sonar.UserProfile.ApiClient.ValueObjects;
 
 namespace Sonar.UserProfile.ApiClient.Dto;
 

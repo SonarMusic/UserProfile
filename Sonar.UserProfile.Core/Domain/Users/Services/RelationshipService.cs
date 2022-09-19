@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Sonar.UserProfile.Core.Domain.Exceptions;
+﻿using Sonar.UserProfile.Core.Domain.Exceptions;
 using Sonar.UserProfile.Core.Domain.Users.Repositories;
 using Sonar.UserProfile.Core.Domain.Users.Services.Interfaces;
 using Sonar.UserProfile.Core.Domain.Users.ValueObjects;
